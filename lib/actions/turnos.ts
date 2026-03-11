@@ -6,12 +6,23 @@ import { revalidatePath } from "next/cache"
 export async function marcarTurnoRealizado(turnoId: string) {
   const supabase = await createClient()
 
+  const { data: turno } = await supabase
+    .from("turnos")
+    .select("precio_final")
+    .eq("id", turnoId)
+    .single()
+
+  if (!turno?.precio_final || turno.precio_final <= 0) {
+    return { error: "Ingresá el precio antes de marcar el turno como realizado" }
+  }
+
   await supabase
     .from("turnos")
     .update({ estado: "realizado" })
     .eq("id", turnoId)
 
   revalidatePath("/")
+  return { success: true }
 }
 
 export async function eliminarTurno(turnoId: string) {

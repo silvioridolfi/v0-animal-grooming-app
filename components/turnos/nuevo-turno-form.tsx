@@ -12,6 +12,7 @@ import { crearTurno } from "@/lib/actions/turnos"
 import { crearClienteConMascota } from "@/lib/actions/clientes"
 import { Dog, Cat, UserPlus, Search, Clock, Check, X, ChevronLeft, ChevronRight, DollarSign } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { getNombreFeriado } from "@/lib/feriados"
 
 interface NuevoTurnoFormProps {
   mascotas: Mascota[]
@@ -118,15 +119,14 @@ export function NuevoTurnoForm({
   }, [config, turnosExistentes, fecha])
 
   const isWorkingDay = (dateStr: string) => {
-    const date = new Date(dateStr + "T12:00:00")
-    const dayOfWeek = date.getDay()
-    const diasLaborales = config?.dias_laborales || [1, 2, 3, 4, 5]
-    const diasNoLaborables = config?.dias_no_laborables || []
+  const date = new Date(dateStr + "T12:00:00")
+  const dayOfWeek = date.getDay()
+  const diasLaborales = config?.dias_laborales || [1, 2, 3, 4, 5]
+  const diasNoLaborables = config?.dias_no_laborables || []
 
-    // Permitir agendar en cualquier día excepto los configurados como no laborables
-    if (diasNoLaborables.includes(dateStr)) return false
-    return true
-  }
+  if (diasNoLaborables.includes(dateStr)) return false
+  return diasLaborales.includes(dayOfWeek)
+}
 
   const navigateDate = (days: number) => {
     const current = new Date(fecha + "T12:00:00")
@@ -192,6 +192,7 @@ export function NuevoTurnoForm({
   })
 
   const isValidDay = isWorkingDay(fecha)
+  const feriadoNombre = getNombreFeriado(fecha)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
