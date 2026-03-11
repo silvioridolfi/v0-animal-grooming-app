@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Poppins, Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { BottomNav } from "@/components/bottom-nav"
 import "./globals.css"
 
 const poppins = Poppins({
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
   },
-    generator: 'v0.app'
+  generator: "v0.app",
 }
 
 export const viewport: Viewport = {
@@ -44,7 +45,8 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" sizes="32x32" />
       </head>
       <body className={`${inter.variable} ${poppins.variable} font-sans antialiased`}>
-        {children}        
+        {children}
+        <BottomNav />
         <Analytics />
       </body>
     </html>
