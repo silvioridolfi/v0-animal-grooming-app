@@ -46,59 +46,6 @@ export async function verificarMascotaDuplicada(clienteId: string, nombreMascota
   return !!existente
 }
 
-export async function crearMascotaConClienteSimple(data: {
-  nombreMascota: string
-  tipoAnimal: "Perro" | "Gato"
-  raza: string
-  sexo: "Macho" | "Hembra"
-  observaciones?: string
-  nombreCliente: string
-  contactoCliente: string
-}) {
-  const supabase = await createClient()
-
-  try {
-    // Primero, crear el cliente
-    const { data: nuevoCliente, error: clienteError } = await supabase
-      .from("clientes")
-      .insert({
-        nombre: data.nombreCliente.trim(),
-        telefono: data.contactoCliente.trim(),
-      })
-      .select()
-      .single()
-
-    if (clienteError || !nuevoCliente) {
-      return { error: `Error al crear cliente: ${clienteError?.message}` }
-    }
-
-    // Luego, crear la mascota asociada
-    const { data: nuevaMascota, error: mascotaError } = await supabase
-      .from("mascotas")
-      .insert({
-        nombre: data.nombreMascota.trim(),
-        tipo_animal: data.tipoAnimal,
-        raza: data.raza.trim(),
-        sexo: data.sexo,
-        notas: data.observaciones?.trim() || null,
-        cliente_id: nuevoCliente.id,
-      })
-      .select()
-      .single()
-
-    if (mascotaError || !nuevaMascota) {
-      return { error: `Error al crear mascota: ${mascotaError?.message}` }
-    }
-
-    revalidatePath("/mascotas")
-    revalidatePath("/clientes")
-
-    return { success: true, mascotaId: nuevaMascota.id, clienteId: nuevoCliente.id }
-  } catch (err) {
-    return { error: "Error inesperado al crear mascota y cliente" }
-  }
-}
-
 export async function eliminarMascota(mascotaId: string) {
   const supabase = await createClient()
 
