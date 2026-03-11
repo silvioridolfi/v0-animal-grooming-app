@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { crearTurno } from "@/lib/actions/turnos"
-import { crearClienteConMascota } from "@/lib/actions/clientes"
-import { Dog, Cat, UserPlus, Search, Clock, Check, X, ChevronLeft, ChevronRight, DollarSign } from "lucide-react"
+import { crearMascotaConCliente } from "@/lib/actions/mascotas"
+import { Dog, Cat, UserPlus, Search, Clock, Check, X, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getNombreFeriado } from "@/lib/feriados"
 
@@ -28,7 +28,6 @@ export function NuevoTurnoForm({
   mascotas,
   config,
   turnosExistentes,
-  servicios,
   fechaInicial,
   horaInicial,
 }: NuevoTurnoFormProps) {
@@ -42,8 +41,6 @@ export function NuevoTurnoForm({
   const [descuentoTipo, setDescuentoTipo] = useState<"fijo" | "porcentaje" | "">("")
   const [descuentoValor, setDescuentoValor] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [servicioId, setServicioId] = useState("")
-  const [servicioSeleccionado, setServicioSeleccionado] = useState<Servicio | null>(null)
 
   const [searchQuery, setSearchQuery] = useState("")
   const [showNuevoCliente, setShowNuevoCliente] = useState(false)
@@ -75,10 +72,6 @@ export function NuevoTurnoForm({
       .filter((m) => m.nombre.toLowerCase().includes(query) || m.cliente?.nombre.toLowerCase().includes(query))
       .slice(0, 5)
   }, [searchQuery, localMascotas])
-
-  const serviciosFiltrados = useMemo(() => {
-    return servicios
-  }, [servicios])
 
   const { horariosDisponibles, turnosPorHora } = useMemo(() => {
     const slots: string[] = []
@@ -119,14 +112,13 @@ export function NuevoTurnoForm({
   }, [config, turnosExistentes, fecha])
 
   const isWorkingDay = (dateStr: string) => {
-  const date = new Date(dateStr + "T12:00:00")
-  const dayOfWeek = date.getDay()
-  const diasLaborales = config?.dias_laborales || [1, 2, 3, 4, 5]
-  const diasNoLaborables = config?.dias_no_laborables || []
-
-  if (diasNoLaborables.includes(dateStr)) return false
-  return diasLaborales.includes(dayOfWeek)
-}
+    const date = new Date(dateStr + "T12:00:00")
+    const dayOfWeek = date.getDay()
+    const diasLaborales = config?.dias_laborales || [1, 2, 3, 4, 5]
+    const diasNoLaborables = config?.dias_no_laborables || []
+    if (diasNoLaborables.includes(dateStr)) return false
+    return diasLaborales.includes(dayOfWeek)
+  }
 
   const navigateDate = (days: number) => {
     const current = new Date(fecha + "T12:00:00")
@@ -139,7 +131,7 @@ export function NuevoTurnoForm({
   const handleCrearClienteYMascota = async () => {
     if (!nuevoCliente.nombre || !nuevaMascota.nombre) return
     setIsLoading(true)
-    const result = await crearClienteConMascota(nuevoCliente, nuevaMascota)
+    const result = await crearMascotaConCliente(nuevoCliente, nuevaMascota)
     if (result.success && result.mascota) {
       const newMascota: Mascota = {
         ...result.mascota,
@@ -160,8 +152,6 @@ export function NuevoTurnoForm({
     setSearchQuery("")
     setTipoServicio("")
     setPrecioManual("")
-    setServicioId("")
-    setServicioSeleccionado(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -224,7 +214,7 @@ export function NuevoTurnoForm({
             </div>
           )}
 
-          {isValidDay && (
+          {isValidDay && !feriadoNombre && (
             <div className="grid grid-cols-4 gap-2">
               {horariosDisponibles.map((slot) => {
                 const ocupado = turnosPorHora[slot]
@@ -304,8 +294,8 @@ export function NuevoTurnoForm({
                 size="icon"
                 onClick={() => {
                   setMascotaId("")
-                  setServicioId("")
-                  setServicioSeleccionado(null)
+                  setTipoServicio("")
+                  setPrecioManual("")
                 }}
               >
                 <X className="h-4 w-4" />
@@ -444,94 +434,73 @@ export function NuevoTurnoForm({
       {mascotaSeleccionada && (
         <Card className="shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base font-heading">Servicio y precio</CardTitle>
+            <CardTitle className="text-base font-heading">Servicio y precio</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {!servicioId ? (
-              <div className="space-y-2">
-                {serviciosFiltrados.map((servicio) => (
-                  <button
-                    key={servicio.id}
+            <div className="space-y-2">
+              <Label>Tipo de servicio</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {TIPOS_SERVICIO.map((tipo) => (
+                  <Button
+                    key={tipo}
                     type="button"
-                    onClick={() => {
-                      setServicioId(servicio.id)
-                      setPrecioManual("")
-                      setServicioSeleccionado(servicio)
-                    }}
-                    className="w-full rounded-lg border p-3 text-left hover:bg-muted"
+                    variant={tipoServicio === tipo ? "default" : "outline"}
+                    className="h-12 text-sm"
+                    onClick={() => setTipoServicio(tipo)}
                   >
-                    <p className="font-medium">{servicio.nombre}</p>
-                    {mascotaSeleccionada && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Precio: $
-                        {servicio.precios
-                          ?.find((p) => p.tamano === mascotaSeleccionada.tamano)
-                          ?.precio?.toLocaleString("es-AR") || "No disponible"}
-                      </p>
-                    )}
-                  </button>
+                    {tipo}
+                  </Button>
                 ))}
               </div>
-            ) : (
-              <>
-                <div className="rounded-lg bg-muted p-3">
-                  <p className="text-sm font-medium">{servicioSeleccionado?.nombre}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Precio automático según tamaño: ${servicioSeleccionado?.precios?.find((p) => p.tamano === mascotaSeleccionada.tamano)?.precio?.toLocaleString("es-AR") || "No disponible"}
-                  </p>
-                </div>
-                <Button type="button" variant="outline" onClick={() => setServicioId("")}>
-                  Cambiar servicio
-                </Button>
+            </div>
 
-                <div className="space-y-2 pt-2 border-t">
-                  <Label htmlFor="precio-manual" className="text-xs">
-                    Precio manual (opcional)
-                  </Label>
+            {tipoServicio && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="precio-manual">Precio</Label>
                   <Input
                     id="precio-manual"
                     type="number"
                     value={precioManual}
                     onChange={(e) => setPrecioManual(e.target.value)}
-                    placeholder={servicioSeleccionado?.precios?.find((p) => p.tamano === mascotaSeleccionada.tamano)?.precio?.toString() || "0"}
+                    placeholder="Ingresá el precio"
                     min="0"
                     step="0.01"
-                    className="text-sm"
+                    className="h-12 text-base"
                   />
-                  {precioManual && (
-                    <p className="text-xs text-amber-600">
-                      Precio sobrescrito: ${Number(precioManual).toLocaleString("es-AR")}
-                    </p>
-                  )}
                 </div>
 
-                <div className="space-y-2 pt-2 border-t">
+                <div className="space-y-2">
                   <Label>Descuento (opcional)</Label>
                   <div className="flex gap-2">
                     <Button
                       type="button"
                       variant={descuentoTipo === "fijo" ? "default" : "outline"}
                       size="sm"
-                      onClick={() => {
-                        setDescuentoTipo("fijo")
-                        setDescuentoValor("")
-                      }}
+                      onClick={() => { setDescuentoTipo("fijo"); setDescuentoValor("") }}
                       className="flex-1"
                     >
-                      Fijo
+                      $ Fijo
                     </Button>
                     <Button
                       type="button"
                       variant={descuentoTipo === "porcentaje" ? "default" : "outline"}
                       size="sm"
-                      onClick={() => {
-                        setDescuentoTipo("porcentaje")
-                        setDescuentoValor("")
-                      }}
+                      onClick={() => { setDescuentoTipo("porcentaje"); setDescuentoValor("") }}
                       className="flex-1"
                     >
-                      %
+                      % Porcentaje
                     </Button>
+                    {descuentoTipo && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => { setDescuentoTipo(""); setDescuentoValor("") }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
 
                   {descuentoTipo && (
@@ -539,30 +508,31 @@ export function NuevoTurnoForm({
                       type="number"
                       value={descuentoValor}
                       onChange={(e) => setDescuentoValor(e.target.value)}
-                      placeholder={descuentoTipo === "fijo" ? "Monto" : "Porcentaje"}
+                      placeholder={descuentoTipo === "fijo" ? "Monto a descontar" : "Porcentaje (ej: 10)"}
                       min="0"
+                      className="h-12"
                     />
                   )}
                 </div>
 
-                <div className="rounded-lg bg-primary/10 p-3 space-y-1 border-t">
-                  <div className="flex justify-between text-sm">
-                    <span>Precio base:</span>
-                    <span className="font-medium">${servicioSeleccionado?.precios?.find((p) => p.tamano === mascotaSeleccionada.tamano)?.precio?.toLocaleString("es-AR") || "No disponible"}</span>
-                  </div>
-                  {descuentoTipo && descuentoValor && (
-                    <div className="flex justify-between text-sm text-amber-600">
-                      <span>Descuento ({descuentoTipo === "fijo" ? "$" : "%"}):</span>
-                      <span className="font-medium">
-                        -${Math.abs(servicioSeleccionado?.precios?.find((p) => p.tamano === mascotaSeleccionada.tamano)?.precio || 0 - precioFinal).toLocaleString("es-AR")}
-                      </span>
+                {precioManual && Number(precioManual) > 0 && (
+                  <div className="rounded-lg bg-primary/10 p-3 space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span>Precio base:</span>
+                      <span>${Number(precioManual).toLocaleString("es-AR")}</span>
                     </div>
-                  )}
-                  <div className="flex justify-between text-base font-semibold border-t pt-1">
-                    <span>Total:</span>
-                    <span>${precioFinal.toLocaleString("es-AR")}</span>
+                    {descuentoTipo && descuentoValor && (
+                      <div className="flex justify-between text-sm text-amber-600">
+                        <span>Descuento:</span>
+                        <span>-${(Number(precioManual) - precioFinal).toLocaleString("es-AR")}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-base font-semibold border-t pt-1">
+                      <span>Total:</span>
+                      <span>${precioFinal.toLocaleString("es-AR")}</span>
+                    </div>
                   </div>
-                </div>
+                )}
               </>
             )}
           </CardContent>
@@ -573,7 +543,7 @@ export function NuevoTurnoForm({
         type="submit"
         className="w-full h-14 text-lg font-semibold shadow-lg"
         size="lg"
-        disabled={!mascotaId || !servicioId || !hora || !mascotaSeleccionada || isLoading}
+        disabled={!mascotaId || !tipoServicio || !hora || precioFinal <= 0 || isLoading}
       >
         {isLoading ? "Creando turno..." : "Agendar turno"}
       </Button>

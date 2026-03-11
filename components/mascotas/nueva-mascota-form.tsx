@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertCircle, CheckCircle2, Dog, Cat } from "lucide-react"
-import { crearMascotaConClienteSimple } from "@/lib/actions/mascotas"
+import { crearMascotaConCliente } from "@/lib/actions/mascotas"
 import { obtenerRazas } from "@/lib/razas-mascotas"
 import { BreedCombobox } from "./breed-combobox"
 
@@ -70,7 +70,7 @@ export function NuevaMascotaForm() {
     setIsLoading(true)
 
     try {
-      const result = await crearMascotaConClienteSimple({
+      const result = await crearMascotaConCliente({
         nombreMascota: nombreMascota.trim(),
         tipoAnimal: tipoAnimal as TipoAnimal,
         raza: raza.trim(),
