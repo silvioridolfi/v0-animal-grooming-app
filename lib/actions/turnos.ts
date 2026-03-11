@@ -48,39 +48,24 @@ interface CreateTurnoData {
 export async function crearTurno(data: CreateTurnoData) {
   const supabase = await createClient()
 
-  const turnoData = {
-    fecha: data.fecha,
-    hora: data.hora,
-    mascota_id: data.mascota_id,
-    tipo_servicio: data.tipo_servicio,
-    descuento_tipo: data.descuento_tipo || null,
-    descuento_valor: data.descuento_valor || 0,
-    precio_final: data.precio_final,
-    metodo_pago: data.metodo_pago || null,
-    estado: data.estado || "pendiente",
-  }
-
   const { data: turnoInsertado, error } = await supabase
     .from("turnos")
-    .insert(turnoData)
+    .insert({
+      fecha: data.fecha,
+      hora: data.hora,
+      mascota_id: data.mascota_id,
+      tipo_servicio: data.tipo_servicio,
+      descuento_tipo: data.descuento_tipo || null,
+      descuento_valor: data.descuento_valor || 0,
+      precio_final: data.precio_final,
+      metodo_pago: data.metodo_pago || null,
+      estado: data.estado || "pendiente",
+    })
     .select()
     .single()
 
   if (error) {
     return { error: error.message }
-  }
-
-  // Registrar en historial de servicios
-  if (turnoInsertado) {
-    await supabase.from("historial_servicios").insert({
-      mascota_id: data.mascota_id,
-      turno_id: turnoInsertado.id,
-      tipo_servicio: data.tipo_servicio,
-      precio: data.precio_final,
-      metodo_pago: data.metodo_pago || null,
-      estado_turno: turnoInsertado.estado,
-      fecha_servicio: data.fecha,
-    })
   }
 
   revalidatePath("/")
@@ -90,21 +75,19 @@ export async function crearTurno(data: CreateTurnoData) {
 export async function actualizarTurno(turnoId: string, data: CreateTurnoData) {
   const supabase = await createClient()
 
-  const updateData = {
-    fecha: data.fecha,
-    hora: data.hora,
-    mascota_id: data.mascota_id,
-    tipo_servicio: data.tipo_servicio,
-    descuento_tipo: data.descuento_tipo || null,
-    descuento_valor: data.descuento_valor || 0,
-    precio_final: data.precio_final,
-    metodo_pago: data.metodo_pago || null,
-    estado: data.estado,
-  }
-
   const { error } = await supabase
     .from("turnos")
-    .update(updateData)
+    .update({
+      fecha: data.fecha,
+      hora: data.hora,
+      mascota_id: data.mascota_id,
+      tipo_servicio: data.tipo_servicio,
+      descuento_tipo: data.descuento_tipo || null,
+      descuento_valor: data.descuento_valor || 0,
+      precio_final: data.precio_final,
+      metodo_pago: data.metodo_pago || null,
+      estado: data.estado,
+    })
     .eq("id", turnoId)
 
   if (error) {
@@ -130,10 +113,9 @@ export async function actualizarEstadoTurno(
     return { error: error.message }
   }
 
-  // Revalidar todas las rutas afectadas para sincronización en tiempo real
   revalidatePath("/")
   revalidatePath("/pagos")
   revalidatePath("/finanzas")
-  
+
   return { success: true }
 }
