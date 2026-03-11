@@ -10,16 +10,12 @@ export default async function TurnosPage() {
   const supabase = await createClient()
   const today = new Date().toISOString().split("T")[0]
 
-  // Get upcoming and recent turnos
   const { data: turnosProximos } = await supabase
     .from("turnos")
-    .select(
-      `
+    .select(`
       *,
-      mascota:mascotas(*, cliente:clientes(*)),
-      servicio:servicios(*)
-    `,
-    )
+      mascota:mascotas(*, cliente:clientes(*))
+    `)
     .gte("fecha", today)
     .order("fecha", { ascending: true })
     .order("hora", { ascending: true })
@@ -27,13 +23,10 @@ export default async function TurnosPage() {
 
   const { data: turnosPasados } = await supabase
     .from("turnos")
-    .select(
-      `
+    .select(`
       *,
-      mascota:mascotas(*, cliente:clientes(*)),
-      servicio:servicios(*)
-    `,
-    )
+      mascota:mascotas(*, cliente:clientes(*))
+    `)
     .lt("fecha", today)
     .order("fecha", { ascending: false })
     .order("hora", { ascending: true })

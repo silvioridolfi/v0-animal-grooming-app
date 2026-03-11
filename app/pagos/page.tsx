@@ -9,12 +9,10 @@ export default async function PagosPage() {
 
   const { data: pagos } = await supabase
     .from("pagos")
-    .select(
-      `
+    .select(`
       *,
-      turno:turnos(*, mascota:mascotas(*, cliente:clientes(*)), servicio:servicios(*))
-    `,
-    )
+      turno:turnos(*, mascota:mascotas(*, cliente:clientes(*)))
+    `)
     .order("created_at", { ascending: false })
     .limit(50)
 
@@ -26,7 +24,6 @@ export default async function PagosPage() {
 
   const totalHoy = pagosHoy?.reduce((sum, p) => sum + Number(p.monto), 0) || 0
 
-  // Calculate totals for each payment method today
   const { data: pagosEfectivoHoy } = await supabase
     .from("pagos")
     .select("monto, turno:turnos!inner(fecha)")
