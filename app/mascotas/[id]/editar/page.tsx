@@ -30,7 +30,7 @@ export default async function EditarMascotaPage({
       <PageHeader
         title="Editar mascota"
         action={
-          <Link href={`/mascotas/${id}`}>
+          <Link href={`/clientes/${mascota.cliente_id}`}>
             <Button variant="ghost" size="sm">
               <ArrowLeft className="mr-1 h-4 w-4" />
               Volver
@@ -39,7 +39,7 @@ export default async function EditarMascotaPage({
         }
       />
       <main className="flex-1 px-4 py-4">
-        <PetEditForm mascota={mascota} mascotaId={id} />
+        <PetEditForm mascota={mascota} mascotaId={id} clienteId={mascota.cliente_id} />
       </main>
       <BottomNav />
     </div>

@@ -17,31 +17,28 @@ import type { Mascota } from "@/lib/types"
 interface PetEditFormProps {
   mascota: Mascota
   mascotaId: string
+  clienteId: string
 }
 
-export function PetEditForm({ mascota, mascotaId }: PetEditFormProps) {
+export function PetEditForm({ mascota, mascotaId, clienteId }: PetEditFormProps) {
   const router = useRouter()
 
-  // Mascota datos
   const [nombreMascota, setNombreMascota] = useState(mascota.nombre || "")
   const [tipoAnimal, setTipoAnimal] = useState<"Perro" | "Gato">(mascota.tipo_animal as "Perro" | "Gato" || "Perro")
   const [raza, setRaza] = useState(mascota.raza || "")
   const [tamano, setTamano] = useState<"S" | "M" | "L" | "">(mascota.tamano as "S" | "M" | "L" || "")
   const [sexo, setSexo] = useState<"Macho" | "Hembra" | "">(mascota.sexo as "Macho" | "Hembra" | "" || "")
   const [notasMascota, setNotasMascota] = useState(mascota.notas || "")
-  
-  // UI Estado
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [showRazasDropdown, setShowRazasDropdown] = useState(false)
   const [razasSearchQuery, setRazasSearchQuery] = useState("")
-  
+
   const razasDisponibles = obtenerRazas(tipoAnimal)
   const razasFiltradas = razasSearchQuery.trim()
     ? razasDisponibles.filter((r) => r.toLowerCase().includes(razasSearchQuery.toLowerCase()))
     : razasDisponibles
 
-  // Validaciones
   const nombreMascotaValido = nombreMascota.trim().length > 0
   const razaValida = raza.trim().length > 0
   const puedeSubmit = nombreMascotaValido && razaValida && tamano && !isLoading
@@ -79,10 +76,9 @@ export function PetEditForm({ mascota, mascotaId }: PetEditFormProps) {
         return
       }
 
-      // Success - navigate back to mascota detail
       setIsLoading(false)
       await new Promise((resolve) => setTimeout(resolve, 100))
-      router.push(`/mascotas/${mascotaId}`)
+      router.push(`/clientes/${clienteId}`)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error desconocido"
       setError(errorMessage)
@@ -102,7 +98,6 @@ export function PetEditForm({ mascota, mascotaId }: PetEditFormProps) {
         </div>
       )}
 
-      {/* DATOS DE LA MASCOTA */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Datos de la Mascota</CardTitle>
@@ -125,10 +120,7 @@ export function PetEditForm({ mascota, mascotaId }: PetEditFormProps) {
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => {
-                    setTipoAnimal("Perro")
-                    setRaza("")
-                  }}
+                  onClick={() => { setTipoAnimal("Perro"); setRaza("") }}
                   disabled={isLoading}
                   className={cn(
                     "flex-1 py-2 px-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 font-medium",
@@ -142,10 +134,7 @@ export function PetEditForm({ mascota, mascotaId }: PetEditFormProps) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setTipoAnimal("Gato")
-                    setRaza("")
-                  }}
+                  onClick={() => { setTipoAnimal("Gato"); setRaza("") }}
                   disabled={isLoading}
                   className={cn(
                     "flex-1 py-2 px-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 font-medium",
@@ -252,15 +241,9 @@ export function PetEditForm({ mascota, mascotaId }: PetEditFormProps) {
         </CardContent>
       </Card>
 
-      {/* BOTONES */}
       <div className="flex gap-2">
-        <Link href={`/mascotas/${mascotaId}`} className="flex-1">
-          <Button
-            type="button"
-            variant="outline"
-            disabled={isLoading}
-            className="w-full bg-transparent"
-          >
+        <Link href={`/clientes/${clienteId}`} className="flex-1">
+          <Button type="button" variant="outline" disabled={isLoading} className="w-full bg-transparent">
             Cancelar
           </Button>
         </Link>
