@@ -251,12 +251,16 @@ export function CalendarMobile({
                             </div>
                             <div className="text-xs text-muted-foreground mt-1">
                               <p>
-                                {turno.mascota?.nombre} ({turno.cliente?.nombre})
+                                {turno.mascota?.nombre} ({turno.mascota?.cliente?.nombre})
                               </p>
-                              <p>{turno.servicio?.nombre}</p>
+                              <p>{turno.tipo_servicio}</p>
                             </div>
                             <div className="text-xs font-semibold mt-1 text-foreground">
-                              ${turno.precio_final?.toLocaleString("es-AR")}
+                              {turno.estado === "realizado"
+                                ? `$${turno.precio_final?.toLocaleString("es-AR")}`
+                                : turno.estado === "cancelado"
+                                ? "Cancelado"
+                                : "Pendiente"}
                             </div>
                           </div>
                         </div>
