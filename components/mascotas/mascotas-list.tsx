@@ -127,7 +127,7 @@ export function MascotasList({ mascotas }: MascotasListProps) {
                     {group.mascotas.map((mascota) => (
                       <MascotaCard key={mascota.id} mascota={mascota} compact />
                     ))}
-                    <Link href="/mascotas/nueva">
+                    <Link href={`/mascotas/nueva?clienteId=${group.cliente.id}`}>
                       <Button variant="outline" size="sm" className="w-full mt-2 bg-transparent">
                         <Plus className="h-4 w-4 mr-2" />
                         Agregar mascota
