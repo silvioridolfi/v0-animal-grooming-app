@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { BottomNav } from "@/components/bottom-nav"
 import { PageHeader } from "@/components/page-header"
 import { NuevaMascotaForm } from "@/components/mascotas/nueva-mascota-form"
@@ -21,7 +22,9 @@ export default function NuevaMascotaPage() {
         }
       />
       <main className="flex-1 px-4 py-6">
-        <NuevaMascotaForm />
+        <Suspense fallback={<div className="text-center text-muted-foreground py-8">Cargando...</div>}>
+          <NuevaMascotaForm />
+        </Suspense>
       </main>
       <BottomNav />
     </div>
