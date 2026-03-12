@@ -318,7 +318,11 @@ export function CalendarAgenda({
                   {selectedTurnos
                     .sort((a, b) => a.hora.localeCompare(b.hora))
                     .map((turno) => (
-                      <div key={turno.id} className="rounded-lg bg-muted/50 p-3 border-l-2 border-primary">
+                      <div
+                        key={turno.id}
+                        onClick={() => onTurnoClick?.(turno)}
+                        className="rounded-lg bg-muted/50 p-3 border-l-2 border-primary cursor-pointer hover:bg-muted transition-colors"
+                      >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
@@ -331,10 +335,12 @@ export function CalendarAgenda({
                               <p>
                                 {turno.mascota?.nombre} ({turno.mascota?.cliente?.nombre})
                               </p>
-                              <p>{turno.servicio?.nombre}</p>
+                              <p>{turno.tipo_servicio}</p>
                             </div>
                             <div className="text-xs font-semibold mt-1 text-foreground">
-                              ${turno.precio_final?.toLocaleString("es-AR")}
+                              {turno.estado === "realizado"
+                                ? `$${turno.precio_final?.toLocaleString("es-AR")}`
+                                : "Pendiente"}
                             </div>
                           </div>
                         </div>
