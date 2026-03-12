@@ -324,6 +324,28 @@ export function AgendaPageClient({
                   <Pencil className="h-4 w-4" />
                   Editar turno
                 </Button>
+                {selectedTurno.estado !== "cancelado" && (
+                  <Button
+                    onClick={async () => {
+                      await actualizarTurno(selectedTurno.id, {
+                        fecha: selectedTurno.fecha,
+                        hora: selectedTurno.hora,
+                        mascota_id: selectedTurno.mascota_id,
+                        tipo_servicio: selectedTurno.tipo_servicio as "Corte" | "Baño" | "Corte y Baño",
+                        descuento_tipo: null,
+                        descuento_valor: 0,
+                        precio_final: selectedTurno.precio_final || 0,
+                        metodo_pago: selectedTurno.metodo_pago || null,
+                        estado: "cancelado",
+                      })
+                      handleDetailsModalClose()
+                    }}
+                    variant="outline"
+                    className="w-full gap-2 text-amber-600 border-amber-200 hover:bg-amber-50"
+                  >
+                    Cancelar turno
+                  </Button>
+                )}
                 <Button
                   onClick={() => setShowDeleteDialog(true)}
                   variant="destructive"
