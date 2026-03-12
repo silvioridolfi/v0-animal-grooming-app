@@ -1,12 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { PageHeader } from "@/components/page-header"
 import { CalendarAgenda } from "@/components/agenda/calendar-agenda"
 import { CalendarMobile } from "@/components/agenda/calendar-mobile"
 import { TurnoModal } from "@/components/turnos/turno-modal"
 import { Button } from "@/components/ui/button"
-import { Settings, X, Trash2, Pencil } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Settings, X, Trash2, Pencil, DollarSign, Check } from "lucide-react"
 import Link from "next/link"
 import {
   AlertDialog,
@@ -18,7 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { eliminarTurno, actualizarEstadoTurno } from "@/lib/actions/turnos"
+import { eliminarTurno, actualizarTurno } from "@/lib/actions/turnos"
 import type { Turno, ConfiguracionNegocio, Mascota } from "@/lib/types"
 
 interface AgendaPageClientProps {
@@ -43,23 +45,31 @@ export function AgendaPageClient({
   const [isDeleting, setIsDeleting] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
+  // Cobro
+  const [mostraCobro, setMostraCobro] = useState(false)
+  const [precio, setPrecio] = useState("")
+  const [metodoPago, setMetodoPago] = useState<"efectivo" | "transferencia" | "">("")
+  const [errorCobro, setErrorCobro] = useState("")
+  const [isCobering, setIsCobering] = useState(false)
 
+  const precioNum = useMemo(() => Number(precio) || 0, [precio])
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
     checkMobile()
     window.addEventListener("resize", checkMobile)
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
-  const handleDayClick = (fecha: string) => {
-    setSelectedDate(fecha)
-  }
+  const handleDayClick = (fecha: string) => setSelectedDate(fecha)
 
   const handleTurnoClick = (turno: Turno) => {
     setSelectedTurno(turno)
     setDetailsModalOpen(true)
+    setMostraCobro(false)
+    setPrecio("")
+    setMetodoPago("")
+    setErrorCobro("")
   }
 
   const handleAddTurno = (fecha?: string) => {
@@ -76,7 +86,6 @@ export function AgendaPageClient({
 
   const handleDeleteTurno = async () => {
     if (!selectedTurno) return
-
     setIsDeleting(true)
     try {
       await eliminarTurno(selectedTurno.id)
@@ -93,18 +102,44 @@ export function AgendaPageClient({
   const handleDetailsModalClose = () => {
     setDetailsModalOpen(false)
     setSelectedTurno(null)
+    setMostraCobro(false)
+    setPrecio("")
+    setMetodoPago("")
+    setErrorCobro("")
+  }
+
+  const handleCobrar = async () => {
+    if (!selectedTurno) return
+    if (!metodoPago || precioNum <= 0) {
+      setErrorCobro("Ingresá el precio y la forma de pago")
+      return
+    }
+    setErrorCobro("")
+    setIsCobering(true)
+    await actualizarTurno(selectedTurno.id, {
+      fecha: selectedTurno.fecha,
+      hora: selectedTurno.hora,
+      mascota_id: selectedTurno.mascota_id,
+      tipo_servicio: selectedTurno.tipo_servicio as "Corte" | "Baño" | "Corte y Baño",
+      descuento_tipo: null,
+      descuento_valor: 0,
+      precio_final: precioNum,
+      metodo_pago: metodoPago,
+      estado: "realizado",
+    })
+    setIsCobering(false)
+    handleDetailsModalClose()
   }
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && detailsModalOpen) {
-        handleDetailsModalClose()
-      }
+      if (e.key === "Escape" && detailsModalOpen) handleDetailsModalClose()
     }
-
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [detailsModalOpen])
+
+  const yaCobrado = selectedTurno?.estado === "realizado"
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -149,152 +184,158 @@ export function AgendaPageClient({
         fechaInicial={modalDate}
         horaInicial=""
         isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false)
-          setModalDate("")
-        }}
+        onClose={() => { setIsModalOpen(false); setModalDate("") }}
         onTurnoCreated={handleTurnoCreated}
       />
 
+      {/* DETALLE DEL TURNO */}
       {selectedTurno && detailsModalOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-50 flex items-end"
           onClick={handleDetailsModalClose}
-          role="button"
-          onKeyDown={(e) => e.key === "Escape" && handleDetailsModalClose()}
-          tabIndex={0}
         >
           <div
-            className="bg-background w-full rounded-t-lg p-4 max-h-[80vh] overflow-y-auto animate-in slide-in-from-bottom"
+            className="bg-background w-full rounded-t-lg p-4 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Detalles del Turno</h2>
-                <button
-                  onClick={handleDetailsModalClose}
-                  className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
-                  aria-label="Cerrar modal"
-                >
-                  <X className="h-5 w-5" />
-                </button>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-semibold">
+                  {selectedTurno.mascota?.nombre} — {selectedTurno.hora?.slice(0, 5)}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {selectedTurno.mascota?.cliente?.nombre} · {selectedTurno.tipo_servicio}
+                </p>
               </div>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-xs text-muted-foreground">Hora</p>
-                  <p className="font-semibold">{selectedTurno.hora?.slice(0, 5) || "—"}</p>
-                </div>
-                {/* Mostrar mascota con relación correcta */}
-                <div className="space-y-1">
-                  <span className="text-sm text-muted-foreground">Mascota</span>
-                  <p className="font-medium">{selectedTurno?.mascota?.nombre || "—"}</p>
-                </div>
-                {/* Mostrar dueño desde la mascota.cliente */}
-                <div className="space-y-1">
-                  <span className="text-sm text-muted-foreground">Dueño</span>
-                  <p className="font-medium">{selectedTurno?.mascota?.cliente?.nombre || "—"}</p>
-                </div>
-                  {/* Mostrar tipo de servicio */}
-                  <div className="space-y-1">
-                    <span className="text-sm text-muted-foreground">Servicio</span>
-                    <p className="font-medium">{selectedTurno?.tipo_servicio || "—"}</p>
-                  </div>
-                  {/* Mostrar método de pago */}
-                  <div className="space-y-1">
-                    <span className="text-sm text-muted-foreground">Método de pago</span>
-                    <p className="font-medium capitalize">
-                      {selectedTurno?.metodo_pago === "efectivo" 
-                        ? "💵 Efectivo" 
-                        : selectedTurno?.metodo_pago === "transferencia"
-                        ? "🔄 Transferencia"
-                        : "Sin especificar"}
-                    </p>
-                  </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Precio</p>
-                  <p className="font-semibold">
-                    {selectedTurno.precio_final != null
-                      ? `$${selectedTurno.precio_final.toLocaleString("es-AR")}`
-                      : "—"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Estado del turno</p>
-                  <p className="font-semibold capitalize">
-                    {selectedTurno.estado === "cancelado" ? "Cancelado" : selectedTurno.estado === "realizado" ? "Pagado" : "Pendiente"}
-                  </p>
-                </div>
+              <button
+                onClick={handleDetailsModalClose}
+                className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
-                <div className="space-y-2 pt-2">
-                  <p className="text-xs text-muted-foreground font-medium">Cambiar estado del turno</p>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={async () => {
-                        await actualizarEstadoTurno(selectedTurno.id, "pendiente")
-                        handleTurnoCreated()
-                      }}
-                      variant={selectedTurno.estado === "pendiente" ? "default" : "outline"}
-                      size="sm"
-                      className="flex-1"
+            <div className="space-y-3">
+
+              {/* COBRO — turno pendiente */}
+              {!yaCobrado && !mostraCobro && (
+                <Button
+                  onClick={() => setMostraCobro(true)}
+                  className="w-full h-14 text-base bg-green-600 hover:bg-green-700 text-white font-semibold"
+                >
+                  <DollarSign className="mr-2 h-5 w-5" />
+                  Cobrar turno
+                </Button>
+              )}
+
+              {!yaCobrado && mostraCobro && (
+                <div className="rounded-lg border-2 border-green-200 bg-green-50 p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium text-green-800">Registrar cobro</p>
+                    <button
+                      onClick={() => { setMostraCobro(false); setPrecio(""); setMetodoPago(""); setErrorCobro("") }}
+                      className="h-7 w-7 flex items-center justify-center rounded hover:bg-green-100"
                     >
-                      Pendiente
-                    </Button>
-                    <Button
-                      onClick={async () => {
-                        await actualizarEstadoTurno(selectedTurno.id, "realizado")
-                        handleTurnoCreated()
-                      }}
-                      variant={selectedTurno.estado === "realizado" ? "default" : "outline"}
-                      size="sm"
-                      className="flex-1"
-                    >
-                      Pagado
-                    </Button>
-                    <Button
-                      onClick={async () => {
-                        await actualizarEstadoTurno(selectedTurno.id, "cancelado")
-                        handleTurnoCreated()
-                      }}
-                      variant={selectedTurno.estado === "cancelado" ? "destructive" : "outline"}
-                      size="sm"
-                      className="flex-1"
-                    >
-                      Cancelado
-                    </Button>
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label>Precio</Label>
+                    <Input
+                      type="number"
+                      value={precio}
+                      onChange={(e) => setPrecio(e.target.value)}
+                      placeholder="Ingresá el precio"
+                      min="0"
+                      step="100"
+                      className="h-12 text-base bg-white"
+                      autoFocus
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label>Forma de pago</Label>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant={metodoPago === "efectivo" ? "default" : "outline"}
+                        className="flex-1 h-12 bg-white"
+                        onClick={() => setMetodoPago("efectivo")}
+                      >
+                        💵 Efectivo
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={metodoPago === "transferencia" ? "default" : "outline"}
+                        className="flex-1 h-12 bg-white"
+                        onClick={() => setMetodoPago("transferencia")}
+                      >
+                        🔄 Transferencia
+                      </Button>
+                    </div>
+                  </div>
+
+                  {errorCobro && <p className="text-sm text-destructive">{errorCobro}</p>}
+
+                  <Button
+                    onClick={handleCobrar}
+                    disabled={isCobering}
+                    className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-semibold"
+                  >
+                    <Check className="mr-2 h-5 w-5" />
+                    {isCobering ? "Guardando..." : `Confirmar cobro${precioNum > 0 ? ` — $${precioNum.toLocaleString("es-AR")}` : ""}`}
+                  </Button>
+                </div>
+              )}
+
+              {/* Turno ya cobrado */}
+              {yaCobrado && (
+                <div className="rounded-lg bg-green-50 border border-green-200 p-3 flex items-center justify-between">
+                  <span className="text-green-800 font-medium">✓ Turno cobrado</span>
+                  <div className="text-right">
+                    <p className="font-bold text-green-700">${selectedTurno.precio_final?.toLocaleString("es-AR")}</p>
+                    {selectedTurno.metodo_pago && (
+                      <p className="text-xs text-green-600 capitalize">{selectedTurno.metodo_pago}</p>
+                    )}
                   </div>
                 </div>
-              </div>
-              
-                {/* Botones de acción principales */}
-                <div className="grid gap-2 pt-4 border-t">
-                  <Button
-                    onClick={() => {
-                      setModalDate(selectedTurno.fecha)
-                      handleDetailsModalClose()
-                      setIsModalOpen(true)
-                    }}
-                    variant="outline"
-                    className="w-full gap-2"
-                  >
-                    <Pencil className="h-4 w-4" />
-                    Editar turno
-                  </Button>
-                  <Button 
-                    onClick={() => setShowDeleteDialog(true)} 
-                    variant="destructive" 
-                    className="w-full gap-2"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Eliminar turno
-                  </Button>
-                  <Button
-                    onClick={handleDetailsModalClose}
-                    variant="ghost"
-                    className="w-full"
-                  >
-                    Cerrar
-                  </Button>
+              )}
+
+              {/* Cancelado */}
+              {selectedTurno.estado === "cancelado" && (
+                <div className="rounded-lg bg-muted p-3 text-center text-muted-foreground text-sm">
+                  Turno cancelado
                 </div>
+              )}
+
+              {/* Acciones secundarias */}
+              <div className="grid gap-2 pt-2 border-t">
+                <Button
+                  onClick={() => {
+                    setModalDate(selectedTurno.fecha)
+                    handleDetailsModalClose()
+                    setIsModalOpen(true)
+                  }}
+                  variant="outline"
+                  className="w-full gap-2"
+                >
+                  <Pencil className="h-4 w-4" />
+                  Editar turno
+                </Button>
+                <Button
+                  onClick={() => setShowDeleteDialog(true)}
+                  variant="destructive"
+                  className="w-full gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Eliminar turno
+                </Button>
+                <Button onClick={handleDetailsModalClose} variant="ghost" className="w-full">
+                  Cerrar
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -321,7 +362,6 @@ export function AgendaPageClient({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
     </div>
   )
 }
