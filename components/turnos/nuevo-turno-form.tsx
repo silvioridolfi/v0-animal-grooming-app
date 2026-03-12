@@ -37,9 +37,6 @@ export function NuevoTurnoForm({
   const [hora, setHora] = useState(horaInicial || "")
   const [mascotaId, setMascotaId] = useState("")
   const [tipoServicio, setTipoServicio] = useState<"Corte" | "Baño" | "Corte y Baño" | "">("")
-  const [precioManual, setPrecioManual] = useState("")
-  const [descuentoTipo, setDescuentoTipo] = useState<"fijo" | "porcentaje" | "">("")
-  const [descuentoValor, setDescuentoValor] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
   const [searchQuery, setSearchQuery] = useState("")
@@ -53,17 +50,6 @@ export function NuevoTurnoForm({
   const [localMascotas, setLocalMascotas] = useState(mascotas)
 
   const mascotaSeleccionada = localMascotas.find((m) => m.id === mascotaId)
-
-  const precioFinal = useMemo(() => {
-    if (!precioManual || Number(precioManual) <= 0) return 0
-    if (!descuentoTipo || !descuentoValor) return Number(precioManual)
-    const descuento = Number(descuentoValor)
-    const precio = Number(precioManual)
-    if (descuentoTipo === "fijo") {
-      return Math.max(0, precio - descuento)
-    }
-    return Math.max(0, precio * (1 - descuento / 100))
-  }, [precioManual, descuentoTipo, descuentoValor])
 
   const mascotasFiltradas = useMemo(() => {
     if (!searchQuery.trim()) return []
@@ -96,7 +82,6 @@ export function NuevoTurnoForm({
       const [endH, endM] = fin.split(":").map(Number)
       let current = startH * 60 + startM
       const end = endH * 60 + endM
-
       while (current < end) {
         const h = Math.floor(current / 60)
         const m = current % 60
@@ -123,8 +108,7 @@ export function NuevoTurnoForm({
   const navigateDate = (days: number) => {
     const current = new Date(fecha + "T12:00:00")
     current.setDate(current.getDate() + days)
-    const newDate = current.toISOString().split("T")[0]
-    setFecha(newDate)
+    setFecha(current.toISOString().split("T")[0])
     setHora("")
   }
 
@@ -133,10 +117,7 @@ export function NuevoTurnoForm({
     setIsLoading(true)
     const result = await crearMascotaConCliente(nuevoCliente, nuevaMascota)
     if (result.success && result.mascota) {
-      const newMascota: Mascota = {
-        ...result.mascota,
-        cliente: result.cliente,
-      }
+      const newMascota: Mascota = { ...result.mascota, cliente: result.cliente }
       setLocalMascotas([...localMascotas, newMascota])
       setMascotaId(result.mascota.id)
       setShowNuevoCliente(false)
@@ -151,27 +132,22 @@ export function NuevoTurnoForm({
     setMascotaId(mascota.id)
     setSearchQuery("")
     setTipoServicio("")
-    setPrecioManual("")
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!mascotaId || !tipoServicio || !hora || precioFinal <= 0) return
-
+    if (!mascotaId || !tipoServicio || !hora) return
     setIsLoading(true)
     const result = await crearTurno({
       fecha,
       hora,
       mascota_id: mascotaId,
       tipo_servicio: tipoServicio as "Corte" | "Baño" | "Corte y Baño",
-      descuento_tipo: descuentoTipo || null,
-      descuento_valor: descuentoTipo ? Number(descuentoValor) : 0,
-      precio_final: precioFinal,
+      descuento_tipo: null,
+      descuento_valor: 0,
+      precio_final: 0,
     })
-
-    if (result.success) {
-      router.push("/")
-    }
+    if (result.success) router.push("/")
     setIsLoading(false)
   }
 
@@ -219,7 +195,6 @@ export function NuevoTurnoForm({
               {horariosDisponibles.map((slot) => {
                 const ocupado = turnosPorHora[slot]
                 const isSelected = hora === slot
-
                 return (
                   <Button
                     key={slot}
@@ -292,11 +267,7 @@ export function NuevoTurnoForm({
                 type="button"
                 variant="ghost"
                 size="icon"
-                onClick={() => {
-                  setMascotaId("")
-                  setTipoServicio("")
-                  setPrecioManual("")
-                }}
+                onClick={() => { setMascotaId(""); setTipoServicio("") }}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -309,7 +280,6 @@ export function NuevoTurnoForm({
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-
               <div className="space-y-3 rounded-lg bg-muted/30 p-3">
                 <Input
                   placeholder="Nombre del cliente"
@@ -324,7 +294,6 @@ export function NuevoTurnoForm({
                   className="bg-background h-12"
                 />
               </div>
-
               <div className="space-y-3 rounded-lg bg-muted/30 p-3">
                 <Input
                   placeholder="Nombre de la mascota"
@@ -339,8 +308,7 @@ export function NuevoTurnoForm({
                     className="h-12"
                     onClick={() => setNuevaMascota({ ...nuevaMascota, tipo_animal: "Perro" })}
                   >
-                    <Dog className="mr-2 h-5 w-5" />
-                    Perro
+                    <Dog className="mr-2 h-5 w-5" /> Perro
                   </Button>
                   <Button
                     type="button"
@@ -348,8 +316,7 @@ export function NuevoTurnoForm({
                     className="h-12"
                     onClick={() => setNuevaMascota({ ...nuevaMascota, tipo_animal: "Gato" })}
                   >
-                    <Cat className="mr-2 h-5 w-5" />
-                    Gato
+                    <Cat className="mr-2 h-5 w-5" /> Gato
                   </Button>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
@@ -366,7 +333,6 @@ export function NuevoTurnoForm({
                   ))}
                 </div>
               </div>
-
               <Button
                 type="button"
                 onClick={handleCrearClienteYMascota}
@@ -387,7 +353,6 @@ export function NuevoTurnoForm({
                   className="pl-10 h-12"
                 />
               </div>
-
               {mascotasFiltradas.length > 0 && (
                 <div className="space-y-1 rounded-lg border p-2">
                   {mascotasFiltradas.map((mascota) => (
@@ -410,7 +375,6 @@ export function NuevoTurnoForm({
                   ))}
                 </div>
               )}
-
               {searchQuery && mascotasFiltradas.length === 0 && (
                 <div className="rounded-lg border border-dashed p-4 text-center">
                   <p className="text-sm text-muted-foreground mb-2">No se encontraron resultados</p>
@@ -434,107 +398,22 @@ export function NuevoTurnoForm({
       {mascotaSeleccionada && (
         <Card className="shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-heading">Servicio y precio</CardTitle>
+            <CardTitle className="text-base font-heading">Tipo de servicio</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="space-y-2">
-              <Label>Tipo de servicio</Label>
-              <div className="grid grid-cols-3 gap-2">
-                {TIPOS_SERVICIO.map((tipo) => (
-                  <Button
-                    key={tipo}
-                    type="button"
-                    variant={tipoServicio === tipo ? "default" : "outline"}
-                    className="h-12 text-sm"
-                    onClick={() => setTipoServicio(tipo)}
-                  >
-                    {tipo}
-                  </Button>
-                ))}
-              </div>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-2">
+              {TIPOS_SERVICIO.map((tipo) => (
+                <Button
+                  key={tipo}
+                  type="button"
+                  variant={tipoServicio === tipo ? "default" : "outline"}
+                  className="h-12 text-sm"
+                  onClick={() => setTipoServicio(tipo)}
+                >
+                  {tipo}
+                </Button>
+              ))}
             </div>
-
-            {tipoServicio && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="precio-manual">Precio</Label>
-                  <Input
-                    id="precio-manual"
-                    type="number"
-                    value={precioManual}
-                    onChange={(e) => setPrecioManual(e.target.value)}
-                    placeholder="Ingresá el precio"
-                    min="0"
-                    step="0.01"
-                    className="h-12 text-base"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Descuento (opcional)</Label>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant={descuentoTipo === "fijo" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => { setDescuentoTipo("fijo"); setDescuentoValor("") }}
-                      className="flex-1"
-                    >
-                      $ Fijo
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={descuentoTipo === "porcentaje" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => { setDescuentoTipo("porcentaje"); setDescuentoValor("") }}
-                      className="flex-1"
-                    >
-                      % Porcentaje
-                    </Button>
-                    {descuentoTipo && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => { setDescuentoTipo(""); setDescuentoValor("") }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-
-                  {descuentoTipo && (
-                    <Input
-                      type="number"
-                      value={descuentoValor}
-                      onChange={(e) => setDescuentoValor(e.target.value)}
-                      placeholder={descuentoTipo === "fijo" ? "Monto a descontar" : "Porcentaje (ej: 10)"}
-                      min="0"
-                      className="h-12"
-                    />
-                  )}
-                </div>
-
-                {precioManual && Number(precioManual) > 0 && (
-                  <div className="rounded-lg bg-primary/10 p-3 space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>Precio base:</span>
-                      <span>${Number(precioManual).toLocaleString("es-AR")}</span>
-                    </div>
-                    {descuentoTipo && descuentoValor && (
-                      <div className="flex justify-between text-sm text-amber-600">
-                        <span>Descuento:</span>
-                        <span>-${(Number(precioManual) - precioFinal).toLocaleString("es-AR")}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between text-base font-semibold border-t pt-1">
-                      <span>Total:</span>
-                      <span>${precioFinal.toLocaleString("es-AR")}</span>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
           </CardContent>
         </Card>
       )}
@@ -543,7 +422,7 @@ export function NuevoTurnoForm({
         type="submit"
         className="w-full h-14 text-lg font-semibold shadow-lg"
         size="lg"
-        disabled={!mascotaId || !tipoServicio || !hora || precioFinal <= 0 || isLoading}
+        disabled={!mascotaId || !tipoServicio || !hora || isLoading}
       >
         {isLoading ? "Creando turno..." : "Agendar turno"}
       </Button>

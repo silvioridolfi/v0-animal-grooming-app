@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import type { Mascota, Turno } from "@/lib/types"
@@ -10,8 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { actualizarTurno } from "@/lib/actions/turnos"
-import { Dog, Cat } from "lucide-react"
+import { actualizarTurno, marcarTurnoRealizado } from "@/lib/actions/turnos"
+import { Dog, Cat, DollarSign, X } from "lucide-react"
 
 interface EditarTurnoFormProps {
   turno: Turno
@@ -22,35 +21,53 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
   const router = useRouter()
   const [mascotaId, setMascotaId] = useState(turno.mascota_id)
   const [tipoServicio, setTipoServicio] = useState<"Corte" | "Baño" | "Corte y Baño" | "">(turno.tipo_servicio || "")
-  const [precioManual, setPrecioManual] = useState(turno.precio_final?.toString() || "")
-  const [metodoPago, setMetodoPago] = useState<"efectivo" | "transferencia" | "">(turno.metodo_pago || "")
   const [fecha, setFecha] = useState(turno.fecha)
   const [hora, setHora] = useState(turno.hora.slice(0, 5))
-  const [descuentoTipo, setDescuentoTipo] = useState<"fijo" | "porcentaje" | "">(turno.descuento_tipo || "")
-  const [descuentoValor, setDescuentoValor] = useState(turno.descuento_valor?.toString() || "")
   const [estado, setEstado] = useState(turno.estado)
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState("")
 
-  const mascotaSeleccionada = mascotas.find((m) => m.id === mascotaId)
+  // Cobro
+  const [mostraCobro, setMostraCobro] = useState(false)
+  const [precioManual, setPrecioManual] = useState(turno.precio_final?.toString() || "")
+  const [metodoPago, setMetodoPago] = useState<"efectivo" | "transferencia" | "">(turno.metodo_pago || "")
+  const [descuentoTipo, setDescuentoTipo] = useState<"fijo" | "porcentaje" | "">(turno.descuento_tipo || "")
+  const [descuentoValor, setDescuentoValor] = useState(turno.descuento_valor?.toString() || "")
 
   const precioFinal = useMemo(() => {
     const precio = Number(precioManual) || 0
     if (!descuentoTipo || !descuentoValor || precio <= 0) return precio
-
     const descuento = Number(descuentoValor)
-    if (descuentoTipo === "fijo") {
-      return Math.max(0, precio - descuento)
-    } else {
-      return Math.max(0, precio * (1 - descuento / 100))
-    }
+    if (descuentoTipo === "fijo") return Math.max(0, precio - descuento)
+    return Math.max(0, precio * (1 - descuento / 100))
   }, [precioManual, descuentoTipo, descuentoValor])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleGuardar = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!mascotaId || !tipoServicio || !metodoPago || precioFinal <= 0) return
-
+    if (!mascotaId || !tipoServicio) return
     setIsLoading(true)
+    const result = await actualizarTurno(turno.id, {
+      fecha,
+      hora,
+      mascota_id: mascotaId,
+      tipo_servicio: tipoServicio as "Corte" | "Baño" | "Corte y Baño",
+      descuento_tipo: turno.descuento_tipo || null,
+      descuento_valor: turno.descuento_valor || 0,
+      precio_final: turno.precio_final || 0,
+      metodo_pago: turno.metodo_pago || null,
+      estado,
+    })
+    if (result.success) router.push("/")
+    setIsLoading(false)
+  }
 
+  const handleCobrar = async () => {
+    if (!metodoPago || precioFinal <= 0) {
+      setErrorMsg("Ingresá el precio y la forma de pago")
+      return
+    }
+    setErrorMsg("")
+    setIsLoading(true)
     const result = await actualizarTurno(turno.id, {
       fecha,
       hora,
@@ -60,52 +77,40 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
       descuento_valor: descuentoTipo ? Number(descuentoValor) : 0,
       precio_final: precioFinal,
       metodo_pago: metodoPago as "efectivo" | "transferencia",
-      estado,
+      estado: "realizado",
     })
-
-    if (result.success) {
-      router.push("/")
-    }
-
+    if (result.success) router.push("/")
     setIsLoading(false)
   }
 
+  const yaCobrado = turno.estado === "realizado"
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleGuardar} className="space-y-4">
+
+      {/* Estado */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Estado del turno</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
-            <Button
-              type="button"
-              variant={estado === "pendiente" ? "default" : "outline"}
-              className="flex-1"
-              onClick={() => setEstado("pendiente")}
-            >
-              Pendiente
-            </Button>
-            <Button
-              type="button"
-              variant={estado === "realizado" ? "default" : "outline"}
-              className="flex-1"
-              onClick={() => setEstado("realizado")}
-            >
-              Realizado
-            </Button>
-            <Button
-              type="button"
-              variant={estado === "cancelado" ? "default" : "outline"}
-              className="flex-1"
-              onClick={() => setEstado("cancelado")}
-            >
-              Cancelado
-            </Button>
+            {(["pendiente", "realizado", "cancelado"] as const).map((e) => (
+              <Button
+                key={e}
+                type="button"
+                variant={estado === e ? "default" : "outline"}
+                className="flex-1 capitalize"
+                onClick={() => setEstado(e)}
+              >
+                {e.charAt(0).toUpperCase() + e.slice(1)}
+              </Button>
+            ))}
           </div>
         </CardContent>
       </Card>
 
+      {/* Mascota */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Mascota</CardTitle>
@@ -113,7 +118,7 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
         <CardContent>
           <Select value={mascotaId} onValueChange={setMascotaId}>
             <SelectTrigger>
-              <SelectValue placeholder="Selecciona una mascota" />
+              <SelectValue placeholder="Seleccioná una mascota" />
             </SelectTrigger>
             <SelectContent>
               {mascotas.map((mascota) => (
@@ -129,57 +134,29 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
         </CardContent>
       </Card>
 
+      {/* Tipo de servicio */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Tipo de servicio</CardTitle>
         </CardHeader>
         <CardContent>
-          <Select value={tipoServicio} onValueChange={(v) => setTipoServicio(v as any)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecciona un servicio" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Corte">Corte</SelectItem>
-              <SelectItem value="Baño">Baño</SelectItem>
-              <SelectItem value="Corte y Baño">Corte y Baño</SelectItem>
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Precio y método de pago</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="precio">Precio ($)</Label>
-            <Input
-              id="precio"
-              type="number"
-              value={precioManual}
-              onChange={(e) => setPrecioManual(e.target.value)}
-              placeholder="Ingresa el precio"
-              min="0"
-              step="100"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="metodo">Método de pago</Label>
-            <Select value={metodoPago} onValueChange={(v) => setMetodoPago(v as any)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona método" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="efectivo">💵 Efectivo</SelectItem>
-                <SelectItem value="transferencia">🔄 Transferencia</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-3 gap-2">
+            {(["Corte", "Baño", "Corte y Baño"] as const).map((tipo) => (
+              <Button
+                key={tipo}
+                type="button"
+                variant={tipoServicio === tipo ? "default" : "outline"}
+                className="h-12 text-sm"
+                onClick={() => setTipoServicio(tipo)}
+              >
+                {tipo}
+              </Button>
+            ))}
           </div>
         </CardContent>
       </Card>
 
+      {/* Fecha y hora */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Fecha y hora</CardTitle>
@@ -196,60 +173,163 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Descuento (opcional)</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant={descuentoTipo === "fijo" ? "default" : "outline"}
-              className="flex-1"
-              onClick={() => setDescuentoTipo(descuentoTipo === "fijo" ? "" : "fijo")}
-            >
-              Monto fijo
-            </Button>
-            <Button
-              type="button"
-              variant={descuentoTipo === "porcentaje" ? "default" : "outline"}
-              className="flex-1"
-              onClick={() => setDescuentoTipo(descuentoTipo === "porcentaje" ? "" : "porcentaje")}
-            >
-              Porcentaje
-            </Button>
-          </div>
-          {descuentoTipo && (
-            <div className="space-y-2">
-              <Label htmlFor="descuentoValor">{descuentoTipo === "fijo" ? "Monto ($)" : "Porcentaje (%)"}</Label>
-              <Input
-                id="descuentoValor"
-                type="number"
-                value={descuentoValor}
-                onChange={(e) => setDescuentoValor(e.target.value)}
-                placeholder="0"
-                min="0"
-              />
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card className="bg-primary/5">
-        <CardContent className="py-4">
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">Precio final</span>
-            <div className="text-right">
-              <span className="text-2xl font-bold text-foreground">${precioFinal.toLocaleString("es-AR")}</span>
-              {descuentoTipo && descuentoValor && (
-                <p className="text-sm text-muted-foreground line-through">${Number(precioManual).toLocaleString("es-AR")}</p>
+      {/* Cobro — solo si está pendiente */}
+      {!yaCobrado && (
+        <Card className="border-2 border-green-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between text-base">
+              <span className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-green-600" />
+                Cobrar turno
+              </span>
+              {mostraCobro && (
+                <Button type="button" variant="ghost" size="icon" onClick={() => setMostraCobro(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
               )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {!mostraCobro ? (
+              <Button
+                type="button"
+                className="w-full h-12 bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => setMostraCobro(true)}
+              >
+                <DollarSign className="mr-2 h-5 w-5" />
+                Registrar cobro
+              </Button>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label>Precio</Label>
+                  <Input
+                    type="number"
+                    value={precioManual}
+                    onChange={(e) => setPrecioManual(e.target.value)}
+                    placeholder="Ingresá el precio"
+                    min="0"
+                    step="100"
+                    className="h-12 text-base"
+                  />
+                </div>
 
-      <Button type="submit" className="w-full" size="lg" disabled={!mascotaId || !tipoServicio || !metodoPago || precioFinal <= 0 || isLoading}>
+                <div className="space-y-2">
+                  <Label>Descuento (opcional)</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={descuentoTipo === "fijo" ? "default" : "outline"}
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => { setDescuentoTipo(descuentoTipo === "fijo" ? "" : "fijo"); setDescuentoValor("") }}
+                    >
+                      $ Fijo
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={descuentoTipo === "porcentaje" ? "default" : "outline"}
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => { setDescuentoTipo(descuentoTipo === "porcentaje" ? "" : "porcentaje"); setDescuentoValor("") }}
+                    >
+                      % Porcentaje
+                    </Button>
+                  </div>
+                  {descuentoTipo && (
+                    <Input
+                      type="number"
+                      value={descuentoValor}
+                      onChange={(e) => setDescuentoValor(e.target.value)}
+                      placeholder={descuentoTipo === "fijo" ? "Monto a descontar" : "Porcentaje (ej: 10)"}
+                      min="0"
+                      className="h-12"
+                    />
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Forma de pago</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={metodoPago === "efectivo" ? "default" : "outline"}
+                      className="flex-1 h-12"
+                      onClick={() => setMetodoPago("efectivo")}
+                    >
+                      💵 Efectivo
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={metodoPago === "transferencia" ? "default" : "outline"}
+                      className="flex-1 h-12"
+                      onClick={() => setMetodoPago("transferencia")}
+                    >
+                      🔄 Transferencia
+                    </Button>
+                  </div>
+                </div>
+
+                {precioManual && Number(precioManual) > 0 && (
+                  <div className="rounded-lg bg-green-50 border border-green-200 p-3 space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span>Precio base:</span>
+                      <span>${Number(precioManual).toLocaleString("es-AR")}</span>
+                    </div>
+                    {descuentoTipo && descuentoValor && (
+                      <div className="flex justify-between text-sm text-amber-600">
+                        <span>Descuento:</span>
+                        <span>-${(Number(precioManual) - precioFinal).toLocaleString("es-AR")}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-base font-semibold border-t pt-1">
+                      <span>Total:</span>
+                      <span className="text-green-700">${precioFinal.toLocaleString("es-AR")}</span>
+                    </div>
+                  </div>
+                )}
+
+                {errorMsg && (
+                  <p className="text-sm text-destructive">{errorMsg}</p>
+                )}
+
+                <Button
+                  type="button"
+                  className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-semibold"
+                  onClick={handleCobrar}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Guardando..." : "Confirmar cobro y finalizar turno"}
+                </Button>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Si ya fue cobrado, mostrar resumen */}
+      {yaCobrado && turno.precio_final && turno.precio_final > 0 && (
+        <Card className="bg-green-50 border-green-200">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <span className="text-green-800 font-medium">Turno cobrado</span>
+              <div className="text-right">
+                <p className="text-xl font-bold text-green-700">${turno.precio_final.toLocaleString("es-AR")}</p>
+                {turno.metodo_pago && (
+                  <p className="text-sm text-green-600 capitalize">{turno.metodo_pago}</p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Button
+        type="submit"
+        className="w-full"
+        size="lg"
+        disabled={!mascotaId || !tipoServicio || isLoading}
+      >
         {isLoading ? "Guardando..." : "Guardar cambios"}
       </Button>
     </form>
