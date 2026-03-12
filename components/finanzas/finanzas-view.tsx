@@ -131,6 +131,51 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial }:
         </Button>
       </div>
 
+      {/* Métricas del mes */}
+      <div className="space-y-3">
+        <h2 className="font-semibold text-foreground">Métricas del mes</h2>
+        <div className="grid grid-cols-3 gap-3">
+          <Card>
+            <CardContent className="p-3 text-center">
+              <p className="text-2xl font-bold text-primary">{resumen.turnosRealizados}</p>
+              <p className="text-xs text-muted-foreground mt-1">Realizados</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 text-center">
+              <p className="text-2xl font-bold text-amber-500">{resumen.turnosPendientes}</p>
+              <p className="text-xs text-muted-foreground mt-1">Pendientes</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 text-center">
+              <p className="text-2xl font-bold text-muted-foreground">{resumen.turnosCancelados}</p>
+              <p className="text-xs text-muted-foreground mt-1">Cancelados</p>
+            </CardContent>
+          </Card>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <Card>
+            <CardContent className="p-3 text-center">
+              <p className="text-2xl font-bold text-green-600">{resumen.totalMascotas}</p>
+              <p className="text-xs text-muted-foreground mt-1">Mascotas</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 text-center">
+              <p className="text-lg font-bold text-green-700">${resumen.efectivoMes.toLocaleString("es-AR")}</p>
+              <p className="text-xs text-muted-foreground mt-1">💵 Efectivo</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 text-center">
+              <p className="text-lg font-bold text-blue-600">${resumen.transferenciaMes.toLocaleString("es-AR")}</p>
+              <p className="text-xs text-muted-foreground mt-1">🔄 Transf.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-3">
         <Card className="bg-positive/10 border-positive/20">

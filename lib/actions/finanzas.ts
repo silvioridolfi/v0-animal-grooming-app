@@ -9,45 +9,48 @@ export interface ResumenFinanciero {
   egresosDelMes: number
   balanceDia: number
   balanceDelMes: number
+  // Nuevos
+  turnosRealizados: number
+  turnosPendientes: number
+  turnosCancelados: number
+  efectivoMes: number
+  transferenciaMes: number
+  totalMascotas: number
 }
 
 export async function getResumenFinanciero(fecha: string): Promise<ResumenFinanciero> {
   const supabase = await createClient()
 
-  const [year, month, day] = fecha.split("-")
+  const [year, month] = fecha.split("-")
   const startOfMonth = `${year}-${month}-01`
   const endOfMonth = new Date(Number.parseInt(year), Number.parseInt(month), 0).toISOString().split("T")[0]
 
-  const { data: turnosDia } = await supabase
-    .from("turnos")
-    .select("precio_final")
-    .eq("fecha", fecha)
-    .eq("estado", "realizado")
+  const [
+    { data: turnosDia },
+    { data: turnosMes },
+    { data: egresosDiaData },
+    { data: egresosMesData },
+    { data: todosTurnosMes },
+    { count: totalMascotas },
+  ] = await Promise.all([
+    supabase.from("turnos").select("precio_final").eq("fecha", fecha).eq("estado", "realizado"),
+    supabase.from("turnos").select("precio_final").gte("fecha", startOfMonth).lte("fecha", endOfMonth).eq("estado", "realizado"),
+    supabase.from("egresos").select("monto").eq("fecha", fecha),
+    supabase.from("egresos").select("monto").gte("fecha", startOfMonth).lte("fecha", endOfMonth),
+    supabase.from("turnos").select("estado, metodo_pago, precio_final").gte("fecha", startOfMonth).lte("fecha", endOfMonth),
+    supabase.from("mascotas").select("id", { count: "exact", head: true }),
+  ])
 
   const ingresosDia = turnosDia?.reduce((sum, t) => sum + Number(t.precio_final), 0) || 0
-
-  const { data: turnosMes } = await supabase
-    .from("turnos")
-    .select("precio_final")
-    .gte("fecha", startOfMonth)
-    .lte("fecha", endOfMonth)
-    .eq("estado", "realizado")
-
   const ingresosDelMes = turnosMes?.reduce((sum, t) => sum + Number(t.precio_final), 0) || 0
-
-  // Get day's expenses
-  const { data: egresosDiaData } = await supabase.from("egresos").select("monto").eq("fecha", fecha)
-
   const egresosDia = egresosDiaData?.reduce((sum, e) => sum + Number(e.monto), 0) || 0
-
-  // Get month's expenses
-  const { data: egresosMesData } = await supabase
-    .from("egresos")
-    .select("monto")
-    .gte("fecha", startOfMonth)
-    .lte("fecha", endOfMonth)
-
   const egresosDelMes = egresosMesData?.reduce((sum, e) => sum + Number(e.monto), 0) || 0
+
+  const turnosRealizados = todosTurnosMes?.filter((t) => t.estado === "realizado").length || 0
+  const turnosPendientes = todosTurnosMes?.filter((t) => t.estado === "pendiente").length || 0
+  const turnosCancelados = todosTurnosMes?.filter((t) => t.estado === "cancelado").length || 0
+  const efectivoMes = todosTurnosMes?.filter((t) => t.metodo_pago === "efectivo").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
+  const transferenciaMes = todosTurnosMes?.filter((t) => t.metodo_pago === "transferencia").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
 
   return {
     ingresosDia,
@@ -56,5 +59,11 @@ export async function getResumenFinanciero(fecha: string): Promise<ResumenFinanc
     egresosDelMes,
     balanceDia: ingresosDia - egresosDia,
     balanceDelMes: ingresosDelMes - egresosDelMes,
+    turnosRealizados,
+    turnosPendientes,
+    turnosCancelados,
+    efectivoMes,
+    transferenciaMes,
+    totalMascotas: totalMascotas || 0,
   }
 }
