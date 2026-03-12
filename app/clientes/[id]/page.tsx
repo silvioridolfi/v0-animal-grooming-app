@@ -97,7 +97,7 @@ export default async function ClienteDetailPage({ params }: { params: Promise<{ 
               <Dog className="h-5 w-5" />
               Mascotas ({cliente.mascotas?.length || 0})
             </h2>
-            <Link href="/mascotas/nueva">
+            <Link href={`/mascotas/nueva?clienteId=${cliente.id}`}>
               <Button size="sm" className="gap-1">
                 <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">Sumar Mascota</span>
