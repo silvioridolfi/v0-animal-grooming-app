@@ -18,10 +18,17 @@ export default async function NuevoTurnoPage({
 
   const { data: config } = await supabase.from("configuracion_negocio").select("*").single()
 
+  const fechaFiltro = fecha || new Date().toISOString().split("T")[0]
+  const fechaLimite = new Date()
+  fechaLimite.setDate(fechaLimite.getDate() + 30)
+  const fechaLimiteStr = fechaLimite.toISOString().split("T")[0]
+
   const { data: turnosExistentes } = await supabase
     .from("turnos")
     .select("id, fecha, hora, estado")
     .neq("estado", "cancelado")
+    .gte("fecha", fechaFiltro)
+    .lte("fecha", fechaLimiteStr)
 
   return (
     <div className="flex min-h-screen flex-col pb-20">
