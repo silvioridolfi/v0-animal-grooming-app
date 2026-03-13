@@ -119,3 +119,19 @@ export async function actualizarEstadoTurno(
 
   return { success: true }
 }
+
+export async function actualizarNotasTurno(turnoId: string, notes: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from("turnos")
+    .update({ notes })
+    .eq("id", turnoId)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath("/mascotas")
+  return { success: true }
+}

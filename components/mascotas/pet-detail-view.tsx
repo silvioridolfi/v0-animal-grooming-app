@@ -5,8 +5,8 @@ import type { PetHistoryEntry, Mascota } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Dog, Cat, Trash2, Edit, DollarSign, Calendar, Tag, Clock } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Textarea } from "@/components/ui/textarea"
+import { Dog, Cat, Trash2, Edit, DollarSign, Calendar, Tag, Clock, Pencil, Check, X } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { eliminarMascota } from "@/lib/actions/mascotas"
+import { actualizarNotasTurno } from "@/lib/actions/turnos"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
@@ -32,13 +33,31 @@ export function PetDetailView({ mascota, history, clienteNombre }: PetDetailView
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
+  // Notas editables por turno
+  const [editingNotasId, setEditingNotasId] = useState<string | null>(null)
+  const [notasTemp, setNotasTemp] = useState("")
+  const [savingNotasId, setSavingNotasId] = useState<string | null>(null)
+
   const handleDelete = async () => {
     setIsDeleting(true)
     const result = await eliminarMascota(mascota.id)
     if (result.success) {
-      router.push(`/clientes/${mascota.cliente_id}`)
+      router.push(`/mascotas`)
     }
     setIsDeleting(false)
+  }
+
+  const handleEditNotas = (entry: PetHistoryEntry) => {
+    setEditingNotasId(entry.id)
+    setNotasTemp(entry.notas || "")
+  }
+
+  const handleSaveNotas = async (turnoId: string) => {
+    setSavingNotasId(turnoId)
+    await actualizarNotasTurno(turnoId, notasTemp)
+    setSavingNotasId(null)
+    setEditingNotasId(null)
+    router.refresh()
   }
 
   const totalServicios = history.length
@@ -120,7 +139,9 @@ export function PetDetailView({ mascota, history, clienteNombre }: PetDetailView
         </Card>
         <Card>
           <CardContent className="pt-4 text-center">
-            <p className="text-2xl font-bold text-blue-600">{ultimoServicio ? new Date(ultimoServicio.fecha_servicio).toLocaleDateString("es-AR", { month: "short", day: "numeric" }) : "—"}</p>
+            <p className="text-2xl font-bold text-blue-600">
+              {ultimoServicio ? new Date(ultimoServicio.fecha_servicio).toLocaleDateString("es-AR", { month: "short", day: "numeric" }) : "—"}
+            </p>
             <p className="text-xs text-muted-foreground mt-1">Último</p>
           </CardContent>
         </Card>
@@ -139,40 +160,86 @@ export function PetDetailView({ mascota, history, clienteNombre }: PetDetailView
           ) : (
             <div className="space-y-3">
               {history.map((entry) => (
-                <div key={entry.id} className="flex items-start justify-between p-3 rounded-lg bg-muted/50 border">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-medium text-sm">{entry.tipo_servicio}</p>
-                      <Badge
-                        variant={
-                          entry.estado === "realizado"
-                            ? "default"
-                            : entry.estado === "pendiente"
-                              ? "secondary"
-                              : "destructive"
-                        }
-                      >
-                        {entry.estado}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {new Date(entry.fecha_servicio).toLocaleDateString("es-AR")}
+                <div key={entry.id} className="p-3 rounded-lg bg-muted/50 border space-y-2">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-medium text-sm">{entry.tipo_servicio}</p>
+                        <Badge
+                          variant={
+                            entry.estado === "realizado"
+                              ? "default"
+                              : entry.estado === "pendiente"
+                                ? "secondary"
+                                : "destructive"
+                          }
+                        >
+                          {entry.estado}
+                        </Badge>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="h-3.5 w-3.5" />
-                        ${entry.precio_total.toLocaleString("es-AR")}
-                      </div>
-                      {entry.metodo_pago && (
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
-                          <Tag className="h-3.5 w-3.5" />
-                          {entry.metodo_pago === "efectivo" ? "💵 Efectivo" : "🔄 Transferencia"}
+                          <Calendar className="h-3.5 w-3.5" />
+                          {new Date(entry.fecha_servicio).toLocaleDateString("es-AR")}
                         </div>
-                      )}
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="h-3.5 w-3.5" />
+                          ${entry.precio_total.toLocaleString("es-AR")}
+                        </div>
+                        {entry.metodo_pago && (
+                          <div className="flex items-center gap-1">
+                            <Tag className="h-3.5 w-3.5" />
+                            {entry.metodo_pago === "efectivo" ? "💵 Efectivo" : "🔄 Transferencia"}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    {entry.notas && <p className="text-xs text-muted-foreground mt-2 italic">{entry.notas}</p>}
+                    {editingNotasId !== entry.id && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 shrink-0"
+                        onClick={() => handleEditNotas(entry)}
+                        title="Agregar nota"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                   </div>
+
+                  {/* Notas */}
+                  {editingNotasId === entry.id ? (
+                    <div className="space-y-2 pt-1">
+                      <Textarea
+                        value={notasTemp}
+                        onChange={(e) => setNotasTemp(e.target.value)}
+                        placeholder="Ej: cara redonda, tijera N°5, no le gusta el secador..."
+                        className="text-sm min-h-16 resize-none"
+                        autoFocus
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          className="flex-1 h-8"
+                          onClick={() => handleSaveNotas(entry.id)}
+                          disabled={savingNotasId === entry.id}
+                        >
+                          <Check className="h-3.5 w-3.5 mr-1" />
+                          {savingNotasId === entry.id ? "Guardando..." : "Guardar"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8"
+                          onClick={() => setEditingNotasId(null)}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : entry.notas ? (
+                    <p className="text-xs text-muted-foreground italic border-t pt-2">{entry.notas}</p>
+                  ) : null}
                 </div>
               ))}
             </div>

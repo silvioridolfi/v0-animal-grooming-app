@@ -41,6 +41,7 @@ export interface Turno {
   precio_final: number
   metodo_pago: "efectivo" | "transferencia" | null
   estado: "pendiente" | "realizado" | "cancelado"
+  notes: string | null
   created_at: string
   mascota?: Mascota
   cliente?: Cliente
