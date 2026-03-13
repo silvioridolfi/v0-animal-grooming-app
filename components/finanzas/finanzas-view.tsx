@@ -134,6 +134,14 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial }:
       {/* Métricas del mes */}
       <div className="space-y-3">
         <h2 className="font-semibold text-foreground">Métricas del mes</h2>
+        <Card className="bg-primary/5 border-primary/20">
+          <CardContent className="p-3 flex items-center justify-between">
+            <p className="text-sm font-medium">Total turnos del mes</p>
+            <p className="text-2xl font-bold text-primary">
+              {resumen.turnosRealizados + resumen.turnosPendientes + resumen.turnosCancelados}
+            </p>
+          </CardContent>
+        </Card>
         <div className="grid grid-cols-3 gap-3">
           <Card>
             <CardContent className="p-3 text-center">
