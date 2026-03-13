@@ -135,11 +135,24 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial }:
       <div className="space-y-3">
         <h2 className="font-semibold text-foreground">Métricas del mes</h2>
         <Card className="bg-primary/5 border-primary/20">
-          <CardContent className="p-3 flex items-center justify-between">
-            <p className="text-sm font-medium">Total turnos del mes</p>
-            <p className="text-2xl font-bold text-primary">
-              {resumen.turnosRealizados + resumen.turnosPendientes + resumen.turnosCancelados}
-            </p>
+          <CardContent className="p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium">Total turnos del mes</p>
+              <p className="text-2xl font-bold text-primary">
+                {resumen.turnosRealizados + resumen.turnosPendientes + resumen.turnosCancelados}
+              </p>
+            </div>
+            <div className="flex items-center gap-3 text-xs">
+              <span className="flex items-center gap-1 text-green-700">
+                <span>✓</span> {resumen.turnosRealizados} realizados
+              </span>
+              <span className="flex items-center gap-1 text-amber-600">
+                <span>⏳</span> {resumen.turnosPendientes} pendientes
+              </span>
+              <span className="flex items-center gap-1 text-muted-foreground">
+                <span>✗</span> {resumen.turnosCancelados} cancelados
+              </span>
+            </div>
           </CardContent>
         </Card>
         <div className="grid grid-cols-3 gap-3">
