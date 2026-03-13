@@ -97,7 +97,7 @@ export default async function MascotaDetailPage({
       <PageHeader
         title={mascota.nombre}
         action={
-          <Link href={`/clientes/${mascota.cliente_id}`}>
+          <Link href="/mascotas">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="mr-1 h-4 w-4" />
               Volver
