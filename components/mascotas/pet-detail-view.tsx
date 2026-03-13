@@ -32,8 +32,6 @@ export function PetDetailView({ mascota, history, clienteNombre }: PetDetailView
   const router = useRouter()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-
-  // Notas editables por turno
   const [editingNotasId, setEditingNotasId] = useState<string | null>(null)
   const [notasTemp, setNotasTemp] = useState("")
   const [savingNotasId, setSavingNotasId] = useState<string | null>(null)
@@ -41,9 +39,7 @@ export function PetDetailView({ mascota, history, clienteNombre }: PetDetailView
   const handleDelete = async () => {
     setIsDeleting(true)
     const result = await eliminarMascota(mascota.id)
-    if (result.success) {
-      router.push(`/mascotas`)
-    }
+    if (result.success) router.push(`/mascotas`)
     setIsDeleting(false)
   }
 
@@ -62,7 +58,11 @@ export function PetDetailView({ mascota, history, clienteNombre }: PetDetailView
 
   const totalServicios = history.length
   const totalGastado = history.reduce((sum, h) => sum + h.precio_total, 0)
-  const ultimoServicio = history[0]
+  const ultimoServicio = history.find((h) => h.estado === "realizado")
+
+  const diasDesdeUltimo = ultimoServicio
+    ? Math.floor((new Date().getTime() - new Date(ultimoServicio.fecha_servicio + "T12:00:00").getTime()) / (1000 * 60 * 60 * 24))
+    : null
 
   return (
     <div className="space-y-4">
@@ -139,10 +139,21 @@ export function PetDetailView({ mascota, history, clienteNombre }: PetDetailView
         </Card>
         <Card>
           <CardContent className="pt-4 text-center">
-            <p className="text-2xl font-bold text-blue-600">
-              {ultimoServicio ? new Date(ultimoServicio.fecha_servicio).toLocaleDateString("es-AR", { month: "short", day: "numeric" }) : "—"}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">Último</p>
+            {diasDesdeUltimo !== null ? (
+              <>
+                <p className={`text-2xl font-bold ${diasDesdeUltimo > 30 ? "text-amber-500" : "text-blue-600"}`}>
+                  {diasDesdeUltimo}d
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {diasDesdeUltimo === 0 ? "Hoy" : diasDesdeUltimo === 1 ? "Hace 1 día" : `Hace ${diasDesdeUltimo} días`}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-2xl font-bold text-muted-foreground">—</p>
+                <p className="text-xs text-muted-foreground mt-1">Sin servicios</p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -207,13 +218,12 @@ export function PetDetailView({ mascota, history, clienteNombre }: PetDetailView
                     )}
                   </div>
 
-                  {/* Notas */}
                   {editingNotasId === entry.id ? (
                     <div className="space-y-2 pt-1">
                       <Textarea
                         value={notasTemp}
                         onChange={(e) => setNotasTemp(e.target.value)}
-                        placeholder="Ej: cara redonda, tijera N°5, no le gusta el secador..."
+                        placeholder="Ej: tijera N°5, no le gusta el secador..."
                         className="text-sm min-h-16 resize-none"
                         autoFocus
                       />
@@ -227,12 +237,7 @@ export function PetDetailView({ mascota, history, clienteNombre }: PetDetailView
                           <Check className="h-3.5 w-3.5 mr-1" />
                           {savingNotasId === entry.id ? "Guardando..." : "Guardar"}
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-8"
-                          onClick={() => setEditingNotasId(null)}
-                        >
+                        <Button size="sm" variant="outline" className="h-8" onClick={() => setEditingNotasId(null)}>
                           <X className="h-3.5 w-3.5" />
                         </Button>
                       </div>
@@ -247,7 +252,6 @@ export function PetDetailView({ mascota, history, clienteNombre }: PetDetailView
         </CardContent>
       </Card>
 
-      {/* Delete Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
