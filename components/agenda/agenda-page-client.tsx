@@ -219,7 +219,7 @@ export function AgendaPageClient({
             <div className="space-y-3">
 
               {/* COBRO — turno pendiente */}
-              {!yaCobrado && !mostraCobro && (
+              {!yaCobrado && !mostraCobro && selectedTurno.estado !== "cancelado" && (
                 <Button
                   onClick={() => setMostraCobro(true)}
                   className="w-full h-14 text-base bg-green-600 hover:bg-green-700 text-white font-semibold"
@@ -312,18 +312,16 @@ export function AgendaPageClient({
 
               {/* Acciones secundarias */}
               <div className="grid gap-2 pt-2 border-t">
-                <Button
-                  onClick={() => {
-                    setModalDate(selectedTurno.fecha)
-                    handleDetailsModalClose()
-                    setIsModalOpen(true)
-                  }}
-                  variant="outline"
-                  className="w-full gap-2"
-                >
-                  <Pencil className="h-4 w-4" />
-                  Editar turno
-                </Button>
+                <Link href={`/turnos/${selectedTurno.id}/editar`} className="w-full">
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2"
+                    onClick={handleDetailsModalClose}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    Editar turno
+                  </Button>
+                </Link>
                 {selectedTurno.estado !== "cancelado" && (
                   <Button
                     onClick={async () => {
