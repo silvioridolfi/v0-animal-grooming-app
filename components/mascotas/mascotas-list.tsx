@@ -2,9 +2,8 @@
 
 import { useState, useMemo } from "react"
 import type { Mascota } from "@/lib/types"
-import { MascotaCard } from "./mascota-card"
 import { EmptyState } from "@/components/empty-state"
-import { Dog, Search, ChevronDown, ChevronRight, Plus } from "lucide-react"
+import { Dog, Cat, Search, ChevronDown, ChevronRight, Plus, Pencil } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -62,7 +61,6 @@ export function MascotasList({ mascotas }: MascotasListProps) {
     setExpandedClients(newExpanded)
   }
 
-  // Expand all when searching
   const effectiveExpanded = searchQuery.trim() ? new Set(filteredGroups.map((g) => g.cliente.id)) : expandedClients
 
   if (mascotas.length === 0) {
@@ -70,7 +68,7 @@ export function MascotasList({ mascotas }: MascotasListProps) {
       <EmptyState
         icon={Dog}
         title="Sin mascotas"
-        description="Agrega tu primera mascota desde la vista de detalle de un cliente."
+        description="Agrega tu primera mascota desde el botón Nueva mascota."
       />
     )
   }
@@ -125,7 +123,26 @@ export function MascotasList({ mascotas }: MascotasListProps) {
                 {isExpanded && (
                   <div className="border-t bg-muted/20 p-3 space-y-2">
                     {group.mascotas.map((mascota) => (
-                      <MascotaCard key={mascota.id} mascota={mascota} compact />
+                      <div key={mascota.id} className="flex items-center justify-between rounded-lg bg-background p-3">
+                        <Link href={`/mascotas/${mascota.id}`} className="flex items-center gap-3 flex-1">
+                          {mascota.tipo_animal === "Perro" ? (
+                            <Dog className="h-5 w-5 text-primary" />
+                          ) : (
+                            <Cat className="h-5 w-5 text-primary" />
+                          )}
+                          <div>
+                            <p className="font-medium text-foreground">{mascota.nombre}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {mascota.tipo_animal} · {mascota.raza}
+                            </p>
+                          </div>
+                        </Link>
+                        <Link href={`/mascotas/${mascota.id}/editar`}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                      </div>
                     ))}
                     <Link href={`/mascotas/nueva?clienteId=${group.cliente.id}`}>
                       <Button variant="outline" size="sm" className="w-full mt-2 bg-transparent">
