@@ -146,6 +146,25 @@ export function CalendarMobile({
             </Button>
           </div>
 
+{/* Total turnos del mes */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+            <div className="flex items-center gap-1">
+              <div className="h-3 w-3 rounded-full bg-amber-100 ring-1 ring-amber-300" />
+              <span>Feriado</span>
+            </div>
+            <div className="flex items-center gap-1 ml-2">
+              <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                {Object.values(turnosPorDia).reduce((sum, t) => {
+                  return sum + t.filter(turno => {
+                    const d = new Date(turno.fecha + "T12:00:00")
+                    return d.getFullYear() === currentYear && d.getMonth() === currentMonth
+                  }).length
+                }, 0)}
+              </div>
+              <span>Turnos este mes</span>
+            </div>
+          </div>
+
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {days.map(({ day, dateStr, hasTurnos, turnosCount, nonWorking }) => {
               const isToday = dateStr === today
