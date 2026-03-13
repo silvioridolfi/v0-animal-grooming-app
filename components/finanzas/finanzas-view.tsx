@@ -131,26 +131,32 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial }:
         </Button>
       </div>
 
-      {/* Métricas del mes */}
+      {/* Métricas */}
       <div className="space-y-3">
-        <h2 className="font-semibold text-foreground">Métricas del mes</h2>
+        <h2 className="font-semibold text-foreground">
+          {view === "dia" ? "Métricas del día" : "Métricas del mes"}
+        </h2>
         <Card className="bg-primary/5 border-primary/20">
           <CardContent className="p-3 space-y-2">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">Total turnos del mes</p>
+              <p className="text-sm font-medium">
+                {view === "dia" ? "Total turnos del día" : "Total turnos del mes"}
+              </p>
               <p className="text-2xl font-bold text-primary">
-                {resumen.turnosRealizados + resumen.turnosPendientes + resumen.turnosCancelados}
+                {view === "dia"
+                  ? resumen.turnosRealizadosDia + resumen.turnosPendientesDia + resumen.turnosCanceladosDia
+                  : resumen.turnosRealizados + resumen.turnosPendientes + resumen.turnosCancelados}
               </p>
             </div>
             <div className="flex items-center gap-3 text-xs">
               <span className="flex items-center gap-1 text-green-700">
-                <span>✓</span> {resumen.turnosRealizados} realizados
+                <span>✓</span> {view === "dia" ? resumen.turnosRealizadosDia : resumen.turnosRealizados} realizados
               </span>
               <span className="flex items-center gap-1 text-amber-600">
-                <span>⏳</span> {resumen.turnosPendientes} pendientes
+                <span>⏳</span> {view === "dia" ? resumen.turnosPendientesDia : resumen.turnosPendientes} pendientes
               </span>
               <span className="flex items-center gap-1 text-muted-foreground">
-                <span>✗</span> {resumen.turnosCancelados} cancelados
+                <span>✗</span> {view === "dia" ? resumen.turnosCanceladosDia : resumen.turnosCancelados} cancelados
               </span>
             </div>
           </CardContent>
@@ -158,19 +164,25 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial }:
         <div className="grid grid-cols-3 gap-3">
           <Card>
             <CardContent className="p-3 text-center">
-              <p className="text-2xl font-bold text-primary">{resumen.turnosRealizados}</p>
+              <p className="text-2xl font-bold text-primary">
+                {view === "dia" ? resumen.turnosRealizadosDia : resumen.turnosRealizados}
+              </p>
               <p className="text-xs text-muted-foreground mt-1">Realizados</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-3 text-center">
-              <p className="text-2xl font-bold text-amber-500">{resumen.turnosPendientes}</p>
+              <p className="text-2xl font-bold text-amber-500">
+                {view === "dia" ? resumen.turnosPendientesDia : resumen.turnosPendientes}
+              </p>
               <p className="text-xs text-muted-foreground mt-1">Pendientes</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-3 text-center">
-              <p className="text-2xl font-bold text-muted-foreground">{resumen.turnosCancelados}</p>
+              <p className="text-2xl font-bold text-muted-foreground">
+                {view === "dia" ? resumen.turnosCanceladosDia : resumen.turnosCancelados}
+              </p>
               <p className="text-xs text-muted-foreground mt-1">Cancelados</p>
             </CardContent>
           </Card>
@@ -184,13 +196,17 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial }:
           </Card>
           <Card>
             <CardContent className="p-3 text-center">
-              <p className="text-lg font-bold text-green-700">${resumen.efectivoMes.toLocaleString("es-AR")}</p>
+              <p className="text-lg font-bold text-green-700">
+                ${(view === "dia" ? resumen.efectivoDia : resumen.efectivoMes).toLocaleString("es-AR")}
+              </p>
               <p className="text-xs text-muted-foreground mt-1">💵 Efectivo</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-3 text-center">
-              <p className="text-lg font-bold text-blue-600">${resumen.transferenciaMes.toLocaleString("es-AR")}</p>
+              <p className="text-lg font-bold text-blue-600">
+                ${(view === "dia" ? resumen.transferenciaDia : resumen.transferenciaMes).toLocaleString("es-AR")}
+              </p>
               <p className="text-xs text-muted-foreground mt-1">🔄 Transf.</p>
             </CardContent>
           </Card>

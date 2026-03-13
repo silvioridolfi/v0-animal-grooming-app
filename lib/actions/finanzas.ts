@@ -16,6 +16,11 @@ export interface ResumenFinanciero {
   efectivoMes: number
   transferenciaMes: number
   totalMascotas: number
+  turnosRealizadosDia: number
+  turnosPendientesDia: number
+  turnosCanceladosDia: number
+  efectivoDia: number
+  transferenciaDia: number
 }
 
 export async function getResumenFinanciero(fecha: string): Promise<ResumenFinanciero> {
@@ -51,6 +56,33 @@ export async function getResumenFinanciero(fecha: string): Promise<ResumenFinanc
   const turnosCancelados = todosTurnosMes?.filter((t) => t.estado === "cancelado").length || 0
   const efectivoMes = todosTurnosMes?.filter((t) => t.metodo_pago === "efectivo" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
   const transferenciaMes = todosTurnosMes?.filter((t) => t.metodo_pago === "transferencia" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
+
+  const turnosDiaCompletos = todosTurnosMes?.filter((t) => t.fecha === fecha) || []
+  const turnosRealizadosDia = turnosDiaCompletos.filter((t) => t.estado === "realizado").length
+  const turnosPendientesDia = turnosDiaCompletos.filter((t) => t.estado === "pendiente").length
+  const turnosCanceladosDia = turnosDiaCompletos.filter((t) => t.estado === "cancelado").length
+  const efectivoDia = turnosDiaCompletos.filter((t) => t.metodo_pago === "efectivo" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0)
+  const transferenciaDia = turnosDiaCompletos.filter((t) => t.metodo_pago === "transferencia" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0)
+
+  return {
+    ingresosDia,
+    ingresosDelMes,
+    egresosDia,
+    egresosDelMes,
+    balanceDia: ingresosDia - egresosDia,
+    balanceDelMes: ingresosDelMes - egresosDelMes,
+    turnosRealizados,
+    turnosPendientes,
+    turnosCancelados,
+    efectivoMes,
+    transferenciaMes,
+    totalMascotas: totalMascotas || 0,
+    turnosRealizadosDia,
+    turnosPendientesDia,
+    turnosCanceladosDia,
+    efectivoDia,
+    transferenciaDia,
+  }
 
   return {
     ingresosDia,
