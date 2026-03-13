@@ -49,8 +49,8 @@ export async function getResumenFinanciero(fecha: string): Promise<ResumenFinanc
   const turnosRealizados = todosTurnosMes?.filter((t) => t.estado === "realizado").length || 0
   const turnosPendientes = todosTurnosMes?.filter((t) => t.estado === "pendiente").length || 0
   const turnosCancelados = todosTurnosMes?.filter((t) => t.estado === "cancelado").length || 0
-  const efectivoMes = todosTurnosMes?.filter((t) => t.metodo_pago === "efectivo").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
-  const transferenciaMes = todosTurnosMes?.filter((t) => t.metodo_pago === "transferencia").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
+  const efectivoMes = todosTurnosMes?.filter((t) => t.metodo_pago === "efectivo" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
+  const transferenciaMes = todosTurnosMes?.filter((t) => t.metodo_pago === "transferencia" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
 
   return {
     ingresosDia,
