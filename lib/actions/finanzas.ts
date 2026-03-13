@@ -9,7 +9,6 @@ export interface ResumenFinanciero {
   egresosDelMes: number
   balanceDia: number
   balanceDelMes: number
-  // Nuevos
   turnosRealizados: number
   turnosPendientes: number
   turnosCancelados: number
@@ -31,22 +30,19 @@ export async function getResumenFinanciero(fecha: string): Promise<ResumenFinanc
   const endOfMonth = new Date(Number.parseInt(year), Number.parseInt(month), 0).toISOString().split("T")[0]
 
   const [
-    { data: turnosDia },
     { data: turnosMes },
     { data: egresosDiaData },
     { data: egresosMesData },
     { data: todosTurnosMes },
     { count: totalMascotas },
   ] = await Promise.all([
-    supabase.from("turnos").select("precio_final").eq("fecha", fecha).eq("estado", "realizado"),
     supabase.from("turnos").select("precio_final").gte("fecha", startOfMonth).lte("fecha", endOfMonth).eq("estado", "realizado"),
     supabase.from("egresos").select("monto").eq("fecha", fecha),
     supabase.from("egresos").select("monto").gte("fecha", startOfMonth).lte("fecha", endOfMonth),
-    supabase.from("turnos").select("estado, metodo_pago, precio_final").gte("fecha", startOfMonth).lte("fecha", endOfMonth),
+    supabase.from("turnos").select("fecha, estado, metodo_pago, precio_final").gte("fecha", startOfMonth).lte("fecha", endOfMonth),
     supabase.from("mascotas").select("id", { count: "exact", head: true }),
   ])
 
-  const ingresosDia = turnosDia?.reduce((sum, t) => sum + Number(t.precio_final), 0) || 0
   const ingresosDelMes = turnosMes?.reduce((sum, t) => sum + Number(t.precio_final), 0) || 0
   const egresosDia = egresosDiaData?.reduce((sum, e) => sum + Number(e.monto), 0) || 0
   const egresosDelMes = egresosMesData?.reduce((sum, e) => sum + Number(e.monto), 0) || 0
@@ -56,6 +52,7 @@ export async function getResumenFinanciero(fecha: string): Promise<ResumenFinanc
   const turnosCancelados = todosTurnosMes?.filter((t) => t.estado === "cancelado").length || 0
   const efectivoMes = todosTurnosMes?.filter((t) => t.metodo_pago === "efectivo" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
   const transferenciaMes = todosTurnosMes?.filter((t) => t.metodo_pago === "transferencia" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
+  const ingresosDia = todosTurnosMes?.filter((t) => t.fecha === fecha && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
 
   const turnosDiaCompletos = todosTurnosMes?.filter((t) => t.fecha === fecha) || []
   const turnosRealizadosDia = turnosDiaCompletos.filter((t) => t.estado === "realizado").length
@@ -82,20 +79,5 @@ export async function getResumenFinanciero(fecha: string): Promise<ResumenFinanc
     turnosCanceladosDia,
     efectivoDia,
     transferenciaDia,
-  }
-
-  return {
-    ingresosDia,
-    ingresosDelMes,
-    egresosDia,
-    egresosDelMes,
-    balanceDia: ingresosDia - egresosDia,
-    balanceDelMes: ingresosDelMes - egresosDelMes,
-    turnosRealizados,
-    turnosPendientes,
-    turnosCancelados,
-    efectivoMes,
-    transferenciaMes,
-    totalMascotas: totalMascotas || 0,
   }
 }
