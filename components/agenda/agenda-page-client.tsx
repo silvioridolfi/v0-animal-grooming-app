@@ -346,8 +346,9 @@ export function AgendaPageClient({
                 )}
                 <Button
                   onClick={() => setShowDeleteDialog(true)}
-                  variant="destructive"
-                  className="w-full gap-2"
+                  variant="outline"
+                  className="w-full gap-2 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                  size="sm"
                 >
                   <Trash2 className="h-4 w-4" />
                   Eliminar turno
