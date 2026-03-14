@@ -46,7 +46,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" sizes="32x32" />
       </head>
       <body className={`${inter.variable} ${poppins.variable} font-sans antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           {children}
           <BottomNav />
           <Analytics />
