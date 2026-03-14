@@ -192,3 +192,21 @@ export async function actualizarMascota(mascotaId: string, data: Partial<CreateM
   revalidatePath("/clientes")
   return { success: true, mascotaId }
 }
+
+export async function obtenerProximoTurno(mascotaId: string) {
+  const supabase = await createClient()
+  const hoy = new Date().toISOString().split("T")[0]
+
+  const { data } = await supabase
+    .from("turnos")
+    .select("id, fecha, hora, tipo_servicio, estado")
+    .eq("mascota_id", mascotaId)
+    .eq("estado", "pendiente")
+    .gte("fecha", hoy)
+    .order("fecha", { ascending: true })
+    .order("hora", { ascending: true })
+    .limit(1)
+    .single()
+
+  return data || null
+}

@@ -6,12 +6,9 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, AlertCircle, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
-import { obtenerHistorialMascota } from "@/lib/actions/mascotas"
+import { obtenerHistorialMascota, obtenerProximoTurno } from "@/lib/actions/mascotas"
 
-// UUID v4 validation regex
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-
-// Static routes that should not be matched by [id]
 const STATIC_ROUTES = ["nueva", "editar", "historial"]
 
 export default async function MascotaDetailPage({
@@ -21,29 +18,23 @@ export default async function MascotaDetailPage({
 }) {
   const { id } = await params
 
-  // Redirect static routes to their actual pages
   if (STATIC_ROUTES.includes(id)) {
     redirect(`/mascotas/${id}`)
   }
 
-  // Validate UUID format before making database query
   if (!UUID_REGEX.test(id)) {
     notFound()
   }
 
   const supabase = await createClient()
 
-  // Fetch mascota with cliente info
   const { data: mascota, error } = await supabase
     .from("mascotas")
     .select("*, cliente:clientes(*)")
     .eq("id", id)
     .single()
 
-  // DON'T redirect if data not found - handle it gracefully
-  // This prevents redirect loops
   if (!mascota) {
-    // Data might still be loading, show loading UI instead of redirecting
     return (
       <div className="flex min-h-screen flex-col pb-20">
         <PageHeader title="Mascota" />
@@ -51,9 +42,6 @@ export default async function MascotaDetailPage({
           <div className="text-center space-y-3">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mx-auto" />
             <p className="text-muted-foreground">Cargando información de la mascota...</p>
-            <p className="text-sm text-muted-foreground">
-              Si el problema persiste, intenta volver y seleccionar nuevamente.
-            </p>
             <Link href="/mascotas">
               <Button variant="outline" size="sm" className="mt-4 bg-transparent">
                 Volver a mascotas
@@ -76,7 +64,7 @@ export default async function MascotaDetailPage({
             <div>
               <p className="font-medium text-red-900">Error al cargar mascota</p>
               <p className="text-sm text-red-700 mt-1">{error.message}</p>
-              <Link href="/mascotas" className="mt-3">
+              <Link href="/mascotas">
                 <Button variant="outline" size="sm" className="mt-3 bg-transparent">
                   Volver a mascotas
                 </Button>
@@ -89,8 +77,10 @@ export default async function MascotaDetailPage({
     )
   }
 
-  // Fetch history
-  const { history } = await obtenerHistorialMascota(id)
+  const [{ history }, proximoTurno] = await Promise.all([
+    obtenerHistorialMascota(id),
+    obtenerProximoTurno(id),
+  ])
 
   return (
     <div className="flex min-h-screen flex-col pb-20">
@@ -106,7 +96,12 @@ export default async function MascotaDetailPage({
         }
       />
       <main className="flex-1 px-4 py-4">
-        <PetDetailView mascota={mascota} history={history} clienteNombre={mascota.cliente?.nombre || "Cliente desconocido"} />
+        <PetDetailView
+          mascota={mascota}
+          history={history}
+          clienteNombre={mascota.cliente?.nombre || "Cliente desconocido"}
+          proximoTurno={proximoTurno}
+        />
       </main>
       <BottomNav />
     </div>

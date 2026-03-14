@@ -22,13 +22,22 @@ import { actualizarNotasTurno } from "@/lib/actions/turnos"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
+interface ProximoTurno {
+  id: string
+  fecha: string
+  hora: string
+  tipo_servicio: string
+  estado: string
+}
+
 interface PetDetailViewProps {
   mascota: Mascota
   history: PetHistoryEntry[]
   clienteNombre: string
+  proximoTurno?: ProximoTurno | null
 }
 
-export function PetDetailView({ mascota, history, clienteNombre }: PetDetailViewProps) {
+export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }: PetDetailViewProps) {
   const router = useRouter()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -160,6 +169,22 @@ export function PetDetailView({ mascota, history, clienteNombre }: PetDetailView
         </Card>
       </div>
 
+      {/* Próximo turno */}
+      {proximoTurno && (
+        <Card className="border-2 border-primary/20 bg-primary/5">
+          <CardContent className="py-3 px-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground uppercase mb-1">Próximo turno</p>
+              <p className="font-semibold">
+                {new Date(proximoTurno.fecha + "T12:00:00").toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })}
+              </p>
+              <p className="text-sm text-muted-foreground">{proximoTurno.hora.slice(0, 5)} — {proximoTurno.tipo_servicio}</p>
+            </div>
+            <div className="text-2xl">📅</div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* History */}
       <Card>
         <CardHeader className="pb-3">
@@ -225,7 +250,7 @@ export function PetDetailView({ mascota, history, clienteNombre }: PetDetailView
                       <Textarea
                         value={notasTemp}
                         onChange={(e) => setNotasTemp(e.target.value)}
-                        placeholder="Ej: tijera N°5, no le gusta el secador..."
+                        placeholder="Ej: cara redonda, tijera N°5, no le gusta el secador..."
                         className="text-sm min-h-16 resize-none"
                         autoFocus
                       />
