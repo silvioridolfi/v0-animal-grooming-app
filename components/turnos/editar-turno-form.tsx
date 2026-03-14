@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { actualizarTurno, marcarTurnoRealizado } from "@/lib/actions/turnos"
+import { Card, CardContent } from "@/components/ui/card"
+import { actualizarTurno } from "@/lib/actions/turnos"
 import { Dog, Cat, DollarSign, X } from "lucide-react"
 
 interface EditarTurnoFormProps {
@@ -86,220 +86,151 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
   const yaCobrado = turno.estado === "realizado"
 
   return (
-    <form onSubmit={handleGuardar} className="space-y-4">
+    <form onSubmit={handleGuardar} className="space-y-4 max-w-lg mx-auto">
 
-      {/* Estado */}
+      {/* Info principal condensada */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Estado del turno</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            {(["pendiente", "realizado", "cancelado"] as const).map((e) => (
-              <Button
-                key={e}
-                type="button"
-                variant={estado === e ? "default" : "outline"}
-                className="flex-1 capitalize"
-                onClick={() => setEstado(e)}
-              >
-                {e.charAt(0).toUpperCase() + e.slice(1)}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+        <CardContent className="pt-4 space-y-4">
 
-      {/* Mascota */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Mascota</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Select value={mascotaId} onValueChange={setMascotaId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Seleccioná una mascota" />
-            </SelectTrigger>
-            <SelectContent>
-              {mascotas.map((mascota) => (
-                <SelectItem key={mascota.id} value={mascota.id}>
-                  <div className="flex items-center gap-2">
-                    {mascota.tipo_animal === "Perro" ? <Dog className="h-4 w-4" /> : <Cat className="h-4 w-4" />}
-                    {mascota.nombre} ({mascota.cliente?.nombre})
-                  </div>
-                </SelectItem>
+          {/* Estado */}
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground uppercase">Estado</Label>
+            <div className="flex gap-2">
+              {(["pendiente", "realizado", "cancelado"] as const).map((e) => (
+                <Button
+                  key={e}
+                  type="button"
+                  variant={estado === e ? "default" : "outline"}
+                  className="flex-1 capitalize h-9 text-sm"
+                  onClick={() => setEstado(e)}
+                >
+                  {e.charAt(0).toUpperCase() + e.slice(1)}
+                </Button>
               ))}
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
-
-      {/* Tipo de servicio */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Tipo de servicio</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-2">
-            {(["Corte", "Baño", "Corte y Baño"] as const).map((tipo) => (
-              <Button
-                key={tipo}
-                type="button"
-                variant={tipoServicio === tipo ? "default" : "outline"}
-                className="h-12 text-sm"
-                onClick={() => setTipoServicio(tipo)}
-              >
-                {tipo}
-              </Button>
-            ))}
+            </div>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Fecha y hora */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Fecha y hora</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          {/* Mascota */}
           <div className="space-y-2">
-            <Label htmlFor="fecha">Fecha</Label>
-            <Input id="fecha" type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
+            <Label className="text-xs text-muted-foreground uppercase">Mascota</Label>
+            <Select value={mascotaId} onValueChange={setMascotaId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccioná una mascota" />
+              </SelectTrigger>
+              <SelectContent>
+                {mascotas.map((mascota) => (
+                  <SelectItem key={mascota.id} value={mascota.id}>
+                    <div className="flex items-center gap-2">
+                      {mascota.tipo_animal === "Perro" ? <Dog className="h-4 w-4" /> : <Cat className="h-4 w-4" />}
+                      {mascota.nombre} ({mascota.cliente?.nombre})
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+
+          {/* Tipo de servicio */}
           <div className="space-y-2">
-            <Label htmlFor="hora">Hora</Label>
-            <Input id="hora" type="time" value={hora} onChange={(e) => setHora(e.target.value)} />
+            <Label className="text-xs text-muted-foreground uppercase">Tipo de servicio</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {(["Corte", "Baño", "Corte y Baño"] as const).map((tipo) => (
+                <Button
+                  key={tipo}
+                  type="button"
+                  variant={tipoServicio === tipo ? "default" : "outline"}
+                  className="h-10 text-sm"
+                  onClick={() => setTipoServicio(tipo)}
+                >
+                  {tipo}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Fecha y hora en una fila */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground uppercase">Fecha</Label>
+              <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground uppercase">Hora</Label>
+              <Input type="time" value={hora} onChange={(e) => setHora(e.target.value)} />
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Cobro — solo si está pendiente */}
+      {/* Cobro */}
       {!yaCobrado && (
         <Card className="border-2 border-green-200">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center justify-between text-base">
-              <span className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-green-600" />
+          <CardContent className="pt-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="flex items-center gap-2 text-green-700 font-medium">
+                <DollarSign className="h-4 w-4" />
                 Cobrar turno
-              </span>
+              </Label>
               {mostraCobro && (
-                <Button type="button" variant="ghost" size="icon" onClick={() => setMostraCobro(false)}>
+                <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => setMostraCobro(false)}>
                   <X className="h-4 w-4" />
                 </Button>
               )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </div>
             {!mostraCobro ? (
-              <Button
-                type="button"
-                className="w-full h-12 bg-green-600 hover:bg-green-700 text-white"
-                onClick={() => setMostraCobro(true)}
-              >
-                <DollarSign className="mr-2 h-5 w-5" />
+              <Button type="button" className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={() => setMostraCobro(true)}>
                 Registrar cobro
               </Button>
             ) : (
               <>
-                <div className="space-y-2">
-                  <Label>Precio</Label>
+                <Input
+                  type="number"
+                  value={precioManual}
+                  onChange={(e) => setPrecioManual(e.target.value)}
+                  placeholder="Ingresá el precio"
+                  min="0"
+                  step="100"
+                  className="h-12 text-base"
+                />
+                <div className="flex gap-2">
+                  <Button type="button" variant={descuentoTipo === "fijo" ? "default" : "outline"} size="sm" className="flex-1"
+                    onClick={() => { setDescuentoTipo(descuentoTipo === "fijo" ? "" : "fijo"); setDescuentoValor("") }}>
+                    $ Fijo
+                  </Button>
+                  <Button type="button" variant={descuentoTipo === "porcentaje" ? "default" : "outline"} size="sm" className="flex-1"
+                    onClick={() => { setDescuentoTipo(descuentoTipo === "porcentaje" ? "" : "porcentaje"); setDescuentoValor("") }}>
+                    % Porcentaje
+                  </Button>
+                </div>
+                {descuentoTipo && (
                   <Input
                     type="number"
-                    value={precioManual}
-                    onChange={(e) => setPrecioManual(e.target.value)}
-                    placeholder="Ingresá el precio"
+                    value={descuentoValor}
+                    onChange={(e) => setDescuentoValor(e.target.value)}
+                    placeholder={descuentoTipo === "fijo" ? "Monto a descontar" : "Porcentaje (ej: 10)"}
                     min="0"
-                    step="100"
-                    className="h-12 text-base"
                   />
+                )}
+                <div className="flex gap-2">
+                  <Button type="button" variant={metodoPago === "efectivo" ? "default" : "outline"} className="flex-1 h-12"
+                    onClick={() => setMetodoPago("efectivo")}>
+                    💵 Efectivo
+                  </Button>
+                  <Button type="button" variant={metodoPago === "transferencia" ? "default" : "outline"} className="flex-1 h-12"
+                    onClick={() => setMetodoPago("transferencia")}>
+                    🔄 Transferencia
+                  </Button>
                 </div>
-
-                <div className="space-y-2">
-                  <Label>Descuento (opcional)</Label>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant={descuentoTipo === "fijo" ? "default" : "outline"}
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => { setDescuentoTipo(descuentoTipo === "fijo" ? "" : "fijo"); setDescuentoValor("") }}
-                    >
-                      $ Fijo
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={descuentoTipo === "porcentaje" ? "default" : "outline"}
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => { setDescuentoTipo(descuentoTipo === "porcentaje" ? "" : "porcentaje"); setDescuentoValor("") }}
-                    >
-                      % Porcentaje
-                    </Button>
-                  </div>
-                  {descuentoTipo && (
-                    <Input
-                      type="number"
-                      value={descuentoValor}
-                      onChange={(e) => setDescuentoValor(e.target.value)}
-                      placeholder={descuentoTipo === "fijo" ? "Monto a descontar" : "Porcentaje (ej: 10)"}
-                      min="0"
-                      className="h-12"
-                    />
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Forma de pago</Label>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant={metodoPago === "efectivo" ? "default" : "outline"}
-                      className="flex-1 h-12"
-                      onClick={() => setMetodoPago("efectivo")}
-                    >
-                      💵 Efectivo
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={metodoPago === "transferencia" ? "default" : "outline"}
-                      className="flex-1 h-12"
-                      onClick={() => setMetodoPago("transferencia")}
-                    >
-                      🔄 Transferencia
-                    </Button>
-                  </div>
-                </div>
-
                 {precioManual && Number(precioManual) > 0 && (
-                  <div className="rounded-lg bg-green-50 border border-green-200 p-3 space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>Precio base:</span>
-                      <span>${Number(precioManual).toLocaleString("es-AR")}</span>
-                    </div>
-                    {descuentoTipo && descuentoValor && (
-                      <div className="flex justify-between text-sm text-amber-600">
-                        <span>Descuento:</span>
-                        <span>-${(Number(precioManual) - precioFinal).toLocaleString("es-AR")}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between text-base font-semibold border-t pt-1">
-                      <span>Total:</span>
-                      <span className="text-green-700">${precioFinal.toLocaleString("es-AR")}</span>
-                    </div>
+                  <div className="rounded-lg bg-green-50 border border-green-200 p-3 flex justify-between font-semibold">
+                    <span>Total:</span>
+                    <span className="text-green-700">${precioFinal.toLocaleString("es-AR")}</span>
                   </div>
                 )}
-
-                {errorMsg && (
-                  <p className="text-sm text-destructive">{errorMsg}</p>
-                )}
-
-                <Button
-                  type="button"
-                  className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-semibold"
-                  onClick={handleCobrar}
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Guardando..." : "Confirmar cobro y finalizar turno"}
+                {errorMsg && <p className="text-sm text-destructive">{errorMsg}</p>}
+                <Button type="button" className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-semibold"
+                  onClick={handleCobrar} disabled={isLoading}>
+                  {isLoading ? "Guardando..." : "Confirmar cobro"}
                 </Button>
               </>
             )}
@@ -307,29 +238,19 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
         </Card>
       )}
 
-      {/* Si ya fue cobrado, mostrar resumen */}
       {yaCobrado && turno.precio_final && turno.precio_final > 0 && (
         <Card className="bg-green-50 border-green-200">
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between">
-              <span className="text-green-800 font-medium">Turno cobrado</span>
-              <div className="text-right">
-                <p className="text-xl font-bold text-green-700">${turno.precio_final.toLocaleString("es-AR")}</p>
-                {turno.metodo_pago && (
-                  <p className="text-sm text-green-600 capitalize">{turno.metodo_pago}</p>
-                )}
-              </div>
+          <CardContent className="py-4 flex items-center justify-between">
+            <span className="text-green-800 font-medium">✓ Turno cobrado</span>
+            <div className="text-right">
+              <p className="text-xl font-bold text-green-700">${turno.precio_final.toLocaleString("es-AR")}</p>
+              {turno.metodo_pago && <p className="text-sm text-green-600 capitalize">{turno.metodo_pago}</p>}
             </div>
           </CardContent>
         </Card>
       )}
 
-      <Button
-        type="submit"
-        className="w-full"
-        size="lg"
-        disabled={!mascotaId || !tipoServicio || isLoading}
-      >
+      <Button type="submit" className="w-full" size="lg" disabled={!mascotaId || !tipoServicio || isLoading}>
         {isLoading ? "Guardando..." : "Guardar cambios"}
       </Button>
     </form>
