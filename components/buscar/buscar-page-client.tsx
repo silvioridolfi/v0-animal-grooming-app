@@ -92,7 +92,7 @@ export function BuscarPageClient() {
           {resultados.map((r) => (
             <Link
               key={`${r.tipo}-${r.id}`}
-              href={r.tipo === "mascota" ? `/mascotas/${r.id}` : `/mascotas?buscar=${r.nombre}`}
+              href={r.tipo === "mascota" ? `/mascotas/${r.id}` : `/clientes/${r.id}/editar`}
               className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
             >
               <div className="h-10 w-10 flex items-center justify-center rounded-full bg-primary/10 shrink-0">
