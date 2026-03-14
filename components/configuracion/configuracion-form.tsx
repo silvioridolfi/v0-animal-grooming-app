@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { updateConfiguracion, agregarDiaNoLaborable, quitarDiaNoLaborable } from "@/lib/actions/configuracion"
 import { cn } from "@/lib/utils"
-import { X, Plus, Check, Clock, Calendar } from "lucide-react"
+import { X, Plus, Check, Clock, Calendar, Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
 
 interface ConfiguracionFormProps {
   config: ConfiguracionNegocio | null
@@ -24,6 +25,41 @@ const DIAS_SEMANA = [
   { value: 6, label: "Sab" },
   { value: 0, label: "Dom" },
 ]
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+
+  return (
+    <div className="flex gap-2">
+      <Button
+        type="button"
+        variant={theme === "light" ? "default" : "outline"}
+        className="flex-1 gap-2"
+        onClick={() => setTheme("light")}
+      >
+        <Sun className="h-4 w-4" />
+        Claro
+      </Button>
+      <Button
+        type="button"
+        variant={theme === "dark" ? "default" : "outline"}
+        className="flex-1 gap-2"
+        onClick={() => setTheme("dark")}
+      >
+        <Moon className="h-4 w-4" />
+        Oscuro
+      </Button>
+      <Button
+        type="button"
+        variant={theme === "system" ? "default" : "outline"}
+        className="flex-1 gap-2"
+        onClick={() => setTheme("system")}
+      >
+        Auto
+      </Button>
+    </div>
+  )
+}
 
 export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
   const [diasLaborales, setDiasLaborales] = useState<number[]>(config?.dias_laborales || [1, 2, 3, 4, 5])
@@ -58,7 +94,6 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
   const handleAgregarDiaNoLaborable = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!nuevoDiaNoLaborable) return
-
     setIsLoading(true)
     await agregarDiaNoLaborable(nuevoDiaNoLaborable)
     setDiasNoLaborables((prev) => [...prev, nuevoDiaNoLaborable])
@@ -122,20 +157,14 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
               <Input
                 type="time"
                 value={horaInicioManana}
-                onChange={(e) => {
-                  setHoraInicioManana(e.target.value)
-                  setSaved(false)
-                }}
+                onChange={(e) => { setHoraInicioManana(e.target.value); setSaved(false) }}
                 className="flex-1 h-12 text-center"
               />
               <span className="text-muted-foreground font-medium">a</span>
               <Input
                 type="time"
                 value={horaFinManana}
-                onChange={(e) => {
-                  setHoraFinManana(e.target.value)
-                  setSaved(false)
-                }}
+                onChange={(e) => { setHoraFinManana(e.target.value); setSaved(false) }}
                 className="flex-1 h-12 text-center"
               />
             </div>
@@ -146,20 +175,14 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
               <Input
                 type="time"
                 value={horaInicioTarde}
-                onChange={(e) => {
-                  setHoraInicioTarde(e.target.value)
-                  setSaved(false)
-                }}
+                onChange={(e) => { setHoraInicioTarde(e.target.value); setSaved(false) }}
                 className="flex-1 h-12 text-center"
               />
               <span className="text-muted-foreground font-medium">a</span>
               <Input
                 type="time"
                 value={horaFinTarde}
-                onChange={(e) => {
-                  setHoraFinTarde(e.target.value)
-                  setSaved(false)
-                }}
+                onChange={(e) => { setHoraFinTarde(e.target.value); setSaved(false) }}
                 className="flex-1 h-12 text-center"
               />
             </div>
@@ -222,6 +245,19 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
               ))}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Apariencia */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Sun className="h-4 w-4" />
+            Apariencia
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ThemeToggle />
         </CardContent>
       </Card>
     </div>
