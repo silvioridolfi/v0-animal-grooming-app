@@ -45,7 +45,6 @@ export function AgendaPageClient({
   const [isDeleting, setIsDeleting] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
-  // Cobro
   const [mostraCobro, setMostraCobro] = useState(false)
   const [precio, setPrecio] = useState("")
   const [metodoPago, setMetodoPago] = useState<"efectivo" | "transferencia" | "">("")
@@ -222,7 +221,7 @@ export function AgendaPageClient({
               {!yaCobrado && !mostraCobro && selectedTurno.estado !== "cancelado" && (
                 <Button
                   onClick={() => setMostraCobro(true)}
-                  className="w-full h-14 text-base bg-green-600 hover:bg-green-700 text-white font-semibold"
+                  className="w-full h-14 text-base bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
                 >
                   <DollarSign className="mr-2 h-5 w-5" />
                   Cobrar turno
@@ -230,12 +229,12 @@ export function AgendaPageClient({
               )}
 
               {!yaCobrado && mostraCobro && (
-                <div className="rounded-lg border-2 border-green-200 bg-green-50 p-4 space-y-3">
+                <div className="rounded-lg border-2 border-accent/30 bg-accent/10 p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <p className="font-medium text-green-800">Registrar cobro</p>
+                    <p className="font-medium text-accent-foreground">Registrar cobro</p>
                     <button
                       onClick={() => { setMostraCobro(false); setPrecio(""); setMetodoPago(""); setErrorCobro("") }}
-                      className="h-7 w-7 flex items-center justify-center rounded hover:bg-green-100"
+                      className="h-7 w-7 flex items-center justify-center rounded hover:bg-accent/20"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -250,7 +249,7 @@ export function AgendaPageClient({
                       placeholder="Ingresá el precio"
                       min="0"
                       step="100"
-                      className="h-12 text-base bg-white"
+                      className="h-12 text-base"
                       autoFocus
                     />
                   </div>
@@ -261,7 +260,7 @@ export function AgendaPageClient({
                       <Button
                         type="button"
                         variant={metodoPago === "efectivo" ? "default" : "outline"}
-                        className="flex-1 h-12 bg-white"
+                        className="flex-1 h-12"
                         onClick={() => setMetodoPago("efectivo")}
                       >
                         💵 Efectivo
@@ -269,7 +268,7 @@ export function AgendaPageClient({
                       <Button
                         type="button"
                         variant={metodoPago === "transferencia" ? "default" : "outline"}
-                        className="flex-1 h-12 bg-white"
+                        className="flex-1 h-12"
                         onClick={() => setMetodoPago("transferencia")}
                       >
                         🔄 Transferencia
@@ -282,7 +281,7 @@ export function AgendaPageClient({
                   <Button
                     onClick={handleCobrar}
                     disabled={isCobering}
-                    className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-semibold"
+                    className="w-full h-12 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
                   >
                     <Check className="mr-2 h-5 w-5" />
                     {isCobering ? "Guardando..." : `Confirmar cobro${precioNum > 0 ? ` — $${precioNum.toLocaleString("es-AR")}` : ""}`}
@@ -292,12 +291,12 @@ export function AgendaPageClient({
 
               {/* Turno ya cobrado */}
               {yaCobrado && (
-                <div className="rounded-lg bg-green-50 border border-green-200 p-3 flex items-center justify-between">
-                  <span className="text-green-800 font-medium">✓ Turno cobrado</span>
+                <div className="rounded-lg bg-accent/15 border border-accent/30 p-3 flex items-center justify-between">
+                  <span className="text-accent-foreground font-medium">✓ Turno cobrado</span>
                   <div className="text-right">
-                    <p className="font-bold text-green-700">${selectedTurno.precio_final?.toLocaleString("es-AR")}</p>
+                    <p className="font-bold text-accent-foreground">${selectedTurno.precio_final?.toLocaleString("es-AR")}</p>
                     {selectedTurno.metodo_pago && (
-                      <p className="text-xs text-green-600 capitalize">{selectedTurno.metodo_pago}</p>
+                      <p className="text-xs text-accent-foreground/70 capitalize">{selectedTurno.metodo_pago}</p>
                     )}
                   </div>
                 </div>
@@ -314,7 +313,7 @@ export function AgendaPageClient({
               <div className="grid gap-2 pt-2 border-t">
                 <Link href={`/turnos/${selectedTurno.id}/editar`} className="w-full">
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     className="w-full gap-2"
                     onClick={handleDetailsModalClose}
                   >
@@ -338,17 +337,14 @@ export function AgendaPageClient({
                       })
                       handleDetailsModalClose()
                     }}
-                    variant="outline"
-                    className="w-full gap-2 text-amber-600 border-amber-200 hover:bg-amber-50"
+                    className="w-full gap-2 bg-amber-100 text-amber-800 hover:bg-amber-200 border-0"
                   >
                     Cancelar turno
                   </Button>
                 )}
                 <Button
                   onClick={() => setShowDeleteDialog(true)}
-                  variant="outline"
-                  className="w-full gap-2 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
-                  size="sm"
+                  className="w-full gap-2 bg-destructive/10 text-destructive hover:bg-destructive/20 border-0"
                 >
                   <Trash2 className="h-4 w-4" />
                   Eliminar turno
