@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
-import { Dog, Cat, Trash2, Edit, DollarSign, Calendar, Tag, Clock, Pencil, Check, X } from "lucide-react"
+import { Dog, Cat, Trash2, Edit, DollarSign, Calendar, Tag, Clock, Pencil, Check, X, User } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -93,7 +93,12 @@ export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }:
                   <span className="hidden sm:inline ml-1">Historial</span>
                 </Button>
               </Link>
-              <Link href={`/mascotas/${mascota.id}/editar`}>
+              <Link href={`/clientes/${mascota.cliente_id}/editar`} title="Editar dueño">
+                <Button variant="outline" size="sm">
+                  <User className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href={`/mascotas/${mascota.id}/editar`} title="Editar mascota">
                 <Button variant="outline" size="sm">
                   <Edit className="h-4 w-4" />
                 </Button>
