@@ -2,12 +2,13 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, Dog, CreditCard, Wallet } from "lucide-react"
+import { Calendar, Dog, CreditCard, Wallet, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navItems = [
   { href: "/", label: "Agenda", icon: Calendar },
   { href: "/mascotas", label: "Mascotas", icon: Dog },
+  { href: "/buscar", label: "Buscar", icon: Search },
   { href: "/pagos", label: "Pagos", icon: CreditCard },
   { href: "/finanzas", label: "Finanzas", icon: Wallet },
 ]
@@ -35,7 +36,6 @@ export function BottomNav() {
           )
         })}
       </div>
-      {/* Safe area for devices with home indicator */}
       <div className="h-safe-area-inset-bottom bg-card" />
     </nav>
   )
