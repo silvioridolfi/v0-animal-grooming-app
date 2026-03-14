@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Poppins, Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { ThemeProvider } from "@/components/theme-provider"
 import { BottomNav } from "@/components/bottom-nav"
 import "./globals.css"
 
@@ -40,14 +41,16 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.svg" sizes="32x32" />
       </head>
       <body className={`${inter.variable} ${poppins.variable} font-sans antialiased`}>
-        {children}
-        <BottomNav />
-        <Analytics />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+          <BottomNav />
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   )
