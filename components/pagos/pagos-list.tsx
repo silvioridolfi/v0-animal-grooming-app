@@ -1,9 +1,12 @@
 "use client"
 
+import { useState, useMemo } from "react"
 import { PagoCard } from "./pago-card"
 import { EmptyState } from "@/components/empty-state"
 import { CreditCard, DollarSign, Banknote, ArrowRightLeft } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 interface PagosListProps {
   pagos: any[]
@@ -13,6 +16,21 @@ interface PagosListProps {
 }
 
 export function PagosList({ pagos, totalHoy, efectivoHoy, transferenciaHoy }: PagosListProps) {
+  const [filtroMetodo, setFiltroMetodo] = useState<"todos" | "efectivo" | "transferencia">("todos")
+  const [filtroDesde, setFiltroDesde] = useState("")
+  const [filtroHasta, setFiltroHasta] = useState("")
+
+  const pagosFiltrados = useMemo(() => {
+    return pagos.filter((pago) => {
+      if (filtroMetodo !== "todos" && pago.metodo_pago !== filtroMetodo) return false
+      if (filtroDesde && pago.fecha < filtroDesde) return false
+      if (filtroHasta && pago.fecha > filtroHasta) return false
+      return true
+    })
+  }, [pagos, filtroMetodo, filtroDesde, filtroHasta])
+
+  const hayFiltros = filtroMetodo !== "todos" || filtroDesde || filtroHasta
+
   return (
     <div className="space-y-4">
       <div className="grid gap-3">
@@ -48,12 +66,52 @@ export function PagosList({ pagos, totalHoy, efectivoHoy, transferenciaHoy }: Pa
         </div>
       </div>
 
-      {pagos.length === 0 ? (
-        <EmptyState icon={CreditCard} title="Sin pagos" description="Los pagos registrados aparecerán aquí." />
+      {/* Filtros */}
+      <div className="space-y-2">
+        <div className="flex gap-2">
+          {(["todos", "efectivo", "transferencia"] as const).map((m) => (
+            <Button
+              key={m}
+              variant={filtroMetodo === m ? "default" : "outline"}
+              size="sm"
+              className="flex-1 capitalize"
+              onClick={() => setFiltroMetodo(m)}
+            >
+              {m === "todos" ? "Todos" : m === "efectivo" ? "💵 Efectivo" : "🔄 Transf."}
+            </Button>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">Desde</p>
+            <Input type="date" value={filtroDesde} onChange={(e) => setFiltroDesde(e.target.value)} className="h-9" />
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">Hasta</p>
+            <Input type="date" value={filtroHasta} onChange={(e) => setFiltroHasta(e.target.value)} className="h-9" />
+          </div>
+        </div>
+        {hayFiltros && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full text-muted-foreground"
+            onClick={() => { setFiltroMetodo("todos"); setFiltroDesde(""); setFiltroHasta("") }}
+          >
+            Limpiar filtros
+          </Button>
+        )}
+      </div>
+
+      {pagosFiltrados.length === 0 ? (
+        <EmptyState icon={CreditCard} title="Sin pagos" description={hayFiltros ? "No hay pagos que coincidan con los filtros." : "Los pagos registrados aparecerán aquí."} />
       ) : (
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-muted-foreground">Historial de pagos</h3>
-          {pagos.map((pago) => (
+          <h3 className="text-sm font-medium text-muted-foreground">
+            {pagosFiltrados.length} pago{pagosFiltrados.length !== 1 ? "s" : ""}
+            {hayFiltros ? " (filtrados)" : ""}
+          </h3>
+          {pagosFiltrados.map((pago) => (
             <PagoCard key={pago.id} pago={pago} />
           ))}
         </div>
