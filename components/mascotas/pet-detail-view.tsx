@@ -103,7 +103,9 @@ export function PetDetailView({ mascota, history, clienteNombre }: PetDetailView
             </div>
             <div>
               <p className="text-xs text-muted-foreground uppercase">Tamaño</p>
-              <p className="font-medium">{mascota.tamano || "—"}</p>
+              <p className="font-medium">
+                {mascota.tamano === "S" ? "Pequeño" : mascota.tamano === "M" ? "Mediano" : mascota.tamano === "L" ? "Grande" : "—"}
+              </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground uppercase">Raza</p>
