@@ -161,32 +161,7 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial }:
             </div>
           </CardContent>
         </Card>
-        <div className="grid grid-cols-3 gap-3">
-          <Card>
-            <CardContent className="p-3 text-center">
-              <p className="text-2xl font-bold text-primary">
-                {view === "dia" ? resumen.turnosRealizadosDia : resumen.turnosRealizados}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">Realizados</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-3 text-center">
-              <p className="text-2xl font-bold text-amber-500">
-                {view === "dia" ? resumen.turnosPendientesDia : resumen.turnosPendientes}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">Pendientes</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-3 text-center">
-              <p className="text-2xl font-bold text-muted-foreground">
-                {view === "dia" ? resumen.turnosCanceladosDia : resumen.turnosCancelados}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">Cancelados</p>
-            </CardContent>
-          </Card>
-        </div>
+        
         <div className="grid grid-cols-3 gap-3">
           <Card>
             <CardContent className="p-3 text-center">
