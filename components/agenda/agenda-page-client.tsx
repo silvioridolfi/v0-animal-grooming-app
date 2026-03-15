@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { eliminarTurno, actualizarTurno, revertirCobro } from "@/lib/actions/turnos"
 import type { Turno, ConfiguracionNegocio, Mascota } from "@/lib/types"
-import { LogoPatita } from "@/components/logo-patita"
+import { GlobalHeader } from "@/components/global-header"
 
 interface AgendaPageClientProps {
   initialTurnos: Turno[]
@@ -160,7 +160,11 @@ export function AgendaPageClient({
 
   return (
     <div className="flex flex-col min-h-screen">
-      <main className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-24">
+      <div className="sticky top-0 z-40">
+        <GlobalHeader />
+      </div>
+
+      <main className="flex-1 px-4 py-4 space-y-4 pb-24">
         {isMobile ? (
           <CalendarMobile
             turnos={initialTurnos}
