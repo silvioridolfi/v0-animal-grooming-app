@@ -258,20 +258,26 @@ export function CalendarMobile({
                       <div
                         key={turno.id}
                         onClick={() => onTurnoClick?.(turno)}
-                        className="rounded-lg bg-muted/50 p-3 border-l-2 border-primary cursor-pointer hover:bg-muted"
+                        className={`rounded-lg bg-muted/50 p-3 border-l-4 cursor-pointer hover:bg-muted transition-colors ${
+                          turno.estado === "realizado" ? "border-accent" :
+                          turno.estado === "cancelado" ? "border-muted-foreground/30" :
+                          "border-primary"
+                        }`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
                               <span className="font-semibold text-sm">{turno.hora.slice(0, 5)}</span>
-                              <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">
+                              <span className={`text-xs px-2 py-0.5 rounded ${
+                                turno.estado === "realizado" ? "bg-accent/20 text-accent-foreground" :
+                                turno.estado === "cancelado" ? "bg-muted text-muted-foreground" :
+                                "bg-primary/20 text-primary"
+                              }`}>
                                 {turno.estado}
                               </span>
                             </div>
                             <div className="text-xs text-muted-foreground mt-1">
-                              <p>
-                                {turno.mascota?.nombre} ({turno.mascota?.cliente?.nombre})
-                              </p>
+                              <p>{turno.mascota?.nombre} ({turno.mascota?.cliente?.nombre})</p>
                               <p>{turno.tipo_servicio}</p>
                             </div>
                             <div className="text-xs font-semibold mt-1 text-foreground">
