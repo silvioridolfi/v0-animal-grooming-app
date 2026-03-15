@@ -23,6 +23,8 @@ const MESES = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ]
 
+const MAX_DOTS = 6
+
 export function CalendarMobile({
   turnos,
   config,
@@ -107,7 +109,7 @@ export function CalendarMobile({
 
   const getBorderColor = (estado: string) => {
     switch (estado) {
-      case "realizado": return "border-green-400"
+      case "realizado": return "border-accent"
       case "cancelado": return "border-muted-foreground/30"
       default: return "border-primary"
     }
@@ -115,10 +117,20 @@ export function CalendarMobile({
 
   const getEstadoBadge = (estado: string) => {
     switch (estado) {
-      case "realizado": return "bg-green-50 text-green-700 border border-green-200"
+      case "realizado": return "bg-accent/15 text-accent"
       case "cancelado": return "bg-muted text-muted-foreground"
       default: return "bg-primary/15 text-primary"
     }
+  }
+
+  // Reparte los puntos proporcionalmente respetando el máximo total
+  const calcularPuntos = (realizados: number, pendientes: number) => {
+    const total = realizados + pendientes
+    if (total === 0) return { dotsRealizados: 0, dotsPendientes: 0 }
+    if (total <= MAX_DOTS) return { dotsRealizados: realizados, dotsPendientes: pendientes }
+    const dotsRealizados = Math.round((realizados / total) * MAX_DOTS)
+    const dotsPendientes = MAX_DOTS - dotsRealizados
+    return { dotsRealizados, dotsPendientes }
   }
 
   return (
@@ -162,7 +174,7 @@ export function CalendarMobile({
           {/* Leyenda */}
           <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
             <div className="flex items-center gap-1">
-              <div className="h-2.5 w-2.5 rounded-full bg-green-500" />
+              <div className="h-2.5 w-2.5 rounded-full bg-accent" />
               <span>Realizado</span>
             </div>
             <div className="flex items-center gap-1">
@@ -182,6 +194,7 @@ export function CalendarMobile({
               const dayDate = new Date(dateStr + "T12:00:00")
               const dayName = dayDate.toLocaleDateString("es-AR", { weekday: "short" })
               const holidayName = getNombreFeriado(dateStr)
+              const { dotsRealizados, dotsPendientes } = calcularPuntos(realizados, pendientes)
 
               return (
                 <button
@@ -225,13 +238,13 @@ export function CalendarMobile({
                         {turnosCount} turno{turnosCount !== 1 ? "s" : ""}
                       </span>
                       <div className="flex items-center gap-1">
-                        {Array.from({ length: Math.min(realizados, 5) }).map((_, i) => (
+                        {Array.from({ length: dotsRealizados }).map((_, i) => (
                           <div key={`r-${i}`} className={cn(
                             "h-2.5 w-2.5 rounded-full",
-                            isSelected ? "bg-white/80" : "bg-green-500"
+                            isSelected ? "bg-white/80" : "bg-accent"
                           )} />
                         ))}
-                        {Array.from({ length: Math.min(pendientes, 5) }).map((_, i) => (
+                        {Array.from({ length: dotsPendientes }).map((_, i) => (
                           <div key={`p-${i}`} className={cn(
                             "h-2.5 w-2.5 rounded-full",
                             isSelected ? "bg-white/40" : "bg-primary"
