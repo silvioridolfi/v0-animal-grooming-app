@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 
 export function GlobalHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2 active:opacity-70 transition-opacity">
           <Image
