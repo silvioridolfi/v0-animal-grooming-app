@@ -2,7 +2,6 @@
 
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -77,8 +76,7 @@ export function PetEditForm({ mascota, mascotaId, clienteId }: PetEditFormProps)
       }
 
       setIsLoading(false)
-      await new Promise((resolve) => setTimeout(resolve, 100))
-      router.push(`/clientes/${clienteId}`)
+      router.back()
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error desconocido"
       setError(errorMessage)
@@ -242,11 +240,15 @@ export function PetEditForm({ mascota, mascotaId, clienteId }: PetEditFormProps)
       </Card>
 
       <div className="flex gap-2">
-        <Link href={`/clientes/${clienteId}`} className="flex-1">
-          <Button type="button" variant="outline" disabled={isLoading} className="w-full bg-transparent">
-            Cancelar
-          </Button>
-        </Link>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={isLoading}
+          className="flex-1 bg-transparent"
+          onClick={() => router.back()}
+        >
+          Cancelar
+        </Button>
         <Button type="submit" disabled={!puedeSubmit} className="flex-1">
           {isLoading ? "Guardando..." : "Actualizar mascota"}
         </Button>
