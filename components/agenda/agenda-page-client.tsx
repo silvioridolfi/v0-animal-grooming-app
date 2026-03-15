@@ -1,14 +1,13 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { PageHeader } from "@/components/page-header"
 import { CalendarAgenda } from "@/components/agenda/calendar-agenda"
 import { CalendarMobile } from "@/components/agenda/calendar-mobile"
 import { TurnoModal } from "@/components/turnos/turno-modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Settings, X, Trash2, Pencil, DollarSign, Check, RotateCcw } from "lucide-react"
+import { X, Trash2, Pencil, DollarSign, Check, RotateCcw } from "lucide-react"
 import Link from "next/link"
 import {
   AlertDialog,
@@ -161,17 +160,6 @@ export function AgendaPageClient({
 
   return (
     <div className="flex flex-col min-h-screen">
-      <PageHeader
-        title="Andrea | Peluquería Canina"
-        logo={<LogoPatita className="h-8 w-8" />}
-        action={
-          <Link href="/configuracion">
-            <Button variant="ghost" size="icon" className="h-10 w-10">
-              <Settings className="h-5 w-5" />
-            </Button>
-          </Link>
-        }
-      />
       <main className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-24">
         {isMobile ? (
           <CalendarMobile

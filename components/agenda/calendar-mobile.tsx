@@ -85,6 +85,16 @@ export function CalendarMobile({
     else setCurrentMonth(currentMonth + 1)
   }
 
+  const goToToday = () => {
+    const now = new Date()
+    setCurrentMonth(now.getMonth())
+    setCurrentYear(now.getFullYear())
+    setSelectedDate(today)
+    onDayClick(today)
+  }
+
+  const isCurrentMonth = year === new Date().getFullYear() && month === new Date().getMonth()
+
   const handleDateClick = (dateStr: string) => {
     setSelectedDate(dateStr)
     onDayClick(dateStr)
@@ -131,7 +141,19 @@ export function CalendarMobile({
             <Button variant="ghost" size="icon" onClick={prevMonth}>
               <ChevronLeft className="h-5 w-5" />
             </Button>
-            <span className="text-lg font-semibold">{MESES[month]} {year}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-semibold">{MESES[month]} {year}</span>
+              {!isCurrentMonth && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={goToToday}
+                  className="h-7 px-2 text-xs font-semibold text-primary border-primary/30 hover:bg-primary/10"
+                >
+                  Hoy
+                </Button>
+              )}
+            </div>
             <Button variant="ghost" size="icon" onClick={nextMonth}>
               <ChevronRight className="h-5 w-5" />
             </Button>
@@ -154,7 +176,7 @@ export function CalendarMobile({
           </div>
 
           <div className="space-y-1.5 max-h-72 overflow-y-auto">
-            {days.map(({ day, dateStr, turnosCount, realizados, pendientes, nonWorking, turnosDelDia }) => {
+            {days.map(({ day, dateStr, turnosCount, realizados, pendientes, nonWorking }) => {
               const isToday = dateStr === today
               const isSelected = dateStr === selectedDate
               const dayDate = new Date(dateStr + "T12:00:00")
@@ -174,7 +196,6 @@ export function CalendarMobile({
                     nonWorking && !holidayName && !isSelected && "opacity-40",
                   )}
                 >
-                  {/* Día y número */}
                   <div className="flex items-center gap-3">
                     <div className="text-center min-w-[44px]">
                       <div className={cn(
@@ -185,8 +206,6 @@ export function CalendarMobile({
                       </div>
                       <div className="text-xl font-bold leading-tight">{day}</div>
                     </div>
-
-                    {/* Feriado */}
                     {holidayName && (
                       <div className="flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5 text-amber-600" />
@@ -197,35 +216,26 @@ export function CalendarMobile({
                     )}
                   </div>
 
-                  {/* Indicadores de turnos */}
                   {turnosCount > 0 && (
                     <div className="flex flex-col items-end gap-1">
-                      {/* Texto cantidad */}
                       <span className={cn(
                         "text-xs font-semibold",
                         isSelected ? "text-primary-foreground" : "text-foreground"
                       )}>
                         {turnosCount} turno{turnosCount !== 1 ? "s" : ""}
                       </span>
-                      {/* Puntos de estado */}
                       <div className="flex items-center gap-1">
-                        {Array.from({ length: realizados }).map((_, i) => (
-                          <div
-                            key={`r-${i}`}
-                            className={cn(
-                              "h-2.5 w-2.5 rounded-full",
-                              isSelected ? "bg-white/80" : "bg-green-500"
-                            )}
-                          />
+                        {Array.from({ length: Math.min(realizados, 5) }).map((_, i) => (
+                          <div key={`r-${i}`} className={cn(
+                            "h-2.5 w-2.5 rounded-full",
+                            isSelected ? "bg-white/80" : "bg-green-500"
+                          )} />
                         ))}
-                        {Array.from({ length: pendientes }).map((_, i) => (
-                          <div
-                            key={`p-${i}`}
-                            className={cn(
-                              "h-2.5 w-2.5 rounded-full",
-                              isSelected ? "bg-white/40" : "bg-primary"
-                            )}
-                          />
+                        {Array.from({ length: Math.min(pendientes, 5) }).map((_, i) => (
+                          <div key={`p-${i}`} className={cn(
+                            "h-2.5 w-2.5 rounded-full",
+                            isSelected ? "bg-white/40" : "bg-primary"
+                          )} />
                         ))}
                       </div>
                     </div>
@@ -265,12 +275,7 @@ export function CalendarMobile({
             ) : selectedTurnos.length === 0 ? (
               <div className="rounded-lg bg-muted/30 px-4 py-6 text-center">
                 <p className="text-sm text-muted-foreground mb-3">Sin turnos agendados</p>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full bg-transparent"
-                  onClick={() => onAddTurno(selectedDate)}
-                >
+                <Button size="sm" variant="outline" className="w-full bg-transparent" onClick={() => onAddTurno(selectedDate)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Agregar turno
                 </Button>

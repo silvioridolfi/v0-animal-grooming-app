@@ -29,7 +29,7 @@ const DIAS_SEMANA_CORTO = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
 const getBadgeColor = (estado: string, isSelected: boolean) => {
   if (isSelected) return "bg-white/20 text-white"
   switch (estado) {
-    case "realizado": return "bg-accent/15 text-accent"
+    case "realizado": return "bg-green-50 text-green-700"
     case "cancelado": return "bg-muted text-muted-foreground"
     default: return "bg-primary/15 text-primary"
   }
@@ -37,7 +37,7 @@ const getBadgeColor = (estado: string, isSelected: boolean) => {
 
 const getEstadoBadge = (estado: string) => {
   switch (estado) {
-    case "realizado": return "bg-accent/15 text-accent"
+    case "realizado": return "bg-green-50 text-green-700 border border-green-200"
     case "cancelado": return "bg-muted/80 text-muted-foreground"
     default: return "bg-primary/15 text-primary"
   }
@@ -45,7 +45,7 @@ const getEstadoBadge = (estado: string) => {
 
 const getBorderColor = (estado: string) => {
   switch (estado) {
-    case "realizado": return "border-accent"
+    case "realizado": return "border-green-400"
     case "cancelado": return "border-muted-foreground/30"
     default: return "border-primary"
   }
@@ -60,13 +60,12 @@ export function CalendarAgenda({
   onTurnoClick,
   initialSelectedDate,
 }: CalendarAgendaProps) {
+  const today = new Date().toISOString().split("T")[0]
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<string>(
-    initialSelectedDate || new Date().toISOString().split("T")[0],
+    initialSelectedDate || today,
   )
   const [expandedDay, setExpandedDay] = useState<string | null>(null)
-
-  const selectedFeriado = useMemo(() => getNombreFeriado(selectedDate), [selectedDate])
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -95,6 +94,15 @@ export function CalendarAgenda({
   const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1))
   const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1))
 
+  const goToToday = () => {
+    const now = new Date()
+    setCurrentDate(now)
+    setSelectedDate(today)
+    onDayClick(today)
+  }
+
+  const isCurrentMonth = year === new Date().getFullYear() && month === new Date().getMonth()
+
   const handleDateClick = (day: number) => {
     const date = new Date(year, month, day)
     const dateStr = date.toISOString().split("T")[0]
@@ -102,7 +110,6 @@ export function CalendarAgenda({
     onDayClick(dateStr)
   }
 
-  const today = new Date().toISOString().split("T")[0]
   const selectedTurnos = selectedDate ? turnosPorDia[selectedDate] || [] : []
   const selectedIsNonWorking = selectedDate ? isNonWorking(new Date(selectedDate + "T12:00:00")) : false
 
@@ -169,7 +176,7 @@ export function CalendarAgenda({
                 isSelected
                   ? "bg-white/20 text-white"
                   : turno.estado === "realizado"
-                  ? "bg-accent/15 text-accent"
+                  ? "bg-green-50 text-green-700"
                   : "bg-primary/15 text-primary"
               )}
               title={`${turno.hora.slice(0, 5)} - ${turno.mascota?.nombre}`}
@@ -216,7 +223,7 @@ export function CalendarAgenda({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between rounded-lg bg-accent/20 px-4 py-3">
+      <div className="flex items-center justify-between rounded-lg bg-primary/5 border border-primary/20 px-4 py-3">
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
           <DollarSign className="h-4 w-4" />
           <span>Total cobrado hoy</span>
@@ -231,7 +238,19 @@ export function CalendarAgenda({
               <Button variant="ghost" size="icon" onClick={prevMonth} className="h-10 w-10">
                 <ChevronLeft className="h-5 w-5" />
               </Button>
-              <span className="text-lg font-semibold font-heading">{MESES[month]} {year}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-semibold font-heading">{MESES[month]} {year}</span>
+                {!isCurrentMonth && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goToToday}
+                    className="h-7 px-2 text-xs font-semibold text-primary border-primary/30 hover:bg-primary/10"
+                  >
+                    Hoy
+                  </Button>
+                )}
+              </div>
               <Button variant="ghost" size="icon" onClick={nextMonth} className="h-10 w-10">
                 <ChevronRight className="h-5 w-5" />
               </Button>
@@ -255,7 +274,7 @@ export function CalendarAgenda({
               <span>Pendiente</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="h-3 w-3 rounded-md bg-accent/15" />
+              <div className="h-3 w-3 rounded-md bg-green-100" />
               <span>Realizado</span>
             </div>
             <div className="flex items-center gap-1">
@@ -278,7 +297,7 @@ export function CalendarAgenda({
           </CardHeader>
           <CardContent className="space-y-3">
             {getNombreFeriado(selectedDate) && (
-              <div className="rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 px-4 py-4">
+              <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-4">
                 <div className="flex items-start gap-3">
                   <Calendar className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">

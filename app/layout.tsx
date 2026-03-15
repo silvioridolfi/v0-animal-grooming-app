@@ -4,6 +4,7 @@ import { Poppins, DM_Sans } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { BottomNav } from "@/components/bottom-nav"
+import { GlobalHeader } from "@/components/global-header"
 import "./globals.css"
 
 const poppins = Poppins({
@@ -47,6 +48,7 @@ export default function RootLayout({
       </head>
       <body className={`${dmSans.variable} ${poppins.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          <GlobalHeader />
           {children}
           <BottomNav />
           <Analytics />
