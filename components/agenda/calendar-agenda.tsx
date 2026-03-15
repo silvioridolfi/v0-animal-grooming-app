@@ -29,7 +29,7 @@ const DIAS_SEMANA_CORTO = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
 const getBadgeColor = (estado: string, isSelected: boolean) => {
   if (isSelected) return "bg-white/20 text-white"
   switch (estado) {
-    case "realizado": return "bg-green-50 text-green-700"
+    case "realizado": return "bg-accent/15 text-accent"
     case "cancelado": return "bg-muted text-muted-foreground"
     default: return "bg-primary/15 text-primary"
   }
@@ -37,7 +37,7 @@ const getBadgeColor = (estado: string, isSelected: boolean) => {
 
 const getEstadoBadge = (estado: string) => {
   switch (estado) {
-    case "realizado": return "bg-green-50 text-green-700 border border-green-200"
+    case "realizado": return "bg-accent/15 text-accent"
     case "cancelado": return "bg-muted/80 text-muted-foreground"
     default: return "bg-primary/15 text-primary"
   }
@@ -45,7 +45,7 @@ const getEstadoBadge = (estado: string) => {
 
 const getBorderColor = (estado: string) => {
   switch (estado) {
-    case "realizado": return "border-green-400"
+    case "realizado": return "border-accent"
     case "cancelado": return "border-muted-foreground/30"
     default: return "border-primary"
   }
@@ -176,7 +176,7 @@ export function CalendarAgenda({
                 isSelected
                   ? "bg-white/20 text-white"
                   : turno.estado === "realizado"
-                  ? "bg-green-50 text-green-700"
+                  ? "bg-accent/15 text-accent"
                   : "bg-primary/15 text-primary"
               )}
               title={`${turno.hora.slice(0, 5)} - ${turno.mascota?.nombre}`}
@@ -274,7 +274,7 @@ export function CalendarAgenda({
               <span>Pendiente</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="h-3 w-3 rounded-md bg-green-100" />
+              <div className="h-3 w-3 rounded-md bg-accent/15" />
               <span>Realizado</span>
             </div>
             <div className="flex items-center gap-1">
