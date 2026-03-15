@@ -29,24 +29,24 @@ const DIAS_SEMANA_CORTO = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
 const getBadgeColor = (estado: string, isSelected: boolean) => {
   if (isSelected) return "bg-primary-foreground/20 text-primary-foreground"
   switch (estado) {
-    case "realizado": return "bg-green-500/80 text-white"
-    case "cancelado": return "bg-red-400/80 text-white"
+    case "realizado": return "bg-accent text-accent-foreground"
+    case "cancelado": return "bg-muted text-muted-foreground"
     default: return "bg-primary/80 text-primary-foreground"
   }
 }
 
 const getEstadoBadge = (estado: string) => {
   switch (estado) {
-    case "realizado": return "bg-green-100 text-green-800"
-    case "cancelado": return "bg-red-100 text-red-800"
+    case "realizado": return "bg-accent/20 text-accent-foreground"
+    case "cancelado": return "bg-muted text-muted-foreground"
     default: return "bg-primary/20 text-primary"
   }
 }
 
 const getBorderColor = (estado: string) => {
   switch (estado) {
-    case "realizado": return "border-green-400"
-    case "cancelado": return "border-red-300"
+    case "realizado": return "border-accent"
+    case "cancelado": return "border-muted-foreground/30"
     default: return "border-primary"
   }
 }
@@ -241,7 +241,7 @@ export function CalendarAgenda({
               <span>Pendiente</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="h-3 w-3 rounded-md bg-green-500/80" />
+              <div className="h-3 w-3 rounded-md bg-accent" />
               <span>Realizado</span>
             </div>
             <div className="flex items-center gap-1">
