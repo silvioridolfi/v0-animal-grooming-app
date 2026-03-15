@@ -135,3 +135,25 @@ export async function actualizarNotasTurno(turnoId: string, notes: string) {
   revalidatePath("/mascotas")
   return { success: true }
 }
+
+export async function revertirCobro(turnoId: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from("turnos")
+    .update({
+      estado: "pendiente",
+      precio_final: 0,
+      metodo_pago: null,
+    })
+    .eq("id", turnoId)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath("/")
+  revalidatePath("/pagos")
+  revalidatePath("/finanzas")
+  return { success: true }
+}

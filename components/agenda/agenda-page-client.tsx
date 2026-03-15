@@ -8,7 +8,7 @@ import { TurnoModal } from "@/components/turnos/turno-modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Settings, X, Trash2, Pencil, DollarSign, Check } from "lucide-react"
+import { Settings, X, Trash2, Pencil, DollarSign, Check, RotateCcw } from "lucide-react"
 import Link from "next/link"
 import {
   AlertDialog,
@@ -20,7 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { eliminarTurno, actualizarTurno } from "@/lib/actions/turnos"
+import { eliminarTurno, actualizarTurno, revertirCobro } from "@/lib/actions/turnos"
 import type { Turno, ConfiguracionNegocio, Mascota } from "@/lib/types"
 
 interface AgendaPageClientProps {
@@ -50,6 +50,13 @@ export function AgendaPageClient({
   const [metodoPago, setMetodoPago] = useState<"efectivo" | "transferencia" | "">("")
   const [errorCobro, setErrorCobro] = useState("")
   const [isCobering, setIsCobering] = useState(false)
+
+  // Confirmación de cobro
+  const [showConfirmCobro, setShowConfirmCobro] = useState(false)
+
+  // Revertir cobro
+  const [showConfirmRevertir, setShowConfirmRevertir] = useState(false)
+  const [isReverting, setIsReverting] = useState(false)
 
   const precioNum = useMemo(() => Number(precio) || 0, [precio])
 
@@ -107,13 +114,20 @@ export function AgendaPageClient({
     setErrorCobro("")
   }
 
-  const handleCobrar = async () => {
-    if (!selectedTurno) return
+  // Validar antes de mostrar confirmación
+  const handlePrepararCobro = () => {
     if (!metodoPago || precioNum <= 0) {
       setErrorCobro("Ingresá el precio y la forma de pago")
       return
     }
     setErrorCobro("")
+    setShowConfirmCobro(true)
+  }
+
+  // Confirmar y ejecutar cobro
+  const handleCobrarConfirmado = async () => {
+    if (!selectedTurno) return
+    setShowConfirmCobro(false)
     setIsCobering(true)
     await actualizarTurno(selectedTurno.id, {
       fecha: selectedTurno.fecha,
@@ -127,6 +141,16 @@ export function AgendaPageClient({
       estado: "realizado",
     })
     setIsCobering(false)
+    handleDetailsModalClose()
+  }
+
+  // Confirmar y ejecutar revertir
+  const handleRevertirConfirmado = async () => {
+    if (!selectedTurno) return
+    setShowConfirmRevertir(false)
+    setIsReverting(true)
+    await revertirCobro(selectedTurno.id)
+    setIsReverting(false)
     handleDetailsModalClose()
   }
 
@@ -279,7 +303,7 @@ export function AgendaPageClient({
                   {errorCobro && <p className="text-sm text-destructive">{errorCobro}</p>}
 
                   <Button
-                    onClick={handleCobrar}
+                    onClick={handlePrepararCobro}
                     disabled={isCobering}
                     className="w-full h-12 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
                   >
@@ -291,14 +315,25 @@ export function AgendaPageClient({
 
               {/* Turno ya cobrado */}
               {yaCobrado && (
-                <div className="rounded-lg bg-accent/15 border border-accent/30 p-3 flex items-center justify-between">
-                  <span className="text-accent-foreground font-medium">✓ Turno cobrado</span>
-                  <div className="text-right">
-                    <p className="font-bold text-accent-foreground">${selectedTurno.precio_final?.toLocaleString("es-AR")}</p>
-                    {selectedTurno.metodo_pago && (
-                      <p className="text-xs text-accent-foreground/70 capitalize">{selectedTurno.metodo_pago}</p>
-                    )}
+                <div className="space-y-2">
+                  <div className="rounded-lg bg-accent/15 border border-accent/30 p-3 flex items-center justify-between">
+                    <span className="text-accent-foreground font-medium">✓ Turno cobrado</span>
+                    <div className="text-right">
+                      <p className="font-bold text-accent-foreground">${selectedTurno.precio_final?.toLocaleString("es-AR")}</p>
+                      {selectedTurno.metodo_pago && (
+                        <p className="text-xs text-accent-foreground/70 capitalize">{selectedTurno.metodo_pago}</p>
+                      )}
+                    </div>
                   </div>
+                  <Button
+                    onClick={() => setShowConfirmRevertir(true)}
+                    disabled={isReverting}
+                    variant="outline"
+                    className="w-full gap-2 text-amber-700 border-amber-300 hover:bg-amber-50"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    {isReverting ? "Revirtiendo..." : "Revertir cobro"}
+                  </Button>
                 </div>
               )}
 
@@ -358,6 +393,66 @@ export function AgendaPageClient({
         </div>
       )}
 
+      {/* Dialog: confirmar cobro */}
+      <AlertDialog open={showConfirmCobro} onOpenChange={setShowConfirmCobro}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar cobro</AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Confirmar cobro de{" "}
+              <span className="font-semibold text-foreground">
+                ${precioNum.toLocaleString("es-AR")}
+              </span>{" "}
+              por{" "}
+              <span className="font-semibold text-foreground capitalize">
+                {metodoPago}
+              </span>{" "}
+              para{" "}
+              <span className="font-semibold text-foreground">
+                {selectedTurno?.mascota?.nombre}
+              </span>
+              ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleCobrarConfirmado}>
+              Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog: confirmar revertir cobro */}
+      <AlertDialog open={showConfirmRevertir} onOpenChange={setShowConfirmRevertir}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Revertir cobro</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esto va a volver el turno de{" "}
+              <span className="font-semibold text-foreground">
+                {selectedTurno?.mascota?.nombre}
+              </span>{" "}
+              a pendiente y limpiar el pago de{" "}
+              <span className="font-semibold text-foreground">
+                ${selectedTurno?.precio_final?.toLocaleString("es-AR")}
+              </span>
+              . ¿Estás segura?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRevertirConfirmado}
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              Revertir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog: eliminar turno */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
