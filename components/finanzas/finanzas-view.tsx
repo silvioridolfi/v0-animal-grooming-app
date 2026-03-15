@@ -291,7 +291,7 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
         </Card>
 
         {/* Gráfico 3 — Efectivo vs Transferencia */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Card>
             <CardHeader className="pb-1">
               <CardTitle className="text-sm font-medium text-muted-foreground">Método de pago</CardTitle>
