@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Poppins, Inter } from "next/font/google"
+import { Poppins, DM_Sans } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { BottomNav } from "@/components/bottom-nav"
@@ -12,7 +12,7 @@ const poppins = Poppins({
   variable: "--font-heading",
 })
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--font-sans",
@@ -32,7 +32,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#E6A4B4",
+  themeColor: "#E91E8C",
 }
 
 export default function RootLayout({
@@ -45,7 +45,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.svg" sizes="32x32" />
       </head>
-      <body className={`${inter.variable} ${poppins.variable} font-sans antialiased`}>
+      <body className={`${dmSans.variable} ${poppins.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           {children}
           <BottomNav />

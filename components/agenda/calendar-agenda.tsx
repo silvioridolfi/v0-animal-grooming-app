@@ -27,19 +27,19 @@ const MESES = [
 const DIAS_SEMANA_CORTO = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
 
 const getBadgeColor = (estado: string, isSelected: boolean) => {
-  if (isSelected) return "bg-primary-foreground/20 text-primary-foreground"
+  if (isSelected) return "bg-white/20 text-white"
   switch (estado) {
-    case "realizado": return "bg-accent text-accent-foreground"
+    case "realizado": return "bg-accent/15 text-accent"
     case "cancelado": return "bg-muted text-muted-foreground"
-    default: return "bg-primary/80 text-primary-foreground"
+    default: return "bg-primary/15 text-primary"
   }
 }
 
 const getEstadoBadge = (estado: string) => {
   switch (estado) {
-    case "realizado": return "bg-accent/20 text-accent-foreground"
-    case "cancelado": return "bg-muted text-muted-foreground"
-    default: return "bg-primary/20 text-primary"
+    case "realizado": return "bg-accent/15 text-accent"
+    case "cancelado": return "bg-muted/80 text-muted-foreground"
+    default: return "bg-primary/15 text-primary"
   }
 }
 
@@ -140,12 +140,15 @@ export function CalendarAgenda({
         onClick={() => handleDateClick(day)}
         className={cn(
           "relative group flex flex-col aspect-square rounded-lg border-2 transition-all active:scale-95 cursor-pointer p-3 overflow-hidden",
-          isToday && !isSelected && "ring-2 ring-primary ring-offset-1 border-primary/50",
-          isSelected && "bg-primary text-primary-foreground border-primary shadow-lg",
+          isSelected && "border-primary bg-primary text-white shadow-lg",
+          isToday && !isSelected && "ring-2 ring-primary ring-offset-1 border-primary/40",
           !isSelected && "border-border hover:bg-muted/50 hover:border-primary/30",
         )}
       >
-        <div className="text-center text-xs font-semibold text-muted-foreground mb-1 uppercase tracking-wide">
+        <div className={cn(
+          "text-center text-xs font-semibold mb-1 uppercase tracking-wide",
+          isSelected ? "text-white/70" : "text-muted-foreground"
+        )}>
           {dayName}
         </div>
 
@@ -163,7 +166,11 @@ export function CalendarAgenda({
               onClick={(e) => { e.stopPropagation(); onTurnoClick?.(turno) }}
               className={cn(
                 "text-xs rounded-md px-2 py-1 font-medium cursor-pointer hover:opacity-80 transition-opacity truncate",
-                getBadgeColor(turno.estado, isSelected)
+                isSelected
+                  ? "bg-white/20 text-white"
+                  : turno.estado === "realizado"
+                  ? "bg-accent/15 text-accent"
+                  : "bg-primary/15 text-primary"
               )}
               title={`${turno.hora.slice(0, 5)} - ${turno.mascota?.nombre}`}
             >
@@ -176,7 +183,7 @@ export function CalendarAgenda({
               onClick={(e) => { e.stopPropagation(); setExpandedDay(dateStr) }}
               className={cn(
                 "text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity text-left px-2 py-1",
-                isSelected ? "text-primary-foreground/80" : "text-primary hover:text-primary/80",
+                isSelected ? "text-white/80" : "text-primary hover:text-primary/80",
               )}
             >
               +{turnosDelDia.length - 2} más
@@ -184,13 +191,20 @@ export function CalendarAgenda({
           )}
         </div>
 
-        <div className="text-2xl font-bold text-foreground/80 leading-none">{day}</div>
+        <div className={cn(
+          "text-2xl font-bold leading-none",
+          isSelected ? "text-white" : "text-foreground/80"
+        )}>
+          {day}
+        </div>
 
         <button
           onClick={(e) => { e.stopPropagation(); onAddTurno(dateStr) }}
           className={cn(
-            "absolute bottom-2 right-2 h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110",
-            isSelected && "opacity-100",
+            "absolute bottom-2 right-2 h-8 w-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110",
+            isSelected
+              ? "bg-white text-primary opacity-100"
+              : "bg-primary text-primary-foreground"
           )}
           title="Agregar turno"
         >
@@ -202,7 +216,7 @@ export function CalendarAgenda({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between rounded-lg bg-accent/30 px-4 py-3">
+      <div className="flex items-center justify-between rounded-lg bg-accent/20 px-4 py-3">
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
           <DollarSign className="h-4 w-4" />
           <span>Total cobrado hoy</span>
@@ -237,11 +251,11 @@ export function CalendarAgenda({
               <span>Feriado</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="h-3 w-3 rounded-md bg-primary/80" />
+              <div className="h-3 w-3 rounded-md bg-primary/15" />
               <span>Pendiente</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="h-3 w-3 rounded-md bg-accent" />
+              <div className="h-3 w-3 rounded-md bg-accent/15" />
               <span>Realizado</span>
             </div>
             <div className="flex items-center gap-1">
@@ -337,7 +351,7 @@ export function CalendarAgenda({
               }) : ""}
             </DialogTitle>
             <DialogDescription>
-              Lista de turnos programados para esta fecha. Haz clic en un turno para ver más detalles.
+              Lista de turnos programados para esta fecha.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 max-h-96 overflow-y-auto">

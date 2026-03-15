@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { eliminarTurno, actualizarTurno, revertirCobro } from "@/lib/actions/turnos"
 import type { Turno, ConfiguracionNegocio, Mascota } from "@/lib/types"
+import { LogoPatita } from "@/components/logo-patita"
 
 interface AgendaPageClientProps {
   initialTurnos: Turno[]
@@ -51,10 +52,7 @@ export function AgendaPageClient({
   const [errorCobro, setErrorCobro] = useState("")
   const [isCobering, setIsCobering] = useState(false)
 
-  // Confirmación de cobro
   const [showConfirmCobro, setShowConfirmCobro] = useState(false)
-
-  // Revertir cobro
   const [showConfirmRevertir, setShowConfirmRevertir] = useState(false)
   const [isReverting, setIsReverting] = useState(false)
 
@@ -114,7 +112,6 @@ export function AgendaPageClient({
     setErrorCobro("")
   }
 
-  // Validar antes de mostrar confirmación
   const handlePrepararCobro = () => {
     if (!metodoPago || precioNum <= 0) {
       setErrorCobro("Ingresá el precio y la forma de pago")
@@ -124,7 +121,6 @@ export function AgendaPageClient({
     setShowConfirmCobro(true)
   }
 
-  // Confirmar y ejecutar cobro
   const handleCobrarConfirmado = async () => {
     if (!selectedTurno) return
     setShowConfirmCobro(false)
@@ -137,14 +133,13 @@ export function AgendaPageClient({
       descuento_tipo: null,
       descuento_valor: 0,
       precio_final: precioNum,
-      metodo_pago: metodoPago,
+      metodo_pago: metodoPago as "efectivo" | "transferencia",
       estado: "realizado",
     })
     setIsCobering(false)
     handleDetailsModalClose()
   }
 
-  // Confirmar y ejecutar revertir
   const handleRevertirConfirmado = async () => {
     if (!selectedTurno) return
     setShowConfirmRevertir(false)
@@ -168,6 +163,7 @@ export function AgendaPageClient({
     <div className="flex flex-col min-h-screen">
       <PageHeader
         title="Andrea | Peluquería Canina"
+        logo={<LogoPatita className="h-8 w-8" />}
         action={
           <Link href="/configuracion">
             <Button variant="ghost" size="icon" className="h-10 w-10">
@@ -218,10 +214,9 @@ export function AgendaPageClient({
           onClick={handleDetailsModalClose}
         >
           <div
-            className="bg-background w-full rounded-t-lg p-4 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom"
+            className="bg-background w-full rounded-t-2xl p-4 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-lg font-semibold">
@@ -233,7 +228,7 @@ export function AgendaPageClient({
               </div>
               <button
                 onClick={handleDetailsModalClose}
-                className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted"
+                className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -241,11 +236,10 @@ export function AgendaPageClient({
 
             <div className="space-y-3">
 
-              {/* COBRO — turno pendiente */}
               {!yaCobrado && !mostraCobro && selectedTurno.estado !== "cancelado" && (
                 <Button
                   onClick={() => setMostraCobro(true)}
-                  className="w-full h-14 text-base bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
+                  className="w-full h-14 text-base font-semibold"
                 >
                   <DollarSign className="mr-2 h-5 w-5" />
                   Cobrar turno
@@ -253,14 +247,14 @@ export function AgendaPageClient({
               )}
 
               {!yaCobrado && mostraCobro && (
-                <div className="rounded-lg border-2 border-accent/30 bg-accent/10 p-4 space-y-3">
+                <div className="rounded-xl border-2 border-primary/20 bg-primary/5 p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <p className="font-medium text-accent-foreground">Registrar cobro</p>
+                    <p className="font-medium text-primary">Registrar cobro</p>
                     <button
                       onClick={() => { setMostraCobro(false); setPrecio(""); setMetodoPago(""); setErrorCobro("") }}
-                      className="h-7 w-7 flex items-center justify-center rounded hover:bg-accent/20"
+                      className="h-7 w-7 flex items-center justify-center rounded hover:bg-primary/10 transition-colors"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-4 w-4 text-primary" />
                     </button>
                   </div>
 
@@ -305,7 +299,7 @@ export function AgendaPageClient({
                   <Button
                     onClick={handlePrepararCobro}
                     disabled={isCobering}
-                    className="w-full h-12 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
+                    className="w-full h-12 font-semibold"
                   >
                     <Check className="mr-2 h-5 w-5" />
                     {isCobering ? "Guardando..." : `Confirmar cobro${precioNum > 0 ? ` — $${precioNum.toLocaleString("es-AR")}` : ""}`}
@@ -313,23 +307,21 @@ export function AgendaPageClient({
                 </div>
               )}
 
-              {/* Turno ya cobrado */}
               {yaCobrado && (
                 <div className="space-y-2">
-                  <div className="rounded-lg bg-accent/15 border border-accent/30 p-3 flex items-center justify-between">
-                    <span className="text-accent-foreground font-medium">✓ Turno cobrado</span>
+                  <div className="rounded-xl bg-green-50 border border-green-200 p-3 flex items-center justify-between">
+                    <span className="font-medium text-green-700">✓ Turno cobrado</span>
                     <div className="text-right">
-                      <p className="font-bold text-accent-foreground">${selectedTurno.precio_final?.toLocaleString("es-AR")}</p>
+                      <p className="font-bold text-green-700">${selectedTurno.precio_final?.toLocaleString("es-AR")}</p>
                       {selectedTurno.metodo_pago && (
-                        <p className="text-xs text-accent-foreground/70 capitalize">{selectedTurno.metodo_pago}</p>
+                        <p className="text-xs text-green-600 capitalize">{selectedTurno.metodo_pago}</p>
                       )}
                     </div>
                   </div>
                   <Button
                     onClick={() => setShowConfirmRevertir(true)}
                     disabled={isReverting}
-                    variant="outline"
-                    className="w-full gap-2 text-amber-700 border-amber-300 hover:bg-amber-50"
+                    className="w-full gap-2 bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200 shadow-none"
                   >
                     <RotateCcw className="h-4 w-4" />
                     {isReverting ? "Revirtiendo..." : "Revertir cobro"}
@@ -337,25 +329,23 @@ export function AgendaPageClient({
                 </div>
               )}
 
-              {/* Cancelado */}
               {selectedTurno.estado === "cancelado" && (
-                <div className="rounded-lg bg-muted p-3 text-center text-muted-foreground text-sm">
-                  Turno cancelado
+                <div className="rounded-xl bg-muted/80 p-3 text-center">
+                  <p className="text-sm text-muted-foreground font-medium">Turno cancelado</p>
                 </div>
               )}
 
-              {/* Acciones secundarias */}
               <div className="grid gap-2 pt-2 border-t">
                 <Link href={`/turnos/${selectedTurno.id}/editar`} className="w-full">
                   <Button
-                    variant="secondary"
-                    className="w-full gap-2"
+                    className="w-full gap-2 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 shadow-none"
                     onClick={handleDetailsModalClose}
                   >
                     <Pencil className="h-4 w-4" />
                     Editar turno
                   </Button>
                 </Link>
+
                 {selectedTurno.estado !== "cancelado" && (
                   <Button
                     onClick={async () => {
@@ -367,23 +357,25 @@ export function AgendaPageClient({
                         descuento_tipo: null,
                         descuento_valor: 0,
                         precio_final: selectedTurno.precio_final || 0,
-                        metodo_pago: selectedTurno.metodo_pago || null,
+                        metodo_pago: (selectedTurno.metodo_pago || null) as "efectivo" | "transferencia" | null,
                         estado: "cancelado",
                       })
                       handleDetailsModalClose()
                     }}
-                    className="w-full gap-2 bg-amber-100 text-amber-800 hover:bg-amber-200 border-0"
+                    className="w-full gap-2 bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200 shadow-none"
                   >
                     Cancelar turno
                   </Button>
                 )}
+
                 <Button
                   onClick={() => setShowDeleteDialog(true)}
-                  className="w-full gap-2 bg-destructive/10 text-destructive hover:bg-destructive/20 border-0"
+                  className="w-full gap-2 bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 shadow-none"
                 >
                   <Trash2 className="h-4 w-4" />
                   Eliminar turno
                 </Button>
+
                 <Button onClick={handleDetailsModalClose} variant="ghost" className="w-full">
                   Cerrar
                 </Button>
@@ -393,58 +385,43 @@ export function AgendaPageClient({
         </div>
       )}
 
-      {/* Dialog: confirmar cobro */}
       <AlertDialog open={showConfirmCobro} onOpenChange={setShowConfirmCobro}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar cobro</AlertDialogTitle>
             <AlertDialogDescription>
               ¿Confirmar cobro de{" "}
-              <span className="font-semibold text-foreground">
-                ${precioNum.toLocaleString("es-AR")}
-              </span>{" "}
+              <span className="font-semibold text-foreground">${precioNum.toLocaleString("es-AR")}</span>{" "}
               por{" "}
-              <span className="font-semibold text-foreground capitalize">
-                {metodoPago}
-              </span>{" "}
+              <span className="font-semibold text-foreground capitalize">{metodoPago}</span>{" "}
               para{" "}
-              <span className="font-semibold text-foreground">
-                {selectedTurno?.mascota?.nombre}
-              </span>
-              ?
+              <span className="font-semibold text-foreground">{selectedTurno?.mascota?.nombre}</span>?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleCobrarConfirmado}>
-              Confirmar
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleCobrarConfirmado}>Confirmar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Dialog: confirmar revertir cobro */}
       <AlertDialog open={showConfirmRevertir} onOpenChange={setShowConfirmRevertir}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Revertir cobro</AlertDialogTitle>
             <AlertDialogDescription>
               Esto va a volver el turno de{" "}
-              <span className="font-semibold text-foreground">
-                {selectedTurno?.mascota?.nombre}
-              </span>{" "}
+              <span className="font-semibold text-foreground">{selectedTurno?.mascota?.nombre}</span>{" "}
               a pendiente y limpiar el pago de{" "}
-              <span className="font-semibold text-foreground">
-                ${selectedTurno?.precio_final?.toLocaleString("es-AR")}
-              </span>
-              . ¿Estás segura?
+              <span className="font-semibold text-foreground">${selectedTurno?.precio_final?.toLocaleString("es-AR")}</span>.
+              ¿Estás segura?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRevertirConfirmado}
-              className="bg-amber-600 hover:bg-amber-700 text-white"
+              className="bg-orange-600 hover:bg-orange-700 text-white"
             >
               Revertir
             </AlertDialogAction>
@@ -452,7 +429,6 @@ export function AgendaPageClient({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Dialog: eliminar turno */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

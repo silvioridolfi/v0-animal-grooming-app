@@ -19,18 +19,8 @@ interface CalendarMobileProps {
 }
 
 const MESES = [
-  "Enero",
-  "Febrero",
-  "Marzo",
-  "Abril",
-  "Mayo",
-  "Junio",
-  "Julio",
-  "Agosto",
-  "Septiembre",
-  "Octubre",
-  "Noviembre",
-  "Diciembre",
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ]
 
 export function CalendarMobile({
@@ -47,42 +37,38 @@ export function CalendarMobile({
   const [currentYear, setCurrentYear] = useState(Number.parseInt(today.split("-")[0]))
   const [selectedDate, setSelectedDate] = useState<string>(initialSelectedDate || today)
 
-  const diasLaborales = config?.dias_laborales || [1, 2, 3, 4, 5]
   const diasNoLaborables = config?.dias_no_laborables || []
 
   const turnosPorDia: Record<string, Turno[]> = {}
   turnos.forEach((turno) => {
     if (turno.estado !== "cancelado") {
-      if (!turnosPorDia[turno.fecha]) {
-        turnosPorDia[turno.fecha] = []
-      }
+      if (!turnosPorDia[turno.fecha]) turnosPorDia[turno.fecha] = []
       turnosPorDia[turno.fecha].push(turno)
     }
   })
 
-  const isNonWorking = (dateStr: string) => {
-    // Ahora se permite agendar en cualquier día, incluyendo feriados
-    // Solo se verifica si no es un día no laborable configurado manualmente
-    if (diasNoLaborables.includes(dateStr)) return true
-    return false
-  }
+  const isNonWorking = (dateStr: string) => diasNoLaborables.includes(dateStr)
 
   const year = currentYear
   const month = currentMonth
   const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const firstDay = new Date(year, month, 1).getDay()
 
   const days = []
   for (let i = 1; i <= daysInMonth; i++) {
     const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`
-    const isFeriado = getNombreFeriado(dateStr)
+    const holidayName = getNombreFeriado(dateStr)
+    const turnosDelDia = turnosPorDia[dateStr] || []
+    const realizados = turnosDelDia.filter(t => t.estado === "realizado").length
+    const pendientes = turnosDelDia.filter(t => t.estado === "pendiente").length
     days.push({
       day: i,
       dateStr,
-      hasTurnos: !!turnosPorDia[dateStr],
-      turnosCount: turnosPorDia[dateStr]?.length || 0,
+      turnosDelDia,
+      turnosCount: turnosDelDia.length,
+      realizados,
+      pendientes,
       nonWorking: isNonWorking(dateStr),
-      isFeriado,
+      isFeriado: holidayName,
     })
   }
 
@@ -90,21 +76,13 @@ export function CalendarMobile({
   const selectedHoliday = selectedDate ? getNombreFeriado(selectedDate) : null
 
   const prevMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11)
-      setCurrentYear(currentYear - 1)
-    } else {
-      setCurrentMonth(currentMonth - 1)
-    }
+    if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(currentYear - 1) }
+    else setCurrentMonth(currentMonth - 1)
   }
 
   const nextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0)
-      setCurrentYear(currentYear + 1)
-    } else {
-      setCurrentMonth(currentMonth + 1)
-    }
+    if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(currentYear + 1) }
+    else setCurrentMonth(currentMonth + 1)
   }
 
   const handleDateClick = (dateStr: string) => {
@@ -117,12 +95,27 @@ export function CalendarMobile({
     ? selectedDateObj.toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })
     : ""
 
-  const selectedFeriado = selectedDate ? getNombreFeriado(selectedDate) : ""
+  const getBorderColor = (estado: string) => {
+    switch (estado) {
+      case "realizado": return "border-green-400"
+      case "cancelado": return "border-muted-foreground/30"
+      default: return "border-primary"
+    }
+  }
+
+  const getEstadoBadge = (estado: string) => {
+    switch (estado) {
+      case "realizado": return "bg-green-50 text-green-700 border border-green-200"
+      case "cancelado": return "bg-muted text-muted-foreground"
+      default: return "bg-primary/15 text-primary"
+    }
+  }
 
   return (
     <div className="space-y-4">
+
       {/* Total cobrado hoy */}
-      <div className="flex items-center justify-between rounded-lg bg-accent/30 px-4 py-3">
+      <div className="flex items-center justify-between rounded-lg bg-primary/5 border border-primary/20 px-4 py-3">
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
           <DollarSign className="h-4 w-4" />
           <span>Total cobrado hoy</span>
@@ -138,35 +131,30 @@ export function CalendarMobile({
             <Button variant="ghost" size="icon" onClick={prevMonth}>
               <ChevronLeft className="h-5 w-5" />
             </Button>
-            <span className="text-lg font-semibold">
-              {MESES[month]} {year}
-            </span>
+            <span className="text-lg font-semibold">{MESES[month]} {year}</span>
             <Button variant="ghost" size="icon" onClick={nextMonth}>
               <ChevronRight className="h-5 w-5" />
             </Button>
           </div>
 
-{/* Total turnos del mes */}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+          {/* Leyenda */}
+          <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
             <div className="flex items-center gap-1">
-              <div className="h-3 w-3 rounded-full bg-amber-100 ring-1 ring-amber-300" />
-              <span>Feriado</span>
+              <div className="h-2.5 w-2.5 rounded-full bg-green-500" />
+              <span>Realizado</span>
             </div>
-            <div className="flex items-center gap-1 ml-2">
-              <div className="h-5 w-5 flex items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                {Object.values(turnosPorDia).reduce((sum, t) => {
-                  return sum + t.filter(turno => {
-                    const d = new Date(turno.fecha + "T12:00:00")
-                    return d.getFullYear() === currentYear && d.getMonth() === currentMonth
-                  }).length
-                }, 0)}
-              </div>
-              <span>Turnos este mes</span>
+            <div className="flex items-center gap-1">
+              <div className="h-2.5 w-2.5 rounded-full bg-primary" />
+              <span>Pendiente</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+              <span>Feriado</span>
             </div>
           </div>
 
-          <div className="space-y-2 max-h-64 overflow-y-auto">
-            {days.map(({ day, dateStr, hasTurnos, turnosCount, nonWorking }) => {
+          <div className="space-y-1.5 max-h-72 overflow-y-auto">
+            {days.map(({ day, dateStr, turnosCount, realizados, pendientes, nonWorking, turnosDelDia }) => {
               const isToday = dateStr === today
               const isSelected = dateStr === selectedDate
               const dayDate = new Date(dateStr + "T12:00:00")
@@ -178,31 +166,70 @@ export function CalendarMobile({
                   key={dateStr}
                   onClick={() => handleDateClick(dateStr)}
                   className={cn(
-                    "w-full flex items-center justify-between rounded-lg p-3 transition-all text-left",
-                    isSelected && "bg-primary text-primary-foreground",
-                    !isSelected && isToday && "bg-primary/10 border-2 border-primary",
-                    !isSelected && !isToday && !nonWorking && !holidayName && "bg-muted/50 hover:bg-muted",
-                    holidayName && !isSelected && "bg-amber-100 text-amber-900 border border-amber-300",
+                    "w-full flex items-center justify-between rounded-xl p-3 transition-all text-left border",
+                    isSelected && "bg-primary text-primary-foreground border-primary shadow-sm",
+                    !isSelected && isToday && "bg-primary/5 border-primary/40 ring-1 ring-primary/30",
+                    !isSelected && !isToday && !nonWorking && !holidayName && "bg-muted/30 border-border hover:bg-muted",
+                    holidayName && !isSelected && "bg-amber-50 text-amber-900 border border-amber-200",
                     nonWorking && !holidayName && !isSelected && "opacity-40",
                   )}
                 >
-                  <div className="flex items-center gap-3 flex-1">
-                    <div className="text-center">
-                      <div className="text-xs font-semibold text-muted-foreground uppercase">{dayName}</div>
-                      <div className="text-lg font-bold">{day}</div>
-                    </div>
-                    {holidayName && (
-                      <div className="flex items-center gap-2 ml-auto">
-                        <Calendar className="h-3.5 w-3.5 text-amber-600" />
-                        <span className="text-xs font-semibold text-amber-700 max-w-[120px] truncate">{holidayName}</span>
+                  {/* Día y número */}
+                  <div className="flex items-center gap-3">
+                    <div className="text-center min-w-[44px]">
+                      <div className={cn(
+                        "text-xs font-semibold uppercase tracking-wide",
+                        isSelected ? "text-primary-foreground/70" : "text-muted-foreground"
+                      )}>
+                        {dayName}
                       </div>
-                    )}
-                    {hasTurnos && !holidayName && (
-                      <div className="ml-auto text-sm font-semibold">
-                        {turnosCount} turno{turnosCount !== 1 ? "s" : ""}
+                      <div className="text-xl font-bold leading-tight">{day}</div>
+                    </div>
+
+                    {/* Feriado */}
+                    {holidayName && (
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5 text-amber-600" />
+                        <span className="text-xs font-semibold text-amber-700 max-w-[120px] truncate">
+                          {holidayName}
+                        </span>
                       </div>
                     )}
                   </div>
+
+                  {/* Indicadores de turnos */}
+                  {turnosCount > 0 && (
+                    <div className="flex flex-col items-end gap-1">
+                      {/* Texto cantidad */}
+                      <span className={cn(
+                        "text-xs font-semibold",
+                        isSelected ? "text-primary-foreground" : "text-foreground"
+                      )}>
+                        {turnosCount} turno{turnosCount !== 1 ? "s" : ""}
+                      </span>
+                      {/* Puntos de estado */}
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: realizados }).map((_, i) => (
+                          <div
+                            key={`r-${i}`}
+                            className={cn(
+                              "h-2.5 w-2.5 rounded-full",
+                              isSelected ? "bg-white/80" : "bg-green-500"
+                            )}
+                          />
+                        ))}
+                        {Array.from({ length: pendientes }).map((_, i) => (
+                          <div
+                            key={`p-${i}`}
+                            className={cn(
+                              "h-2.5 w-2.5 rounded-full",
+                              isSelected ? "bg-white/40" : "bg-primary"
+                            )}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </button>
               )
             })}
@@ -221,13 +248,12 @@ export function CalendarMobile({
           </CardHeader>
           <CardContent className="space-y-3">
             {selectedHoliday && (
-              <div className="rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 px-4 py-4">
+              <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3">
                 <div className="flex items-start gap-3">
                   <Calendar className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-amber-900">{selectedHoliday}</p>
                     <p className="text-xs text-amber-700 mt-1">Feriado nacional de Argentina</p>
-                    <p className="text-xs text-amber-600 mt-2 italic">Puedes agendar turnos normalmente en esta fecha</p>
                   </div>
                 </div>
               </div>
@@ -250,54 +276,48 @@ export function CalendarMobile({
                 </Button>
               </div>
             ) : (
-              <>
-                <div className="space-y-2">
-                  {selectedTurnos
-                    .sort((a, b) => a.hora.localeCompare(b.hora))
-                    .map((turno) => (
-                      <div
-                        key={turno.id}
-                        onClick={() => onTurnoClick?.(turno)}
-                        className={`rounded-lg bg-muted/50 p-3 border-l-4 cursor-pointer hover:bg-muted transition-colors ${
-                          turno.estado === "realizado" ? "border-accent" :
-                          turno.estado === "cancelado" ? "border-muted-foreground/30" :
-                          "border-primary"
-                        }`}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-sm">{turno.hora.slice(0, 5)}</span>
-                              <span className={`text-xs px-2 py-0.5 rounded ${
-                                turno.estado === "realizado" ? "bg-accent/20 text-accent-foreground" :
-                                turno.estado === "cancelado" ? "bg-muted text-muted-foreground" :
-                                "bg-primary/20 text-primary"
-                              }`}>
-                                {turno.estado}
-                              </span>
-                            </div>
-                            <div className="text-xs text-muted-foreground mt-1">
-                              <p>{turno.mascota?.nombre} ({turno.mascota?.cliente?.nombre})</p>
-                              <p>{turno.tipo_servicio}</p>
-                            </div>
-                            <div className="text-xs font-semibold mt-1 text-foreground">
-                              {turno.estado === "realizado"
-                                ? `$${turno.precio_final?.toLocaleString("es-AR")}`
-                                : turno.estado === "cancelado"
-                                ? "Cancelado"
-                                : "Pendiente"}
-                            </div>
+              <div className="space-y-2">
+                {selectedTurnos
+                  .sort((a, b) => a.hora.localeCompare(b.hora))
+                  .map((turno) => (
+                    <div
+                      key={turno.id}
+                      onClick={() => onTurnoClick?.(turno)}
+                      className={cn(
+                        "rounded-lg bg-muted/50 p-3 border-l-4 cursor-pointer hover:bg-muted transition-colors",
+                        getBorderColor(turno.estado)
+                      )}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-sm">{turno.hora.slice(0, 5)}</span>
+                            <span className={cn("text-xs px-2 py-0.5 rounded", getEstadoBadge(turno.estado))}>
+                              {turno.estado}
+                            </span>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            <p>{turno.mascota?.nombre} ({turno.mascota?.cliente?.nombre})</p>
+                            <p>{turno.tipo_servicio}</p>
+                          </div>
+                          <div className="text-xs font-semibold mt-1 text-foreground">
+                            {turno.estado === "realizado"
+                              ? `$${turno.precio_final?.toLocaleString("es-AR")}`
+                              : turno.estado === "cancelado"
+                              ? "Cancelado"
+                              : "Pendiente"}
                           </div>
                         </div>
                       </div>
-                    ))}
-                </div>
-              </>
+                    </div>
+                  ))}
+              </div>
             )}
           </CardContent>
         </Card>
       )}
 
+      {/* FAB */}
       <div className="fixed bottom-24 right-4 z-40">
         <Button
           onClick={() => onAddTurno(selectedDate)}

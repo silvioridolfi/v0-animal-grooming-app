@@ -46,7 +46,6 @@ function exportarPagosExcel(pagos: any[], filtroMetodo: string, filtroDesde: str
     })
 
     const worksheet = XLSX.utils.json_to_sheet(datos)
-
     worksheet["!cols"] = [
       { wch: 12 },
       { wch: 8 },
@@ -89,7 +88,7 @@ export function PagosList({ pagos, totalHoy, efectivoHoy, transferenciaHoy }: Pa
   return (
     <div className="space-y-4">
       <div className="grid gap-3">
-        <Card className="bg-accent/20">
+        <Card className="bg-primary/5 border-primary/20">
           <CardContent className="flex items-center justify-between p-4">
             <div className="flex items-center gap-2 text-sm">
               <DollarSign className="h-4 w-4" />
@@ -102,20 +101,18 @@ export function PagosList({ pagos, totalHoy, efectivoHoy, transferenciaHoy }: Pa
         <div className="grid grid-cols-2 gap-3">
           <Card>
             <CardContent className="p-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Banknote className="h-4 w-4" />
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                 <span>Efectivo</span>
               </div>
-              <p className="mt-1 font-semibold">${efectivoHoy.toLocaleString("es-AR")}</p>
+              <p className="font-semibold text-green-700">${efectivoHoy.toLocaleString("es-AR")}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <ArrowRightLeft className="h-4 w-4" />
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                 <span>Transferencia</span>
               </div>
-              <p className="mt-1 font-semibold">${transferenciaHoy.toLocaleString("es-AR")}</p>
+              <p className="font-semibold text-blue-700">${transferenciaHoy.toLocaleString("es-AR")}</p>
             </CardContent>
           </Card>
         </div>
@@ -129,10 +126,10 @@ export function PagosList({ pagos, totalHoy, efectivoHoy, transferenciaHoy }: Pa
               key={m}
               variant={filtroMetodo === m ? "default" : "outline"}
               size="sm"
-              className="flex-1 capitalize"
+              className="flex-1"
               onClick={() => setFiltroMetodo(m)}
             >
-              {m === "todos" ? "Todos" : m === "efectivo" ? "💵 Efectivo" : "🔄 Transf."}
+              {m === "todos" ? "Todos" : m === "efectivo" ? "Efectivo" : "Transferencia"}
             </Button>
           ))}
         </div>
@@ -159,9 +156,9 @@ export function PagosList({ pagos, totalHoy, efectivoHoy, transferenciaHoy }: Pa
         <div className="flex gap-2">
           {hayFiltros && (
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className="flex-1 text-muted-foreground"
+              className="flex-1"
               onClick={() => {
                 setFiltroMetodo("todos")
                 setFiltroDesde("")

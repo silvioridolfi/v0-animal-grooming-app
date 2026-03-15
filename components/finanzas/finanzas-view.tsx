@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Plus, TrendingUp, TrendingDown, Wallet, BarChart2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus, BarChart2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Egreso } from "@/lib/types"
 import type { ResumenFinanciero, ResumenMes } from "@/lib/actions/finanzas"
@@ -29,8 +29,6 @@ interface FinanzasViewProps {
   fechaInicial: string
   historialMesesInicial: ResumenMes[]
 }
-
-const COLORS_DONA = ["#A3B18A", "#E6A4B4"]
 
 const formatPesos = (v: number) =>
   v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`
@@ -107,24 +105,36 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
   const ingresos = view === "dia" ? resumen.ingresosDia : resumen.ingresosDelMes
   const egresosTotal = view === "dia" ? resumen.egresosDia : resumen.egresosDelMes
   const balance = view === "dia" ? resumen.balanceDia : resumen.balanceDelMes
-
-  // Datos para gráfico de dona (efectivo vs transferencia)
   const efectivo = view === "dia" ? resumen.efectivoDia : resumen.efectivoMes
   const transferencia = view === "dia" ? resumen.transferenciaDia : resumen.transferenciaMes
+
+  const turnosRealizados = view === "dia" ? resumen.turnosRealizadosDia : resumen.turnosRealizados
+  const turnosPendientes = view === "dia" ? resumen.turnosPendientesDia : resumen.turnosPendientes
+  const turnosCancelados = view === "dia" ? resumen.turnosCanceladosDia : resumen.turnosCancelados
+  const totalTurnos = turnosRealizados + turnosPendientes + turnosCancelados
+
+  // Datos gráficos
   const dataDona = [
     { name: "Efectivo", value: efectivo },
     { name: "Transferencia", value: transferencia },
   ].filter((d) => d.value > 0)
 
-  // Datos para gráfico de turnos por estado
+  const COLORS_DONA = ["#15803d", "#1d4ed8"]
+
   const dataTurnos = [
-    { name: "Realizados", value: view === "dia" ? resumen.turnosRealizadosDia : resumen.turnosRealizados, color: "#A3B18A" },
-    { name: "Pendientes", value: view === "dia" ? resumen.turnosPendientesDia : resumen.turnosPendientes, color: "#E6A4B4" },
-    { name: "Cancelados", value: view === "dia" ? resumen.turnosCanceladosDia : resumen.turnosCancelados, color: "#d1d5db" },
+    { name: "Realizados", value: turnosRealizados, color: "#15803d" },
+    { name: "Pendientes", value: turnosPendientes, color: "#b45309" },
+    { name: "Cancelados", value: turnosCancelados, color: "#9ca3af" },
   ].filter((d) => d.value > 0)
+
+  const COLORS_BARRAS = {
+    ingresos: "#15803d",
+    egresos: "#be123c",
+  }
 
   return (
     <div className="flex-1 p-4 space-y-4">
+
       {/* View Toggle */}
       <div className="flex rounded-lg bg-muted p-1">
         <button
@@ -148,58 +158,70 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
         <Button variant="ghost" size="icon" onClick={() => view === "mes" ? navigateMonth(-1) : navigateDay(-1)}>
           <ChevronLeft className="h-5 w-5" />
         </Button>
-        <span className="font-medium text-foreground capitalize">{view === "mes" ? monthName : dayName}</span>
+        <span className="font-medium text-foreground capitalize">
+          {view === "mes" ? monthName : dayName}
+        </span>
         <Button variant="ghost" size="icon" onClick={() => view === "mes" ? navigateMonth(1) : navigateDay(1)}>
           <ChevronRight className="h-5 w-5" />
         </Button>
       </div>
 
-      {/* Métricas resumen */}
+      {/* Métricas */}
       <div className="space-y-3">
         <h2 className="font-semibold text-foreground">
           {view === "dia" ? "Métricas del día" : "Métricas del mes"}
         </h2>
+
+        {/* Card total turnos */}
         <Card className="bg-primary/5 border-primary/20">
           <CardContent className="p-3 space-y-2">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium">
                 {view === "dia" ? "Total turnos del día" : "Total turnos del mes"}
               </p>
-              <p className="text-2xl font-bold text-primary">
-                {view === "dia"
-                  ? resumen.turnosRealizadosDia + resumen.turnosPendientesDia + resumen.turnosCanceladosDia
-                  : resumen.turnosRealizados + resumen.turnosPendientes + resumen.turnosCancelados}
-              </p>
+              <p className="text-2xl font-bold text-primary">{totalTurnos}</p>
             </div>
             <div className="flex items-center gap-3 text-xs">
-              <span className="flex items-center gap-1 text-green-700">✓ {view === "dia" ? resumen.turnosRealizadosDia : resumen.turnosRealizados} realizados</span>
-              <span className="flex items-center gap-1 text-amber-600">⏳ {view === "dia" ? resumen.turnosPendientesDia : resumen.turnosPendientes} pendientes</span>
-              <span className="flex items-center gap-1 text-muted-foreground">✗ {view === "dia" ? resumen.turnosCanceladosDia : resumen.turnosCancelados} cancelados</span>
+              {/* Realizados — verde */}
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">
+                ✓ {turnosRealizados} realizados
+              </span>
+              {/* Pendientes — naranja */}
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200">
+                ⏳ {turnosPendientes} pendientes
+              </span>
+              {/* Cancelados — gris */}
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
+                ✗ {turnosCancelados} cancelados
+              </span>
             </div>
           </CardContent>
         </Card>
 
+        {/* Mascotas + Efectivo + Transferencia */}
         <div className="grid grid-cols-3 gap-3">
           <Card>
             <CardContent className="p-3 text-center">
-              <p className="text-2xl font-bold text-green-600">{resumen.totalMascotas}</p>
+              <p className="text-2xl font-bold text-primary">{resumen.totalMascotas}</p>
               <p className="text-xs text-muted-foreground mt-1">Mascotas</p>
             </CardContent>
           </Card>
-          <Card>
+          {/* Efectivo — verde */}
+          <Card className="bg-green-50 border-green-100">
             <CardContent className="p-3 text-center">
               <p className="text-lg font-bold text-green-700">
-                ${(view === "dia" ? resumen.efectivoDia : resumen.efectivoMes).toLocaleString("es-AR")}
+                {formatCurrency(efectivo)}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">💵 Efectivo</p>
+              <p className="text-xs text-green-600 mt-1">Efectivo</p>
             </CardContent>
           </Card>
-          <Card>
+          {/* Transferencia — azul */}
+          <Card className="bg-blue-50 border-blue-100">
             <CardContent className="p-3 text-center">
-              <p className="text-lg font-bold text-blue-600">
-                ${(view === "dia" ? resumen.transferenciaDia : resumen.transferenciaMes).toLocaleString("es-AR")}
+              <p className="text-lg font-bold text-blue-700">
+                {formatCurrency(transferencia)}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">🔄 Transf.</p>
+              <p className="text-xs text-blue-600 mt-1">Transf.</p>
             </CardContent>
           </Card>
         </div>
@@ -207,40 +229,49 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
 
       {/* Balance cards */}
       <div className="grid grid-cols-3 gap-3">
+        {/* Ingresos — verde */}
         <Card className="bg-green-50 border-green-200">
           <CardContent className="p-3 text-center">
-            <TrendingUp className="h-5 w-5 mx-auto mb-1 text-green-600" />
-            <p className="text-xs text-muted-foreground">Ingresos</p>
-            <p className="font-semibold text-green-600">{formatCurrency(ingresos)}</p>
+            <p className="text-xs text-green-600 mb-1">Ingresos</p>
+            <p className="font-bold text-green-700">{formatCurrency(ingresos)}</p>
           </CardContent>
         </Card>
-        <Card className="bg-destructive/10 border-destructive/20">
+        {/* Egresos — rojo */}
+        <Card className="bg-red-50 border-red-200">
           <CardContent className="p-3 text-center">
-            <TrendingDown className="h-5 w-5 mx-auto mb-1 text-destructive" />
-            <p className="text-xs text-muted-foreground">Egresos</p>
-            <p className="font-semibold text-destructive">{formatCurrency(egresosTotal)}</p>
+            <p className="text-xs text-red-600 mb-1">Egresos</p>
+            <p className="font-bold text-red-700">{formatCurrency(egresosTotal)}</p>
           </CardContent>
         </Card>
-        <Card className={cn("border", balance >= 0 ? "bg-green-50 border-green-200" : "bg-destructive/10 border-destructive/20")}>
+        {/* Balance — verde o rojo según valor */}
+        <Card className={cn(
+          "border",
+          balance >= 0 ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"
+        )}>
           <CardContent className="p-3 text-center">
-            <Wallet className={cn("h-5 w-5 mx-auto mb-1", balance >= 0 ? "text-green-600" : "text-destructive")} />
-            <p className="text-xs text-muted-foreground">Balance</p>
-            <p className={cn("font-semibold", balance >= 0 ? "text-green-600" : "text-destructive")}>{formatCurrency(balance)}</p>
+            <p className={cn("text-xs mb-1", balance >= 0 ? "text-green-600" : "text-red-600")}>
+              Balance
+            </p>
+            <p className={cn("font-bold", balance >= 0 ? "text-green-700" : "text-red-700")}>
+              {formatCurrency(balance)}
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* ── SECCIÓN GRÁFICOS ── */}
+      {/* ── GRÁFICOS ── */}
       <div className="space-y-4 pt-2">
         <div className="flex items-center gap-2">
           <BarChart2 className="h-4 w-4 text-primary" />
           <h2 className="font-semibold text-foreground">Gráficos</h2>
         </div>
 
-        {/* Gráfico 1 — Ingresos vs Egresos por mes */}
+        {/* Ingresos vs Egresos por mes */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Ingresos vs Egresos — últimos meses</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Ingresos vs Egresos — últimos meses
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-3 pt-0">
             {historialMeses.every((m) => m.ingresos === 0 && m.egresos === 0) ? (
@@ -251,23 +282,20 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="label" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={formatPesos} tick={{ fontSize: 11 }} width={45} />
-                  <Tooltip
-                    formatter={(value: number) => formatCurrency(value)}
-                    labelStyle={{ fontWeight: 600 }}
-                  />
+                  <Tooltip formatter={(value: number) => formatCurrency(value)} labelStyle={{ fontWeight: 600 }} />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Bar dataKey="ingresos" name="Ingresos" fill="#A3B18A" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="egresos" name="Egresos" fill="#E6A4B4" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="ingresos" name="Ingresos" fill={COLORS_BARRAS.ingresos} radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="egresos" name="Egresos" fill={COLORS_BARRAS.egresos} radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
           </CardContent>
         </Card>
 
-        {/* Gráfico 2 — Evolución de ingresos (línea) */}
+        {/* Balance mensual */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Evolución de ingresos</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Balance mensual</CardTitle>
           </CardHeader>
           <CardContent className="p-3 pt-0">
             {historialMeses.every((m) => m.ingresos === 0) ? (
@@ -281,7 +309,7 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
                   <Tooltip formatter={(value: number) => formatCurrency(value)} />
                   <Bar dataKey="balance" name="Balance" radius={[3, 3, 0, 0]}>
                     {historialMeses.map((entry, index) => (
-                      <Cell key={index} fill={entry.balance >= 0 ? "#A3B18A" : "#E6A4B4"} />
+                      <Cell key={index} fill={entry.balance >= 0 ? COLORS_BARRAS.ingresos : COLORS_BARRAS.egresos} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -290,7 +318,7 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
           </CardContent>
         </Card>
 
-        {/* Gráfico 3 — Efectivo vs Transferencia */}
+        {/* Dona: método de pago + turnos por estado */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Card>
             <CardHeader className="pb-1">
@@ -302,15 +330,7 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
               ) : (
                 <ResponsiveContainer width="100%" height={150}>
                   <PieChart>
-                    <Pie
-                      data={dataDona}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={35}
-                      outerRadius={55}
-                      paddingAngle={3}
-                      dataKey="value"
-                    >
+                    <Pie data={dataDona} cx="50%" cy="50%" innerRadius={35} outerRadius={55} paddingAngle={3} dataKey="value">
                       {dataDona.map((_, index) => (
                         <Cell key={index} fill={COLORS_DONA[index % COLORS_DONA.length]} />
                       ))}
@@ -323,7 +343,6 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
             </CardContent>
           </Card>
 
-          {/* Gráfico 4 — Turnos por estado */}
           <Card>
             <CardHeader className="pb-1">
               <CardTitle className="text-sm font-medium text-muted-foreground">Turnos por estado</CardTitle>
@@ -334,15 +353,7 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
               ) : (
                 <ResponsiveContainer width="100%" height={150}>
                   <PieChart>
-                    <Pie
-                      data={dataTurnos}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={35}
-                      outerRadius={55}
-                      paddingAngle={3}
-                      dataKey="value"
-                    >
+                    <Pie data={dataTurnos} cx="50%" cy="50%" innerRadius={35} outerRadius={55} paddingAngle={3} dataKey="value">
                       {dataTurnos.map((entry, index) => (
                         <Cell key={index} fill={entry.color} />
                       ))}
@@ -357,7 +368,7 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
         </div>
       </div>
 
-      {/* Egresos List */}
+      {/* Egresos */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-foreground">Egresos del Mes</h2>

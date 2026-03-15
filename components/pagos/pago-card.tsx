@@ -1,7 +1,6 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
-import { Dog, Cat, Banknote, ArrowRightLeft } from "lucide-react"
 
 interface PagoCardProps {
   pago: {
@@ -30,11 +29,6 @@ export function PagoCard({ pago }: PagoCardProps) {
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-2">
-              {pago.mascota?.tipo_animal === "Perro" ? (
-                <Dog className="h-4 w-4 text-primary" />
-              ) : (
-                <Cat className="h-4 w-4 text-primary" />
-              )}
               <span className="font-medium">{pago.mascota?.nombre}</span>
               <span className="text-sm text-muted-foreground">— {pago.tipo_servicio}</span>
             </div>
@@ -44,11 +38,12 @@ export function PagoCard({ pago }: PagoCardProps) {
                 <span className="text-xs text-muted-foreground">{pago.mascota.cliente.nombre}</span>
               )}
               {pago.metodo_pago && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs capitalize">
-                  {pago.metodo_pago === "efectivo"
-                    ? <><Banknote className="h-3 w-3" /> Efectivo</>
-                    : <><ArrowRightLeft className="h-3 w-3" /> Transferencia</>
-                  }
+                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                  pago.metodo_pago === "efectivo"
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : "bg-blue-50 text-blue-700 border border-blue-200"
+                }`}>
+                  {pago.metodo_pago === "efectivo" ? "Efectivo" : "Transferencia"}
                 </span>
               )}
             </div>
