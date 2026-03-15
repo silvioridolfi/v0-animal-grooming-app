@@ -164,10 +164,10 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
 
       {/* Cobro */}
       {!yaCobrado && (
-        <Card className="border-2 border-green-200">
+        <Card className="border-2 border-accent/30">
           <CardContent className="pt-4 space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="flex items-center gap-2 text-green-700 font-medium">
+              <Label className="flex items-center gap-2 text-accent-foreground font-medium">
                 <DollarSign className="h-4 w-4" />
                 Cobrar turno
               </Label>
@@ -178,7 +178,7 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
               )}
             </div>
             {!mostraCobro ? (
-              <Button type="button" className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={() => setMostraCobro(true)}>
+              <Button type="button" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => setMostraCobro(true)}>
                 Registrar cobro
               </Button>
             ) : (
@@ -228,7 +228,7 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
                   </div>
                 )}
                 {errorMsg && <p className="text-sm text-destructive">{errorMsg}</p>}
-                <Button type="button" className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-semibold"
+                <Button type="button" className="w-full h-12 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
                   onClick={handleCobrar} disabled={isLoading}>
                   {isLoading ? "Guardando..." : "Confirmar cobro"}
                 </Button>
@@ -239,12 +239,12 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
       )}
 
       {yaCobrado && turno.precio_final && turno.precio_final > 0 && (
-        <Card className="bg-green-50 border-green-200">
+        <Card className="bg-accent/15 border-accent/30">
           <CardContent className="py-4 flex items-center justify-between">
-            <span className="text-green-800 font-medium">✓ Turno cobrado</span>
+            <span className="text-accent-foreground font-medium">✓ Turno cobrado</span>
             <div className="text-right">
-              <p className="text-xl font-bold text-green-700">${turno.precio_final.toLocaleString("es-AR")}</p>
-              {turno.metodo_pago && <p className="text-sm text-green-600 capitalize">{turno.metodo_pago}</p>}
+              <p className="text-xl font-bold text-accent-foreground">${turno.precio_final.toLocaleString("es-AR")}</p>
+              {turno.metodo_pago && <p className="text-sm text-accent-foreground/70 capitalize">{turno.metodo_pago}</p>}
             </div>
           </CardContent>
         </Card>
