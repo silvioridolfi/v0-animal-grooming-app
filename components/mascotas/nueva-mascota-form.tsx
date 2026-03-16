@@ -139,7 +139,7 @@ export function NuevaMascotaForm() {
       setSuccess(true)
       setTimeout(() => {
         // Si venía desde un cliente, volver a su ficha
-        router.push(clienteIdParam ? `/clientes/${clienteIdParam}` : `/mascotas/${result.mascotaId}`)
+        router.push(`/mascotas/${result.mascotaId}`)
       }, 1500)
     } catch (err) {
       setError("Error al guardar. Intentá de nuevo.")
