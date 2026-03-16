@@ -60,7 +60,7 @@ export function CalendarAgenda({
   onTurnoClick,
   initialSelectedDate,
 }: CalendarAgendaProps) {
-  const today = new Date().toISOString().split("T")[0]
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" })
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<string>(
     initialSelectedDate || today,

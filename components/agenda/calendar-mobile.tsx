@@ -34,7 +34,7 @@ export function CalendarMobile({
   onTurnoClick,
   initialSelectedDate,
 }: CalendarMobileProps) {
-  const today = new Date().toISOString().split("T")[0]
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" })
   const [currentMonth, setCurrentMonth] = useState(Number.parseInt(today.split("-")[1]) - 1)
   const [currentYear, setCurrentYear] = useState(Number.parseInt(today.split("-")[0]))
   const [selectedDate, setSelectedDate] = useState<string>(initialSelectedDate || today)
