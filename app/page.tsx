@@ -36,6 +36,7 @@ export default async function Page() {
       initialConfig={config}
       initialMascotas={mascotas as Mascota[]}
       totalCobradoHoy={totalCobradoHoy}
+      todayArgentina={today}
     />
   )
 }

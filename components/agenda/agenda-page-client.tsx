@@ -28,6 +28,7 @@ interface AgendaPageClientProps {
   initialConfig: ConfiguracionNegocio | null
   initialMascotas: Mascota[]
   totalCobradoHoy: number
+  todayArgentina: string
 }
 
 export function AgendaPageClient({
@@ -35,10 +36,11 @@ export function AgendaPageClient({
   initialConfig,
   initialMascotas,
   totalCobradoHoy,
+  todayArgentina,
 }: AgendaPageClientProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalDate, setModalDate] = useState<string>("")
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0])
+  const [selectedDate, setSelectedDate] = useState<string>(todayArgentina)
   const [detailsModalOpen, setDetailsModalOpen] = useState(false)
   const [selectedTurno, setSelectedTurno] = useState<Turno | null>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -173,7 +175,7 @@ export function AgendaPageClient({
             onDayClick={handleDayClick}
             onAddTurno={handleAddTurno}
             onTurnoClick={handleTurnoClick}
-            initialSelectedDate={selectedDate}
+            initialSelectedDate={todayArgentina}
           />
         ) : (
           <CalendarAgenda
@@ -183,7 +185,7 @@ export function AgendaPageClient({
             onDayClick={handleDayClick}
             onAddTurno={handleAddTurno}
             onTurnoClick={handleTurnoClick}
-            initialSelectedDate={selectedDate}
+            initialSelectedDate={todayArgentina}
           />
         )}
       </main>
@@ -199,7 +201,6 @@ export function AgendaPageClient({
         onTurnoCreated={handleTurnoCreated}
       />
 
-      {/* DETALLE DEL TURNO */}
       {selectedTurno && detailsModalOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-50 flex items-end"
@@ -227,7 +228,6 @@ export function AgendaPageClient({
             </div>
 
             <div className="space-y-3">
-
               {!yaCobrado && !mostraCobro && selectedTurno.estado !== "cancelado" && (
                 <Button
                   onClick={() => setMostraCobro(true)}
