@@ -25,6 +25,10 @@ const MESES = [
 
 const MAX_DOTS = 6
 
+const toArgentinaDateStr = (): string => {
+  return new Date().toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" })
+}
+
 export function CalendarMobile({
   turnos,
   config,
@@ -34,9 +38,10 @@ export function CalendarMobile({
   onTurnoClick,
   initialSelectedDate,
 }: CalendarMobileProps) {
-  const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" })
-  const [currentMonth, setCurrentMonth] = useState(Number.parseInt(today.split("-")[1]) - 1)
-  const [currentYear, setCurrentYear] = useState(Number.parseInt(today.split("-")[0]))
+  const today = toArgentinaDateStr()
+  const [todayYear, todayMonth] = today.split("-").map(Number)
+  const [currentMonth, setCurrentMonth] = useState(todayMonth - 1)
+  const [currentYear, setCurrentYear] = useState(todayYear)
   const [selectedDate, setSelectedDate] = useState<string>(initialSelectedDate || today)
 
   const diasNoLaborables = config?.dias_no_laborables || []
@@ -88,14 +93,15 @@ export function CalendarMobile({
   }
 
   const goToToday = () => {
-    const now = new Date()
-    setCurrentMonth(now.getMonth())
-    setCurrentYear(now.getFullYear())
-    setSelectedDate(today)
-    onDayClick(today)
+    const t = toArgentinaDateStr()
+    const [y, m] = t.split("-").map(Number)
+    setCurrentMonth(m - 1)
+    setCurrentYear(y)
+    setSelectedDate(t)
+    onDayClick(t)
   }
 
-  const isCurrentMonth = year === new Date().getFullYear() && month === new Date().getMonth()
+  const isCurrentMonth = year === todayYear && month === todayMonth - 1
 
   const handleDateClick = (dateStr: string) => {
     setSelectedDate(dateStr)
@@ -123,7 +129,6 @@ export function CalendarMobile({
     }
   }
 
-  // Reparte los puntos proporcionalmente respetando el máximo total
   const calcularPuntos = (realizados: number, pendientes: number) => {
     const total = realizados + pendientes
     if (total === 0) return { dotsRealizados: 0, dotsPendientes: 0 }
@@ -135,8 +140,6 @@ export function CalendarMobile({
 
   return (
     <div className="space-y-4">
-
-      {/* Total cobrado hoy */}
       <div className="flex items-center justify-between rounded-lg bg-primary/5 border border-primary/20 px-4 py-3">
         <div className="flex items-center gap-2 text-sm font-medium text-foreground">
           <DollarSign className="h-4 w-4" />
@@ -145,10 +148,8 @@ export function CalendarMobile({
         <span className="text-lg font-semibold text-foreground">${totalCobradoHoy.toLocaleString("es-AR")}</span>
       </div>
 
-      {/* Calendar Card */}
       <Card className="shadow-sm bg-background">
         <CardContent className="p-4">
-          {/* Month/Year Navigation */}
           <div className="flex items-center justify-between mb-4">
             <Button variant="ghost" size="icon" onClick={prevMonth}>
               <ChevronLeft className="h-5 w-5" />
@@ -171,7 +172,6 @@ export function CalendarMobile({
             </Button>
           </div>
 
-          {/* Leyenda */}
           <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
             <div className="flex items-center gap-1">
               <div className="h-2.5 w-2.5 rounded-full bg-accent" />
@@ -260,7 +260,6 @@ export function CalendarMobile({
         </CardContent>
       </Card>
 
-      {/* Agenda diaria */}
       {selectedDate && (
         <Card className="shadow-sm">
           <CardHeader className="pb-3">
@@ -335,7 +334,6 @@ export function CalendarMobile({
         </Card>
       )}
 
-      {/* FAB */}
       <div className="fixed bottom-24 right-4 z-40">
         <Button
           onClick={() => onAddTurno(selectedDate)}

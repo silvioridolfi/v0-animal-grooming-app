@@ -51,6 +51,10 @@ const getBorderColor = (estado: string) => {
   }
 }
 
+const toArgentinaDateStr = (date: Date): string => {
+  return date.toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" })
+}
+
 export function CalendarAgenda({
   turnos,
   config,
@@ -60,11 +64,9 @@ export function CalendarAgenda({
   onTurnoClick,
   initialSelectedDate,
 }: CalendarAgendaProps) {
-  const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" })
+  const today = toArgentinaDateStr(new Date())
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [selectedDate, setSelectedDate] = useState<string>(
-    initialSelectedDate || today,
-  )
+  const [selectedDate, setSelectedDate] = useState<string>(initialSelectedDate || today)
   const [expandedDay, setExpandedDay] = useState<string | null>(null)
 
   const year = currentDate.getFullYear()
@@ -86,37 +88,36 @@ export function CalendarAgenda({
     }
   })
 
-  const isNonWorking = (date: Date) => {
-    const dateStr = date.toISOString().split("T")[0]
-    return diasNoLaborables.includes(dateStr)
-  }
+  const isNonWorking = (dateStr: string) => diasNoLaborables.includes(dateStr)
 
   const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1))
   const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1))
 
   const goToToday = () => {
-    const now = new Date()
-    setCurrentDate(now)
-    setSelectedDate(today)
-    onDayClick(today)
+    const todayStr = toArgentinaDateStr(new Date())
+    const [y, m] = todayStr.split("-").map(Number)
+    setCurrentDate(new Date(y, m - 1, 1))
+    setSelectedDate(todayStr)
+    onDayClick(todayStr)
   }
 
-  const isCurrentMonth = year === new Date().getFullYear() && month === new Date().getMonth()
+  const todayArgentina = toArgentinaDateStr(new Date())
+  const [todayYear, todayMonth] = todayArgentina.split("-").map(Number)
+  const isCurrentMonth = year === todayYear && month === todayMonth - 1
 
   const handleDateClick = (day: number) => {
-    const date = new Date(year, month, day)
-    const dateStr = date.toISOString().split("T")[0]
+    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
     setSelectedDate(dateStr)
     onDayClick(dateStr)
   }
 
   const selectedTurnos = selectedDate ? turnosPorDia[selectedDate] || [] : []
-  const selectedIsNonWorking = selectedDate ? isNonWorking(new Date(selectedDate + "T12:00:00")) : false
+  const selectedIsNonWorking = selectedDate ? isNonWorking(selectedDate) : false
 
   const totalTurnosDelMes = Object.values(turnosPorDia).reduce((sum, t) => {
     return sum + t.filter((turno) => {
-      const d = new Date(turno.fecha + "T12:00:00")
-      return d.getFullYear() === year && d.getMonth() === month
+      const [ty, tm] = turno.fecha.split("-").map(Number)
+      return ty === year && tm === month + 1
     }).length
   }, 0)
 
@@ -132,12 +133,12 @@ export function CalendarAgenda({
   }
 
   for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(year, month, day)
-    const dateStr = date.toISOString().split("T")[0]
+    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
     const isToday = dateStr === today
     const isSelected = dateStr === selectedDate
-    const nonWorking = isNonWorking(date)
-    const dayOfWeekIndex = date.getDay()
+    const nonWorking = isNonWorking(dateStr)
+    const dayDate = new Date(dateStr + "T12:00:00")
+    const dayOfWeekIndex = dayDate.getDay()
     const dayName = DIAS_SEMANA_CORTO[dayOfWeekIndex === 0 ? 6 : dayOfWeekIndex - 1]
     const turnosDelDia = turnosPorDia[dateStr] || []
 
