@@ -3,9 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { PageHeader } from "@/components/page-header"
 import { HistorialServicios } from "@/components/mascota/historial-servicios"
 import { BottomNav } from "@/components/bottom-nav"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
+import { BackButton } from "@/components/mascotas/back-button"
 
 interface MascotaHistorialPageProps {
   params: Promise<{ id: string }>
@@ -30,27 +28,23 @@ export default async function MascotaHistorialPage({ params }: MascotaHistorialP
     .eq("estado", "realizado")
     .order("fecha", { ascending: false })
 
-  // Transformar turnos al formato que espera HistorialServicios
   const historial = (turnos || []).map((t) => ({
     id: t.id,
+    mascota_id: t.mascota_id,
+    turno_id: t.id,
     tipo_servicio: t.tipo_servicio,
     fecha_servicio: t.fecha,
     precio: t.precio_final || 0,
     metodo_pago: t.metodo_pago || null,
+    estado_turno: t.estado,
+    created_at: t.created_at,
   }))
 
   return (
     <div className="flex min-h-screen flex-col pb-20">
       <PageHeader
         title={`Historial — ${mascota.nombre}`}
-        action={
-          <Link href={`/mascotas/${id}`}>
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="mr-1 h-4 w-4" />
-              Volver
-            </Button>
-          </Link>
-        }
+        action={<BackButton />}
       />
       <main className="flex-1 px-4 py-4">
         <HistorialServicios historial={historial} />

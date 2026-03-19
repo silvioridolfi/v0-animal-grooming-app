@@ -29,7 +29,6 @@ export async function crearMascota(data: CreateMascotaData) {
 
   revalidatePath("/mascotas")
   revalidatePath("/clientes")
-  // Return mascotaId so navigation can work properly
   return { success: true, mascota: nuevaMascota, mascotaId: nuevaMascota.id }
 }
 
@@ -81,8 +80,9 @@ export async function obtenerHistorialMascota(mascotaId: string): Promise<{ hist
 
   const { data, error } = await supabase
     .from("turnos")
-    .select("id, fecha, hora, tipo_servicio, precio_final, metodo_pago, estado, notes")
+    .select("id, fecha, hora, tipo_servicio, precio_final, metodo_pago, estado")
     .eq("mascota_id", mascotaId)
+    .eq("estado", "realizado")
     .order("fecha", { ascending: false })
 
   if (error) {
@@ -93,10 +93,10 @@ export async function obtenerHistorialMascota(mascotaId: string): Promise<{ hist
     id: turno.id,
     fecha_servicio: turno.fecha,
     tipo_servicio: turno.tipo_servicio,
-    precio_total: turno.precio_final,
+    precio_total: turno.precio_final || 0,
     metodo_pago: turno.metodo_pago,
     estado: turno.estado,
-    notas: turno.notes,
+    notas: null,
     turno_id: turno.id,
   }))
 
@@ -122,7 +122,6 @@ interface CrearMascotaConClienteInput {
 export async function crearMascotaConCliente(input: CrearMascotaConClienteInput) {
   const supabase = await createClient()
 
-  // Step 1: Check if client already exists (by name)
   let clienteId: string
   const { data: clienteExistente } = await supabase
     .from("clientes")
@@ -131,10 +130,8 @@ export async function crearMascotaConCliente(input: CrearMascotaConClienteInput)
     .maybeSingle()
 
   if (clienteExistente) {
-    // Use existing client
     clienteId = clienteExistente.id
   } else {
-    // Create new client
     const { data: nuevoCliente, error: clienteError } = await supabase
       .from("clientes")
       .insert({
@@ -152,7 +149,6 @@ export async function crearMascotaConCliente(input: CrearMascotaConClienteInput)
     clienteId = nuevoCliente.id
   }
 
-  // Step 2: Create mascota with the cliente_id
   const { data: nuevaMascota, error: mascotaError } = await supabase
     .from("mascotas")
     .insert({
@@ -171,7 +167,6 @@ export async function crearMascotaConCliente(input: CrearMascotaConClienteInput)
     return { error: `Error al crear mascota: ${mascotaError?.message || "desconocido"}` }
   }
 
-  // Revalidate relevant paths
   revalidatePath("/mascotas")
   revalidatePath("/clientes")
 
@@ -195,7 +190,9 @@ export async function actualizarMascota(mascotaId: string, data: Partial<CreateM
 
 export async function obtenerProximoTurno(mascotaId: string) {
   const supabase = await createClient()
-  const hoy = new Date().toISOString().split("T")[0]
+  const hoy = new Date().toLocaleDateString("en-CA", {
+    timeZone: "America/Argentina/Buenos_Aires",
+  })
 
   const { data } = await supabase
     .from("turnos")
