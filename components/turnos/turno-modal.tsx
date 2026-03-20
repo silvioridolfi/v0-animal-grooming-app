@@ -35,7 +35,9 @@ export function TurnoModal({
   onClose,
   onTurnoCreated,
 }: TurnoModalProps) {
-  const hoy = new Date().toISOString().split("T")[0]
+  const hoy = new Date().toLocaleDateString("en-CA", {
+    timeZone: "America/Argentina/Buenos_Aires",
+  })
 
   const [paso, setPaso] = useState<"fecha" | "cliente" | "mascota" | "servicio">("fecha")
   const [fecha, setFecha] = useState(hoy)
@@ -135,7 +137,7 @@ export function TurnoModal({
   const navigateDate = (days: number) => {
     const d = new Date(fecha + "T12:00:00")
     d.setDate(d.getDate() + days)
-    setFecha(d.toISOString().split("T")[0])
+    setFecha(d.toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" }))
     setHora("")
   }
 
@@ -208,15 +210,19 @@ export function TurnoModal({
                         </Button>
                         <div className="text-center">
                           <p className="font-medium capitalize">{fechaFormateada}</p>
-                          {feriadoNombre && <p className="text-xs text-amber-600">{feriadoNombre}</p>}
-                          {!isWorkingDay(fecha) && <p className="text-xs text-destructive">Día no laborable</p>}
+                          {feriadoNombre && (
+                            <p className="text-xs text-amber-600 font-medium">🎉 {feriadoNombre}</p>
+                          )}
+                          {!isWorkingDay(fecha) && (
+                            <p className="text-xs text-destructive">Día no laborable</p>
+                          )}
                         </div>
                         <Button type="button" variant="ghost" size="icon" onClick={() => navigateDate(1)}>
                           <ChevronRight />
                         </Button>
                       </div>
 
-                      {isWorkingDay(fecha) && !feriadoNombre && (
+                      {isWorkingDay(fecha) && (
                         <div className="grid grid-cols-4 gap-2">
                           {horariosDisponibles.map((slot) => (
                             <Button
