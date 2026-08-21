@@ -90,3 +90,28 @@ export interface Egreso {
   notas: string | null
   created_at: string
 }
+
+export interface Accesorio {
+  id: string
+  nombre: string
+  categoria: string | null
+  precio: number
+  stock: number
+  activo: boolean
+  created_at: string
+}
+
+export interface VentaAccesorio {
+  id: string
+  accesorio_id: string
+  cliente_id: string | null
+  cantidad: number
+  precio_unitario: number
+  precio_total: number
+  metodo_pago: "efectivo" | "transferencia" | null
+  fecha: string
+  notas: string | null
+  created_at: string
+  accesorio?: Accesorio
+  cliente?: Cliente
+}

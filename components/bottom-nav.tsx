@@ -2,13 +2,14 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, Dog, CreditCard, Wallet, Search } from "lucide-react"
+import { Calendar, Dog, CreditCard, Wallet, Search, ShoppingBag } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navItems = [
   { href: "/", label: "Agenda", icon: Calendar },
   { href: "/mascotas", label: "Mascotas", icon: Dog },
   { href: "/buscar", label: "Buscar", icon: Search },
+  { href: "/accesorios", label: "Accesorios", icon: ShoppingBag },
   { href: "/pagos", label: "Pagos", icon: CreditCard },
   { href: "/finanzas", label: "Finanzas", icon: Wallet },
 ]

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import type { Cliente } from "@/lib/types"
 
 interface CreateClienteData {
   nombre: string
@@ -18,6 +19,15 @@ interface CreateMascotaInlineData {
   nombre: string
   tipo_animal: "Perro" | "Gato"
   tamano: "S" | "M" | "L"
+}
+
+export async function getClientes(): Promise<Cliente[]> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.from("clientes").select("*").order("nombre", { ascending: true })
+
+  if (error) throw error
+  return data || []
 }
 
 export async function crearCliente(data: CreateClienteData) {

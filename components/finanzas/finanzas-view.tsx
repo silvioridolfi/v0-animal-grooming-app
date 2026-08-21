@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Plus, BarChart2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus, BarChart2, ShoppingBag } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Egreso } from "@/lib/types"
 import type { ResumenFinanciero, ResumenMes } from "@/lib/actions/finanzas"
@@ -103,6 +104,7 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
   }
 
   const ingresos = view === "dia" ? resumen.ingresosDia : resumen.ingresosDelMes
+  const ingresosAccesorios = view === "dia" ? resumen.ingresosAccesoriosDia : resumen.ingresosAccesoriosMes
   const egresosTotal = view === "dia" ? resumen.egresosDia : resumen.egresosDelMes
   const balance = view === "dia" ? resumen.balanceDia : resumen.balanceDelMes
   const efectivo = view === "dia" ? resumen.efectivoDia : resumen.efectivoMes
@@ -165,6 +167,19 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
           <ChevronRight className="h-5 w-5" />
         </Button>
       </div>
+
+      {/* Acceso a Accesorios */}
+      <Link href="/accesorios">
+        <Card className="hover:bg-muted/50 transition-colors">
+          <CardContent className="p-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ShoppingBag className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">Ventas de accesorios</span>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </CardContent>
+        </Card>
+      </Link>
 
       {/* Métricas */}
       <div className="space-y-3">
@@ -234,6 +249,11 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
           <CardContent className="p-3 text-center">
             <p className="text-xs text-green-600 mb-1">Ingresos</p>
             <p className="font-bold text-green-700">{formatCurrency(ingresos)}</p>
+            {ingresosAccesorios > 0 && (
+              <p className="text-[10px] text-green-600/70 mt-0.5">
+                {formatCurrency(ingresosAccesorios)} en accesorios
+              </p>
+            )}
           </CardContent>
         </Card>
         {/* Egresos — rojo */}

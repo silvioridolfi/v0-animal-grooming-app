@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server"
 export interface ResumenFinanciero {
   ingresosDia: number
   ingresosDelMes: number
+  ingresosAccesoriosDia: number
+  ingresosAccesoriosMes: number
   egresosDia: number
   egresosDelMes: number
   balanceDia: number
@@ -44,35 +46,54 @@ export async function getResumenFinanciero(fecha: string): Promise<ResumenFinanc
     { data: egresosMesData },
     { data: todosTurnosMes },
     { count: totalMascotas },
+    { data: ventasAccesoriosMes },
   ] = await Promise.all([
     supabase.from("turnos").select("precio_final").gte("fecha", startOfMonth).lte("fecha", endOfMonth).eq("estado", "realizado"),
     supabase.from("egresos").select("monto").eq("fecha", fecha),
     supabase.from("egresos").select("monto").gte("fecha", startOfMonth).lte("fecha", endOfMonth),
     supabase.from("turnos").select("fecha, estado, metodo_pago, precio_final").gte("fecha", startOfMonth).lte("fecha", endOfMonth),
     supabase.from("mascotas").select("id", { count: "exact", head: true }),
+    supabase.from("ventas_accesorios").select("fecha, precio_total, metodo_pago").gte("fecha", startOfMonth).lte("fecha", endOfMonth),
   ])
 
-  const ingresosDelMes = turnosMes?.reduce((sum, t) => sum + Number(t.precio_final), 0) || 0
+  const ingresosTurnosDelMes = turnosMes?.reduce((sum, t) => sum + Number(t.precio_final), 0) || 0
   const egresosDia = egresosDiaData?.reduce((sum, e) => sum + Number(e.monto), 0) || 0
   const egresosDelMes = egresosMesData?.reduce((sum, e) => sum + Number(e.monto), 0) || 0
 
   const turnosRealizados = todosTurnosMes?.filter((t) => t.estado === "realizado").length || 0
   const turnosPendientes = todosTurnosMes?.filter((t) => t.estado === "pendiente").length || 0
   const turnosCancelados = todosTurnosMes?.filter((t) => t.estado === "cancelado").length || 0
-  const efectivoMes = todosTurnosMes?.filter((t) => t.metodo_pago === "efectivo" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
-  const transferenciaMes = todosTurnosMes?.filter((t) => t.metodo_pago === "transferencia" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
-  const ingresosDia = todosTurnosMes?.filter((t) => t.fecha === fecha && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
+  const efectivoTurnosMes = todosTurnosMes?.filter((t) => t.metodo_pago === "efectivo" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
+  const transferenciaTurnosMes = todosTurnosMes?.filter((t) => t.metodo_pago === "transferencia" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
+  const ingresosTurnosDia = todosTurnosMes?.filter((t) => t.fecha === fecha && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0) || 0
 
   const turnosDiaCompletos = todosTurnosMes?.filter((t) => t.fecha === fecha) || []
   const turnosRealizadosDia = turnosDiaCompletos.filter((t) => t.estado === "realizado").length
   const turnosPendientesDia = turnosDiaCompletos.filter((t) => t.estado === "pendiente").length
   const turnosCanceladosDia = turnosDiaCompletos.filter((t) => t.estado === "cancelado").length
-  const efectivoDia = turnosDiaCompletos.filter((t) => t.metodo_pago === "efectivo" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0)
-  const transferenciaDia = turnosDiaCompletos.filter((t) => t.metodo_pago === "transferencia" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0)
+  const efectivoTurnosDia = turnosDiaCompletos.filter((t) => t.metodo_pago === "efectivo" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0)
+  const transferenciaTurnosDia = turnosDiaCompletos.filter((t) => t.metodo_pago === "transferencia" && t.estado === "realizado").reduce((sum, t) => sum + Number(t.precio_final || 0), 0)
+
+  // Ventas de accesorios: se suman a ingresos y al desglose por método de pago
+  const ingresosAccesoriosMes = ventasAccesoriosMes?.reduce((sum, v) => sum + Number(v.precio_total || 0), 0) || 0
+  const ingresosAccesoriosDia = ventasAccesoriosMes?.filter((v) => v.fecha === fecha).reduce((sum, v) => sum + Number(v.precio_total || 0), 0) || 0
+  const efectivoAccesoriosMes = ventasAccesoriosMes?.filter((v) => v.metodo_pago === "efectivo").reduce((sum, v) => sum + Number(v.precio_total || 0), 0) || 0
+  const transferenciaAccesoriosMes = ventasAccesoriosMes?.filter((v) => v.metodo_pago === "transferencia").reduce((sum, v) => sum + Number(v.precio_total || 0), 0) || 0
+  const efectivoAccesoriosDia = ventasAccesoriosMes?.filter((v) => v.fecha === fecha && v.metodo_pago === "efectivo").reduce((sum, v) => sum + Number(v.precio_total || 0), 0) || 0
+  const transferenciaAccesoriosDia = ventasAccesoriosMes?.filter((v) => v.fecha === fecha && v.metodo_pago === "transferencia").reduce((sum, v) => sum + Number(v.precio_total || 0), 0) || 0
+
+  const ingresosDelMes = ingresosTurnosDelMes + ingresosAccesoriosMes
+  const ingresosDia = ingresosTurnosDia + ingresosAccesoriosDia
+  const efectivoMes = efectivoTurnosMes + efectivoAccesoriosMes
+  const transferenciaMes = transferenciaTurnosMes + transferenciaAccesoriosMes
+  const efectivoDia = efectivoTurnosDia + efectivoAccesoriosDia
+  const transferenciaDia = transferenciaTurnosDia + transferenciaAccesoriosDia
 
   return {
     ingresosDia,
     ingresosDelMes,
+    ingresosAccesoriosDia,
+    ingresosAccesoriosMes,
     egresosDia,
     egresosDelMes,
     balanceDia: ingresosDia - egresosDia,
@@ -116,7 +137,7 @@ export async function getResumenMultiMes(fechaActual: string, cantidadMeses = 6)
   const lastMes = meses[meses.length - 1]
   const endDate = new Date(lastMes.year, lastMes.month, 0).toISOString().split("T")[0]
 
-  const [{ data: turnos }, { data: egresos }] = await Promise.all([
+  const [{ data: turnos }, { data: egresos }, { data: ventasAccesorios }] = await Promise.all([
     supabase
       .from("turnos")
       .select("fecha, precio_final, estado")
@@ -128,12 +149,23 @@ export async function getResumenMultiMes(fechaActual: string, cantidadMeses = 6)
       .select("fecha, monto")
       .gte("fecha", startDate)
       .lte("fecha", endDate),
+    supabase
+      .from("ventas_accesorios")
+      .select("fecha, precio_total")
+      .gte("fecha", startDate)
+      .lte("fecha", endDate),
   ])
 
   return meses.map(({ key, label }) => {
-    const ingresos = (turnos || [])
+    const ingresosTurnos = (turnos || [])
       .filter((t) => t.fecha?.startsWith(key))
       .reduce((sum, t) => sum + Number(t.precio_final || 0), 0)
+
+    const ingresosAccesorios = (ventasAccesorios || [])
+      .filter((v) => v.fecha?.startsWith(key))
+      .reduce((sum, v) => sum + Number(v.precio_total || 0), 0)
+
+    const ingresos = ingresosTurnos + ingresosAccesorios
 
     const egresosTotal = (egresos || [])
       .filter((e) => e.fecha?.startsWith(key))
