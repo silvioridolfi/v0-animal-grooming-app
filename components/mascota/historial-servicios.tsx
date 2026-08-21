@@ -114,7 +114,7 @@ export function HistorialServicios({ historial, isLoading }: HistorialServiciosP
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                   <Calendar className="h-3 w-3" />
-                  {new Date(item.fecha_servicio).toLocaleDateString("es-AR")}
+                  {new Date(item.fecha_servicio + "T12:00:00").toLocaleDateString("es-AR")}
                 </div>
               </div>
               <div className="text-right space-y-1">

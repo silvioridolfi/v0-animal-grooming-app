@@ -20,7 +20,7 @@ interface PagoCardProps {
 
 export function PagoCard({ pago }: PagoCardProps) {
   const fecha = pago.fecha
-    ? new Date(pago.fecha).toLocaleDateString("es-AR", { day: "numeric", month: "short" })
+    ? new Date(pago.fecha + "T12:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "short" })
     : ""
 
   return (

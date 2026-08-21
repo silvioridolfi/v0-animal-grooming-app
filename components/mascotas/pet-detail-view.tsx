@@ -219,7 +219,7 @@ export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }:
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3.5 w-3.5" />
-                          {new Date(entry.fecha_servicio).toLocaleDateString("es-AR")}
+                          {new Date(entry.fecha_servicio + "T12:00:00").toLocaleDateString("es-AR")}
                         </div>
                         <div className="flex items-center gap-1">
                           <DollarSign className="h-3.5 w-3.5" />

@@ -88,7 +88,7 @@ export function TurnoCard({ turno }: TurnoCardProps) {
   const handleWhatsApp = () => {
     if (!cliente?.telefono) return
 
-    const fecha = new Date(turno.fecha).toLocaleDateString("es-AR", {
+    const fecha = new Date(turno.fecha + "T12:00:00").toLocaleDateString("es-AR", {
       weekday: "long",
       day: "numeric",
       month: "long",
