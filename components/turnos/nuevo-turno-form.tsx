@@ -161,7 +161,7 @@ export function NuevoTurnoForm({
   const feriadoNombre = getNombreFeriado(fecha)
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-4">
       <Card className="shadow-sm">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base font-heading">

@@ -81,7 +81,7 @@ export function VentaForm({ accesorios, clientes, onSuccess, onCancel }: VentaFo
     new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 }).format(amount)
 
   return (
-    <Card>
+    <Card className="max-w-lg mx-auto">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={onCancel}>

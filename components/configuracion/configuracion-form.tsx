@@ -109,8 +109,7 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Dias laborales */}
+    <div className="max-w-lg mx-auto space-y-4">
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">

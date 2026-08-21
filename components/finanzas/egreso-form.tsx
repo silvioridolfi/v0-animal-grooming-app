@@ -89,7 +89,7 @@ export function EgresoForm({ egreso, onSuccess, onCancel }: EgresoFormProps) {
   }
 
   return (
-    <Card>
+    <Card className="max-w-lg mx-auto">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={onCancel}>

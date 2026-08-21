@@ -47,9 +47,7 @@ export default function RootLayout({
       </head>
       <body className={`${dmSans.variable} ${poppins.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <div className="mx-auto min-h-screen max-w-lg bg-background sm:border-x sm:border-border">
-            {children}
-          </div>
+          {children}
           <BottomNav />
           <Analytics />
         </ThemeProvider>
