@@ -80,7 +80,7 @@ export async function obtenerHistorialMascota(mascotaId: string): Promise<{ hist
 
   const { data, error } = await supabase
     .from("turnos")
-    .select("id, fecha, hora, tipo_servicio, precio_final, metodo_pago, estado")
+    .select("id, fecha, hora, tipo_servicio, precio_final, metodo_pago, estado, notes, monto_reembolsado")
     .eq("mascota_id", mascotaId)
     .eq("estado", "realizado")
     .order("fecha", { ascending: false })
@@ -96,8 +96,9 @@ export async function obtenerHistorialMascota(mascotaId: string): Promise<{ hist
     precio_total: turno.precio_final || 0,
     metodo_pago: turno.metodo_pago,
     estado: turno.estado,
-    notas: null,
+    notas: turno.notes,
     turno_id: turno.id,
+    monto_reembolsado: Number(turno.monto_reembolsado) || 0,
   }))
 
   return { history }

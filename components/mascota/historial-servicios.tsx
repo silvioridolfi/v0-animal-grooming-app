@@ -111,6 +111,11 @@ export function HistorialServicios({ historial, isLoading }: HistorialServiciosP
                 <div className="flex items-center gap-2">
                   {getServiceIcon(item.tipo_servicio)}
                   <span className="font-medium">{item.tipo_servicio}</span>
+                  {item.monto_reembolsado > 0 && (
+                    <span className="text-xs px-2 py-0.5 rounded font-medium bg-destructive/10 text-destructive">
+                      Reembolsado ${item.monto_reembolsado.toLocaleString("es-AR")}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                   <Calendar className="h-3 w-3" />

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { getFechaArgentina } from "@/lib/utils/fecha-argentina"
 
 export async function marcarTurnoRealizado(turnoId: string) {
   const supabase = await createClient()
@@ -28,9 +29,25 @@ export async function marcarTurnoRealizado(turnoId: string) {
 export async function eliminarTurno(turnoId: string) {
   const supabase = await createClient()
 
-  await supabase.from("turnos").delete().eq("id", turnoId)
+  const { data: turno } = await supabase
+    .from("turnos")
+    .select("monto_reembolsado")
+    .eq("id", turnoId)
+    .single()
+
+  if (turno && Number(turno.monto_reembolsado) > 0) {
+    return {
+      success: false,
+      error: "Este turno ya tiene un reembolso registrado, no se puede eliminar para mantener el registro contable.",
+    }
+  }
+
+  const { error } = await supabase.from("turnos").delete().eq("id", turnoId)
+
+  if (error) return { success: false, error: error.message }
 
   revalidatePath("/")
+  return { success: true }
 }
 
 interface CreateTurnoData {
@@ -139,6 +156,16 @@ export async function actualizarNotasTurno(turnoId: string, notes: string) {
 export async function revertirCobro(turnoId: string) {
   const supabase = await createClient()
 
+  const { data: turno } = await supabase
+    .from("turnos")
+    .select("monto_reembolsado")
+    .eq("id", turnoId)
+    .single()
+
+  if (turno && Number(turno.monto_reembolsado) > 0) {
+    return { error: "Este turno ya tiene un reembolso registrado, no se puede revertir el cobro." }
+  }
+
   const { error } = await supabase
     .from("turnos")
     .update({
@@ -153,6 +180,59 @@ export async function revertirCobro(turnoId: string) {
   }
 
   revalidatePath("/")
+  revalidatePath("/pagos")
+  revalidatePath("/finanzas")
+  return { success: true }
+}
+
+// Reembolso: NO se toca el turno original (el ingreso queda como fue, el
+// trabajo se hizo), se registra un egreso aparte y se marca el turno con
+// el monto reembolsado. Un solo reembolso por turno.
+export async function reembolsarTurno(turnoId: string, monto: number) {
+  const supabase = await createClient()
+
+  const { data: turno, error: errorFetch } = await supabase
+    .from("turnos")
+    .select("*, mascota:mascotas(nombre)")
+    .eq("id", turnoId)
+    .single()
+
+  if (errorFetch || !turno) {
+    return { success: false, error: "Turno no encontrado" }
+  }
+
+  if (Number(turno.monto_reembolsado) > 0) {
+    return { success: false, error: "Este turno ya fue reembolsado" }
+  }
+
+  if (!monto || monto <= 0 || monto > Number(turno.precio_final)) {
+    return { success: false, error: `El monto debe estar entre $1 y $${turno.precio_final}` }
+  }
+
+  const { error: errorUpdate } = await supabase
+    .from("turnos")
+    .update({ monto_reembolsado: monto })
+    .eq("id", turnoId)
+
+  if (errorUpdate) return { success: false, error: errorUpdate.message }
+
+  const { error: errorEgreso } = await supabase.from("egresos").insert({
+    fecha: getFechaArgentina(),
+    concepto: `Reembolso: ${turno.tipo_servicio} — ${turno.mascota?.nombre || "mascota"}`,
+    categoria: "reembolsos",
+    monto,
+    medio_pago: turno.metodo_pago,
+    notas: `Turno original del ${turno.fecha}`,
+  })
+
+  if (errorEgreso) {
+    // Revertimos si no se pudo dejar constancia del egreso
+    await supabase.from("turnos").update({ monto_reembolsado: 0 }).eq("id", turnoId)
+    return { success: false, error: errorEgreso.message }
+  }
+
+  revalidatePath("/")
+  revalidatePath("/mascotas")
   revalidatePath("/pagos")
   revalidatePath("/finanzas")
   return { success: true }

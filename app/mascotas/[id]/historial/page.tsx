@@ -37,6 +37,7 @@ export default async function MascotaHistorialPage({ params }: MascotaHistorialP
     precio: t.precio_final || 0,
     metodo_pago: t.metodo_pago || null,
     estado_turno: t.estado,
+    monto_reembolsado: Number(t.monto_reembolsado) || 0,
     created_at: t.created_at,
   }))
 

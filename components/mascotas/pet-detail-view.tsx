@@ -215,6 +215,11 @@ export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }:
                         }`}>
                           {entry.estado}
                         </span>
+                        {entry.monto_reembolsado > 0 && (
+                          <span className="text-xs px-2 py-0.5 rounded font-medium bg-destructive/10 text-destructive">
+                            Reembolsado ${entry.monto_reembolsado.toLocaleString("es-AR")}
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">

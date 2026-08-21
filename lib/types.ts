@@ -28,6 +28,7 @@ export interface PetHistoryEntry {
   estado: "pendiente" | "realizado" | "cancelado"
   notas: string | null
   turno_id: string
+  monto_reembolsado: number
 }
 
 export interface Turno {
@@ -42,6 +43,7 @@ export interface Turno {
   metodo_pago: "efectivo" | "transferencia" | null
   estado: "pendiente" | "realizado" | "cancelado"
   notes: string | null
+  monto_reembolsado: number
   created_at: string
   mascota?: Mascota
   cliente?: Cliente
@@ -56,6 +58,7 @@ export interface HistorialServicio {
   metodo_pago: "efectivo" | "transferencia" | null
   estado_turno: "pendiente" | "realizado" | "cancelado"
   fecha_servicio: string
+  monto_reembolsado: number
   created_at: string
 }
 
@@ -84,7 +87,7 @@ export interface Egreso {
   id: string
   fecha: string
   concepto: string
-  categoria: "mantenimiento" | "insumos" | "herramientas" | "otros"
+  categoria: "mantenimiento" | "insumos" | "herramientas" | "reembolsos" | "otros"
   monto: number
   medio_pago: "efectivo" | "transferencia" | null
   notas: string | null
@@ -111,6 +114,7 @@ export interface VentaAccesorio {
   metodo_pago: "efectivo" | "transferencia" | null
   fecha: string
   notas: string | null
+  monto_reembolsado: number
   created_at: string
   accesorio?: Accesorio
   cliente?: Cliente

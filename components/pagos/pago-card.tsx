@@ -10,6 +10,7 @@ interface PagoCardProps {
     tipo_servicio: string
     precio_final: number
     metodo_pago: string | null
+    monto_reembolsado?: number
     mascota?: {
       nombre: string
       tipo_animal: string
@@ -22,6 +23,7 @@ export function PagoCard({ pago }: PagoCardProps) {
   const fecha = pago.fecha
     ? new Date(pago.fecha + "T12:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "short" })
     : ""
+  const estaReembolsado = Number(pago.monto_reembolsado) > 0
 
   return (
     <Card>
@@ -32,7 +34,7 @@ export function PagoCard({ pago }: PagoCardProps) {
               <span className="font-medium">{pago.mascota?.nombre}</span>
               <span className="text-sm text-muted-foreground">— {pago.tipo_servicio}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
               <span>{fecha}</span>
               {pago.mascota?.cliente?.nombre && (
                 <span className="text-xs text-muted-foreground">{pago.mascota.cliente.nombre}</span>
@@ -44,6 +46,11 @@ export function PagoCard({ pago }: PagoCardProps) {
                     : "bg-blue-50 text-blue-700 border border-blue-200"
                 }`}>
                   {pago.metodo_pago === "efectivo" ? "Efectivo" : "Transferencia"}
+                </span>
+              )}
+              {estaReembolsado && (
+                <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-destructive/10 text-destructive">
+                  Reembolsado ${Number(pago.monto_reembolsado).toLocaleString("es-AR")}
                 </span>
               )}
             </div>

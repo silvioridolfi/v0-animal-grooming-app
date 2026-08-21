@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Pencil, Trash2, Wrench, Package, Scissors, MoreHorizontal, Receipt } from "lucide-react"
+import { Pencil, Trash2, Wrench, Package, Scissors, MoreHorizontal, Receipt, Undo2 } from "lucide-react"
 import type { Egreso } from "@/lib/types"
 import { eliminarEgreso } from "@/lib/actions/egresos"
 import {
@@ -28,6 +28,7 @@ const categoriaIcons = {
   mantenimiento: Wrench,
   insumos: Package,
   herramientas: Scissors,
+  reembolsos: Undo2,
   otros: MoreHorizontal,
 }
 
@@ -35,6 +36,7 @@ const categoriaLabels = {
   mantenimiento: "Mantenimiento",
   insumos: "Insumos",
   herramientas: "Herramientas",
+  reembolsos: "Reembolsos",
   otros: "Otros",
 }
 
