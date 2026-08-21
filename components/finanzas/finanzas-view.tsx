@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Plus, BarChart2, ShoppingBag } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus, BarChart2, ShoppingBag, Trophy, TrendingDown, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Egreso } from "@/lib/types"
 import type { ResumenFinanciero, ResumenMes } from "@/lib/actions/finanzas"
@@ -134,6 +134,33 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
     ingresos: "#15803d",
     egresos: "#be123c",
   }
+
+  // Comparativa mensual: mejor/peor mes de los últimos 12, y variación %
+  // contra el mes inmediatamente anterior. Se excluyen meses sin ningún
+  // movimiento (ej: antes de empezar a usar la app) para no ensuciar el
+  // "peor mes" con un $0 que en realidad es "no había datos todavía".
+  const mesesConDatos = historialMeses.filter((m) => m.ingresos > 0 || m.egresos > 0)
+  const mejorMes = mesesConDatos.length > 0
+    ? mesesConDatos.reduce((max, m) => (m.balance > max.balance ? m : max), mesesConDatos[0])
+    : null
+  const peorMes = mesesConDatos.length > 0
+    ? mesesConDatos.reduce((min, m) => (m.balance < min.balance ? m : min), mesesConDatos[0])
+    : null
+
+  const mesActualData = historialMeses[historialMeses.length - 1]
+  const mesAnteriorData = historialMeses[historialMeses.length - 2]
+
+  const calcularVariacion = (actual: number, anterior: number): number | null => {
+    if (anterior === 0) return null
+    return ((actual - anterior) / anterior) * 100
+  }
+
+  const variacionIngresos = mesActualData && mesAnteriorData
+    ? calcularVariacion(mesActualData.ingresos, mesAnteriorData.ingresos)
+    : null
+  const variacionEgresos = mesActualData && mesAnteriorData
+    ? calcularVariacion(mesActualData.egresos, mesAnteriorData.egresos)
+    : null
 
   return (
     <div className="flex-1 p-4 space-y-4">
@@ -284,6 +311,68 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
           </CardContent>
         </Card>
       </div>
+
+      {/* Comparativa mensual: mejor/peor mes + variación % */}
+      {mesesConDatos.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-primary" />
+            <h2 className="font-semibold text-foreground">Comparativa mensual</h2>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Card className="bg-emerald-50 border-emerald-200">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Trophy className="h-3.5 w-3.5 text-emerald-600" />
+                  <p className="text-xs text-emerald-600 font-medium">Mejor mes</p>
+                </div>
+                <p className="font-bold text-emerald-700">{mejorMes?.label}</p>
+                <p className="text-sm text-emerald-700/80">{formatCurrency(mejorMes?.balance || 0)}</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-amber-50 border-amber-200">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <TrendingDown className="h-3.5 w-3.5 text-amber-600" />
+                  <p className="text-xs text-amber-600 font-medium">Peor mes</p>
+                </div>
+                <p className="font-bold text-amber-700">{peorMes?.label}</p>
+                <p className="text-sm text-amber-700/80">{formatCurrency(peorMes?.balance || 0)}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {variacionIngresos !== null && variacionEgresos !== null && (
+            <div className="grid grid-cols-2 gap-3">
+              <Card>
+                <CardContent className="p-3 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Ingresos vs. mes anterior</p>
+                  <p className={cn(
+                    "font-bold flex items-center justify-center gap-1",
+                    variacionIngresos >= 0 ? "text-green-700" : "text-red-700"
+                  )}>
+                    {variacionIngresos >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                    {variacionIngresos >= 0 ? "+" : ""}{variacionIngresos.toFixed(0)}%
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-3 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Egresos vs. mes anterior</p>
+                  <p className={cn(
+                    "font-bold flex items-center justify-center gap-1",
+                    variacionEgresos <= 0 ? "text-green-700" : "text-red-700"
+                  )}>
+                    {variacionEgresos >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                    {variacionEgresos >= 0 ? "+" : ""}{variacionEgresos.toFixed(0)}%
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── GRÁFICOS ── */}
       <div className="space-y-4 pt-2">
