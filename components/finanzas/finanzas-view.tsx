@@ -106,6 +106,7 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
   const ingresos = view === "dia" ? resumen.ingresosDia : resumen.ingresosDelMes
   const ingresosAccesorios = view === "dia" ? resumen.ingresosAccesoriosDia : resumen.ingresosAccesoriosMes
   const egresosTotal = view === "dia" ? resumen.egresosDia : resumen.egresosDelMes
+  const egresosPersonal = view === "dia" ? resumen.egresosPersonalDia : resumen.egresosPersonalMes
   const balance = view === "dia" ? resumen.balanceDia : resumen.balanceDelMes
   const efectivo = view === "dia" ? resumen.efectivoDia : resumen.efectivoMes
   const transferencia = view === "dia" ? resumen.transferenciaDia : resumen.transferenciaMes
@@ -261,6 +262,11 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
           <CardContent className="p-3 text-center">
             <p className="text-xs text-red-600 mb-1">Egresos</p>
             <p className="font-bold text-red-700">{formatCurrency(egresosTotal)}</p>
+            {egresosPersonal > 0 && (
+              <p className="text-[10px] text-red-600/70 mt-0.5">
+                + {formatCurrency(egresosPersonal)} personal (no incluido)
+              </p>
+            )}
           </CardContent>
         </Card>
         {/* Balance — verde o rojo según valor */}

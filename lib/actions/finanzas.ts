@@ -9,6 +9,8 @@ export interface ResumenFinanciero {
   ingresosAccesoriosMes: number
   egresosDia: number
   egresosDelMes: number
+  egresosPersonalDia: number
+  egresosPersonalMes: number
   balanceDia: number
   balanceDelMes: number
   turnosRealizados: number
@@ -42,23 +44,30 @@ export async function getResumenFinanciero(fecha: string): Promise<ResumenFinanc
 
   const [
     { data: turnosMes },
-    { data: egresosDiaData },
     { data: egresosMesData },
     { data: todosTurnosMes },
     { count: totalMascotas },
     { data: ventasAccesoriosMes },
   ] = await Promise.all([
     supabase.from("turnos").select("precio_final").gte("fecha", startOfMonth).lte("fecha", endOfMonth).eq("estado", "realizado"),
-    supabase.from("egresos").select("monto").eq("fecha", fecha),
-    supabase.from("egresos").select("monto").gte("fecha", startOfMonth).lte("fecha", endOfMonth),
+    supabase.from("egresos").select("fecha, monto, tipo").gte("fecha", startOfMonth).lte("fecha", endOfMonth),
     supabase.from("turnos").select("fecha, estado, metodo_pago, precio_final").gte("fecha", startOfMonth).lte("fecha", endOfMonth),
     supabase.from("mascotas").select("id", { count: "exact", head: true }),
     supabase.from("ventas_accesorios").select("fecha, precio_total, metodo_pago").gte("fecha", startOfMonth).lte("fecha", endOfMonth),
   ])
 
   const ingresosTurnosDelMes = turnosMes?.reduce((sum, t) => sum + Number(t.precio_final), 0) || 0
-  const egresosDia = egresosDiaData?.reduce((sum, e) => sum + Number(e.monto), 0) || 0
-  const egresosDelMes = egresosMesData?.reduce((sum, e) => sum + Number(e.monto), 0) || 0
+
+  // El balance del negocio solo cuenta egresos tipo="negocio" — los gastos
+  // personales (alquiler, seguro, etc.) se muestran aparte, sin ensuciar
+  // la rentabilidad real de la peluquería.
+  const egresosNegocioMesData = (egresosMesData || []).filter((e) => e.tipo !== "personal")
+  const egresosPersonalMesData = (egresosMesData || []).filter((e) => e.tipo === "personal")
+
+  const egresosDia = egresosNegocioMesData.filter((e) => e.fecha === fecha).reduce((sum, e) => sum + Number(e.monto), 0)
+  const egresosDelMes = egresosNegocioMesData.reduce((sum, e) => sum + Number(e.monto), 0)
+  const egresosPersonalDia = egresosPersonalMesData.filter((e) => e.fecha === fecha).reduce((sum, e) => sum + Number(e.monto), 0)
+  const egresosPersonalMes = egresosPersonalMesData.reduce((sum, e) => sum + Number(e.monto), 0)
 
   const turnosRealizados = todosTurnosMes?.filter((t) => t.estado === "realizado").length || 0
   const turnosPendientes = todosTurnosMes?.filter((t) => t.estado === "pendiente").length || 0
@@ -96,6 +105,8 @@ export async function getResumenFinanciero(fecha: string): Promise<ResumenFinanc
     ingresosAccesoriosMes,
     egresosDia,
     egresosDelMes,
+    egresosPersonalDia,
+    egresosPersonalMes,
     balanceDia: ingresosDia - egresosDia,
     balanceDelMes: ingresosDelMes - egresosDelMes,
     turnosRealizados,
@@ -146,7 +157,7 @@ export async function getResumenMultiMes(fechaActual: string, cantidadMeses = 6)
       .eq("estado", "realizado"),
     supabase
       .from("egresos")
-      .select("fecha, monto")
+      .select("fecha, monto, tipo")
       .gte("fecha", startDate)
       .lte("fecha", endDate),
     supabase
@@ -155,6 +166,9 @@ export async function getResumenMultiMes(fechaActual: string, cantidadMeses = 6)
       .gte("fecha", startDate)
       .lte("fecha", endDate),
   ])
+
+  // Solo egresos de negocio entran al balance mensual (ver getResumenFinanciero)
+  const egresosNegocio = (egresos || []).filter((e) => e.tipo !== "personal")
 
   return meses.map(({ key, label }) => {
     const ingresosTurnos = (turnos || [])
@@ -167,7 +181,7 @@ export async function getResumenMultiMes(fechaActual: string, cantidadMeses = 6)
 
     const ingresos = ingresosTurnos + ingresosAccesorios
 
-    const egresosTotal = (egresos || [])
+    const egresosTotal = egresosNegocio
       .filter((e) => e.fecha?.startsWith(key))
       .reduce((sum, e) => sum + Number(e.monto || 0), 0)
 

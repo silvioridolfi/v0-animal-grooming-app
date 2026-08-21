@@ -12,6 +12,7 @@ import { ArrowLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Egreso } from "@/lib/types"
 import { crearEgreso, actualizarEgreso } from "@/lib/actions/egresos"
+import { getFechaArgentina } from "@/lib/utils/fecha-argentina"
 
 interface EgresoFormProps {
   egreso?: Egreso | null
@@ -19,24 +20,51 @@ interface EgresoFormProps {
   onCancel: () => void
 }
 
-const categorias = [
-  { value: "insumos", label: "Insumos" },
-  { value: "herramientas", label: "Herramientas" },
-  { value: "mantenimiento", label: "Mantenimiento" },
-  { value: "otros", label: "Otros" },
-]
+const categoriasPorTipo = {
+  negocio: [
+    { value: "insumos", label: "Insumos" },
+    { value: "herramientas", label: "Herramientas" },
+    { value: "mantenimiento", label: "Mantenimiento" },
+    { value: "impuestos", label: "Impuestos (Monotributo, etc.)" },
+    { value: "otros", label: "Otros" },
+  ],
+  personal: [
+    { value: "alquiler", label: "Alquiler" },
+    { value: "seguro", label: "Seguro" },
+    { value: "servicios", label: "Servicios (luz/agua/gas)" },
+    { value: "internet_telefono", label: "Internet/Teléfono" },
+    { value: "transporte", label: "Transporte" },
+    { value: "impuestos", label: "Impuestos" },
+    { value: "otros_personal", label: "Otros" },
+  ],
+} as const
 
 const mediosPago = [
   { value: "efectivo", label: "Efectivo" },
   { value: "transferencia", label: "Transferencia" },
 ]
 
+function categoriaValidaParaTipo(tipo: "negocio" | "personal", categoria?: string) {
+  return categoriasPorTipo[tipo].some((c) => c.value === categoria)
+}
+
 export function EgresoForm({ egreso, onSuccess, onCancel }: EgresoFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [categoria, setCategoria] = useState(egreso?.categoria || "insumos")
+  const [tipo, setTipo] = useState<"negocio" | "personal">(egreso?.tipo || "negocio")
+  const [categoria, setCategoria] = useState(
+    egreso && categoriaValidaParaTipo(egreso.tipo, egreso.categoria) ? egreso.categoria : "insumos"
+  )
   const [medioPago, setMedioPago] = useState(egreso?.medio_pago || "efectivo")
 
   const isEditing = !!egreso
+
+  const handleTipoChange = (nuevoTipo: "negocio" | "personal") => {
+    setTipo(nuevoTipo)
+    // Si la categoría actual no existe en el nuevo tipo, resetear a la primera opción
+    if (!categoriaValidaParaTipo(nuevoTipo, categoria)) {
+      setCategoria(categoriasPorTipo[nuevoTipo][0].value)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -44,6 +72,7 @@ export function EgresoForm({ egreso, onSuccess, onCancel }: EgresoFormProps) {
 
     try {
       const formData = new FormData(e.currentTarget)
+      formData.set("tipo", tipo)
       formData.set("categoria", categoria)
       formData.set("medio_pago", medioPago)
 
@@ -76,7 +105,7 @@ export function EgresoForm({ egreso, onSuccess, onCancel }: EgresoFormProps) {
               id="fecha"
               name="fecha"
               type="date"
-              defaultValue={egreso?.fecha || new Date().toISOString().split("T")[0]}
+              defaultValue={egreso?.fecha || getFechaArgentina()}
               required
             />
           </div>
@@ -93,9 +122,44 @@ export function EgresoForm({ egreso, onSuccess, onCancel }: EgresoFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label>Categoria</Label>
+            <Label>Tipo</Label>
             <div className="grid grid-cols-2 gap-2">
-              {categorias.map((cat) => (
+              <button
+                type="button"
+                onClick={() => handleTipoChange("negocio")}
+                className={cn(
+                  "py-3 px-4 rounded-lg border text-sm font-medium transition-colors",
+                  tipo === "negocio"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-card text-foreground hover:bg-muted",
+                )}
+              >
+                Negocio
+              </button>
+              <button
+                type="button"
+                onClick={() => handleTipoChange("personal")}
+                className={cn(
+                  "py-3 px-4 rounded-lg border text-sm font-medium transition-colors",
+                  tipo === "personal"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-card text-foreground hover:bg-muted",
+                )}
+              >
+                Personal
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {tipo === "negocio"
+                ? "Cuenta para el balance de la peluquería en Finanzas."
+                : "Se ve por separado, no afecta el balance del negocio."}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Categoría</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {categoriasPorTipo[tipo].map((cat) => (
                 <button
                   key={cat.value}
                   type="button"

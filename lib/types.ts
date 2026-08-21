@@ -87,7 +87,20 @@ export interface Egreso {
   id: string
   fecha: string
   concepto: string
-  categoria: "mantenimiento" | "insumos" | "herramientas" | "reembolsos" | "otros"
+  tipo: "negocio" | "personal"
+  categoria:
+    | "mantenimiento"
+    | "insumos"
+    | "herramientas"
+    | "reembolsos"
+    | "impuestos"
+    | "otros"
+    | "alquiler"
+    | "seguro"
+    | "servicios"
+    | "internet_telefono"
+    | "transporte"
+    | "otros_personal"
   monto: number
   medio_pago: "efectivo" | "transferencia" | null
   notas: string | null

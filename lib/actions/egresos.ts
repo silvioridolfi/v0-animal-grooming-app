@@ -45,6 +45,7 @@ export async function crearEgreso(formData: FormData) {
 
   const fecha = formData.get("fecha") as string
   const concepto = formData.get("concepto") as string
+  const tipo = (formData.get("tipo") as string) || "negocio"
   const categoria = formData.get("categoria") as string
   const monto = Number.parseFloat(formData.get("monto") as string)
   const medio_pago = (formData.get("medio_pago") as string) || null
@@ -53,6 +54,7 @@ export async function crearEgreso(formData: FormData) {
   const { error } = await supabase.from("egresos").insert({
     fecha,
     concepto,
+    tipo,
     categoria,
     monto,
     medio_pago,
@@ -68,6 +70,7 @@ export async function actualizarEgreso(id: string, formData: FormData) {
 
   const fecha = formData.get("fecha") as string
   const concepto = formData.get("concepto") as string
+  const tipo = (formData.get("tipo") as string) || "negocio"
   const categoria = formData.get("categoria") as string
   const monto = Number.parseFloat(formData.get("monto") as string)
   const medio_pago = (formData.get("medio_pago") as string) || null
@@ -78,6 +81,7 @@ export async function actualizarEgreso(id: string, formData: FormData) {
     .update({
       fecha,
       concepto,
+      tipo,
       categoria,
       monto,
       medio_pago,
