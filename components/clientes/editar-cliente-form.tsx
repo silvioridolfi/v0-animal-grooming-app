@@ -62,7 +62,7 @@ export function EditarClienteForm({ cliente }: EditarClienteFormProps) {
             <Input
               value={telefono}
               onChange={(e) => setTelefono(e.target.value)}
-              placeholder="Teléfono o WhatsApp"
+              placeholder="Teléfono"
               disabled={isLoading}
               className="h-12"
             />

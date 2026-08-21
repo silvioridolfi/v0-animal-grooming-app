@@ -317,7 +317,7 @@ export function TurnoModal({
                             className="h-12"
                           />
                           <Input
-                            placeholder="Teléfono (WhatsApp)"
+                            placeholder="Teléfono"
                             value={nuevoCliente.telefono}
                             onChange={(e) => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })}
                             className="h-12"

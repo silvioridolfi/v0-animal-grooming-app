@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Check, MoreVertical, Phone, Trash2, Dog, Cat, Pencil, ChevronDown, Scissors, DollarSign, Droplet } from "lucide-react"
+import { Check, MoreVertical, Trash2, Dog, Cat, Pencil, ChevronDown, Scissors, DollarSign, Droplet } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { marcarTurnoRealizado, eliminarTurno } from "@/lib/actions/turnos"
 import Link from "next/link"
@@ -83,21 +83,6 @@ export function TurnoCard({ turno }: TurnoCardProps) {
     await eliminarTurno(turno.id)
     setShowDeleteDialog(false)
     setIsLoading(false)
-  }
-
-  const handleWhatsApp = () => {
-    if (!cliente?.telefono) return
-
-    const fecha = new Date(turno.fecha + "T12:00:00").toLocaleDateString("es-AR", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-    })
-    const hora = turno.hora.slice(0, 5)
-    const mensaje = `Hola! Te recordamos el turno de ${mascota?.nombre} el ${fecha} a las ${hora}.\nCualquier cosa avisame, gracias!`
-
-    const url = `https://wa.me/${cliente.telefono.replace(/\D/g, "")}?text=${encodeURIComponent(mensaje)}`
-    window.open(url, "_blank")
   }
 
   const estadoStyles = {
@@ -195,16 +180,6 @@ export function TurnoCard({ turno }: TurnoCardProps) {
             {/* Acciones adicionales colapsables */}
             {showExtraActions && (
               <div className="grid gap-2 pt-2 border-t">
-                <Button
-                  onClick={handleWhatsApp}
-                  disabled={!cliente?.telefono}
-                  variant="outline"
-                  size="sm"
-                  className="w-full gap-1 bg-transparent"
-                >
-                  <Phone className="h-4 w-4" />
-                  <span>Recordatorio</span>
-                </Button>
                 <Button
                   onClick={() => setShowDeleteDialog(true)}
                   variant="outline"

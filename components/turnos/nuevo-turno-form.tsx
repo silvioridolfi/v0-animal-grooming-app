@@ -288,7 +288,7 @@ export function NuevoTurnoForm({
                   className="bg-background h-12"
                 />
                 <Input
-                  placeholder="Teléfono (WhatsApp)"
+                  placeholder="Teléfono"
                   value={nuevoCliente.telefono}
                   onChange={(e) => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })}
                   className="bg-background h-12"
