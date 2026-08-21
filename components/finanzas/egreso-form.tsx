@@ -29,7 +29,7 @@ const categoriasPorTipo = {
     { value: "otros", label: "Otros" },
   ],
   personal: [
-    { value: "alquiler", label: "Alquiler" },
+    { value: "alquiler", label: "Alquileres" },
     { value: "seguro", label: "Seguro" },
     { value: "servicios", label: "Servicios (luz/agua/gas)" },
     { value: "internet_telefono", label: "Internet/Teléfono" },
@@ -45,14 +45,15 @@ const mediosPago = [
 ]
 
 function categoriaValidaParaTipo(tipo: "negocio" | "personal", categoria?: string) {
-  return categoriasPorTipo[tipo].some((c) => c.value === categoria)
+  return (categoriasPorTipo[tipo] || []).some((c) => c.value === categoria)
 }
 
 export function EgresoForm({ egreso, onSuccess, onCancel }: EgresoFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [tipo, setTipo] = useState<"negocio" | "personal">(egreso?.tipo || "negocio")
+  const tipoInicial: "negocio" | "personal" = egreso?.tipo === "personal" ? "personal" : "negocio"
+  const [tipo, setTipo] = useState<"negocio" | "personal">(tipoInicial)
   const [categoria, setCategoria] = useState(
-    egreso && categoriaValidaParaTipo(egreso.tipo, egreso.categoria) ? egreso.categoria : "insumos"
+    egreso && categoriaValidaParaTipo(tipoInicial, egreso.categoria) ? egreso.categoria : categoriasPorTipo[tipoInicial][0].value
   )
   const [medioPago, setMedioPago] = useState(egreso?.medio_pago || "efectivo")
 

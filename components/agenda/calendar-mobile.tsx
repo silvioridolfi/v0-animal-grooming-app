@@ -334,14 +334,16 @@ export function CalendarMobile({
         </Card>
       )}
 
-      <div className="fixed bottom-24 right-4 z-40">
-        <Button
-          onClick={() => onAddTurno(selectedDate)}
-          size="lg"
-          className="h-14 w-14 rounded-full shadow-lg flex items-center justify-center"
-        >
-          <Plus className="h-6 w-6" />
-        </Button>
+      <div className="fixed inset-x-0 bottom-24 z-40 mx-auto max-w-lg pointer-events-none">
+        <div className="flex justify-end pr-4">
+          <Button
+            onClick={() => onAddTurno(selectedDate)}
+            size="lg"
+            className="pointer-events-auto h-14 w-14 rounded-full shadow-lg flex items-center justify-center"
+          >
+            <Plus className="h-6 w-6" />
+          </Button>
+        </div>
       </div>
     </div>
   )

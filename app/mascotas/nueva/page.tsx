@@ -1,5 +1,4 @@
 import { Suspense } from "react"
-import { BottomNav } from "@/components/bottom-nav"
 import { PageHeader } from "@/components/page-header"
 import { NuevaMascotaForm } from "@/components/mascotas/nueva-mascota-form"
 import { Button } from "@/components/ui/button"
@@ -26,7 +25,6 @@ export default function NuevaMascotaPage() {
           <NuevaMascotaForm />
         </Suspense>
       </main>
-      <BottomNav />
     </div>
   )
 }

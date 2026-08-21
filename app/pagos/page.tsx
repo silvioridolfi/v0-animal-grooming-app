@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server"
-import { BottomNav } from "@/components/bottom-nav"
 import { PageHeader } from "@/components/page-header"
 import { PagosList } from "@/components/pagos/pagos-list"
 
@@ -32,7 +31,6 @@ export default async function PagosPage() {
           transferenciaHoy={transferenciaHoy}
         />
       </main>
-      <BottomNav />
     </div>
   )
 }

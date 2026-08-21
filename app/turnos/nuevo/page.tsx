@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server"
-import { BottomNav } from "@/components/bottom-nav"
 import { PageHeader } from "@/components/page-header"
 import { NuevoTurnoForm } from "@/components/turnos/nuevo-turno-form"
 import { Button } from "@/components/ui/button"
@@ -52,7 +51,6 @@ export default async function NuevoTurnoPage({
           horaInicial={hora}
         />
       </main>
-      <BottomNav />
     </div>
   )
 }

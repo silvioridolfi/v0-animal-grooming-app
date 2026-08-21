@@ -50,7 +50,7 @@ const categoriaLabels = {
   reembolsos: "Reembolsos",
   impuestos: "Impuestos",
   otros: "Otros",
-  alquiler: "Alquiler",
+  alquiler: "Alquileres",
   seguro: "Seguro",
   servicios: "Servicios",
   internet_telefono: "Internet/Tel.",

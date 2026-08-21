@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server"
-import { BottomNav } from "@/components/bottom-nav"
 import { PageHeader } from "@/components/page-header"
 import { PetDetailView } from "@/components/mascotas/pet-detail-view"
 import { Button } from "@/components/ui/button"
@@ -53,7 +52,6 @@ export default async function MascotaDetailPage({
             </Link>
           </div>
         </main>
-        <BottomNav />
       </div>
     )
   }
@@ -79,7 +77,6 @@ export default async function MascotaDetailPage({
             </div>
           </div>
         </main>
-        <BottomNav />
       </div>
     )
   }
@@ -103,7 +100,6 @@ export default async function MascotaDetailPage({
           proximoTurno={proximoTurno}
         />
       </main>
-      <BottomNav />
     </div>
   )
 }

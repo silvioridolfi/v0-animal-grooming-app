@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server"
-import { BottomNav } from "@/components/bottom-nav"
 import { PageHeader } from "@/components/page-header"
 import { PetEditForm } from "@/components/mascotas/pet-edit-form"
 import { notFound } from "next/navigation"
@@ -30,7 +29,6 @@ export default async function EditarMascotaPage({
       <main className="flex-1 px-4 py-4">
         <PetEditForm mascota={mascota} mascotaId={id} clienteId={mascota.cliente_id} />
       </main>
-      <BottomNav />
     </div>
   )
 }

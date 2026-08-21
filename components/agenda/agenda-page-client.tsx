@@ -207,7 +207,7 @@ export function AgendaPageClient({
           onClick={handleDetailsModalClose}
         >
           <div
-            className="bg-background w-full rounded-t-2xl p-4 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom shadow-2xl"
+            className="bg-background w-full max-w-lg mx-auto rounded-t-2xl p-4 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">

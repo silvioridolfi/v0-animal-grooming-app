@@ -2,7 +2,6 @@ import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { PageHeader } from "@/components/page-header"
 import { HistorialServicios } from "@/components/mascota/historial-servicios"
-import { BottomNav } from "@/components/bottom-nav"
 import { BackButton } from "@/components/mascotas/back-button"
 
 interface MascotaHistorialPageProps {
@@ -50,7 +49,6 @@ export default async function MascotaHistorialPage({ params }: MascotaHistorialP
       <main className="flex-1 px-4 py-4">
         <HistorialServicios historial={historial} />
       </main>
-      <BottomNav />
     </div>
   )
 }

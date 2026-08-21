@@ -1,5 +1,4 @@
 import { Suspense } from "react"
-import { BottomNav } from "@/components/bottom-nav"
 import { PageHeader } from "@/components/page-header"
 import { BuscarPageClient } from "@/components/buscar/buscar-page-client"
 
@@ -12,7 +11,6 @@ export default function BuscarPage() {
           <BuscarPageClient />
         </Suspense>
       </main>
-      <BottomNav />
     </div>
   )
 }

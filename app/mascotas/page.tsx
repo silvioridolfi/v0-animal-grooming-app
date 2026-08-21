@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server"
-import { BottomNav } from "@/components/bottom-nav"
 import { PageHeader } from "@/components/page-header"
 import { MascotasList } from "@/components/mascotas/mascotas-list"
 import { Button } from "@/components/ui/button"
@@ -31,7 +30,6 @@ export default async function MascotasPage() {
       <main className="flex-1 px-4 py-4">
         <MascotasList mascotas={mascotas || []} />
       </main>
-      <BottomNav />
     </div>
   )
 }
