@@ -87,6 +87,35 @@ export async function toggleActivoAccesorio(id: string, activo: boolean) {
   return { success: true }
 }
 
+// Borrado real: solo se permite si el accesorio nunca tuvo ventas registradas.
+// Si tiene ventas, se sugiere desactivarlo en vez de borrarlo para no perder
+// el historial (la referencia accesorio_id en ventas_accesorios es RESTRICT).
+export async function eliminarAccesorio(id: string) {
+  const supabase = await createClient()
+
+  const { count, error: errorCount } = await supabase
+    .from("ventas_accesorios")
+    .select("id", { count: "exact", head: true })
+    .eq("accesorio_id", id)
+
+  if (errorCount) return { success: false, error: errorCount.message }
+
+  if (count && count > 0) {
+    return {
+      success: false,
+      error: `Tiene ${count} venta${count > 1 ? "s" : ""} registrada${count > 1 ? "s" : ""}. Usá el ícono de ocultar en vez de eliminar, así no se pierde el historial.`,
+    }
+  }
+
+  const { error } = await supabase.from("accesorios").delete().eq("id", id)
+
+  if (error) return { success: false, error: error.message }
+
+  revalidatePath("/accesorios")
+  revalidatePath("/finanzas")
+  return { success: true }
+}
+
 // Sumar/restar stock manualmente (ej: reposición de mercadería)
 export async function ajustarStockAccesorio(id: string, delta: number) {
   const supabase = await createClient()
