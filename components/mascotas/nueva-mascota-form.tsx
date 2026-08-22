@@ -9,17 +9,16 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AlertCircle, CheckCircle2, Dog, Cat, Search, UserPlus, X } from "lucide-react"
 import { crearMascota } from "@/lib/actions/mascotas"
-import { crearCliente } from "@/lib/actions/clientes"
+import { crearCliente, getClientePorId, buscarClientes } from "@/lib/actions/clientes"
 import { obtenerRazas } from "@/lib/razas-mascotas"
 import { BreedCombobox } from "./breed-combobox"
-import { createClient } from "@/lib/supabase/client"
 
 type TipoAnimal = "Perro" | "Gato"
 
 interface ClienteEncontrado {
   id: string
   nombre: string
-  telefono?: string
+  telefono?: string | null
 }
 
 export function NuevaMascotaForm() {
@@ -56,15 +55,9 @@ export function NuevaMascotaForm() {
   // Cargar datos del cliente preseleccionado
   useEffect(() => {
     if (!clienteIdParam) return
-    const supabase = createClient()
-    supabase
-      .from("clientes")
-      .select("id, nombre, telefono")
-      .eq("id", clienteIdParam)
-      .single()
-      .then(({ data }) => {
-        if (data) setClientePreseleccionado(data)
-      })
+    getClientePorId(clienteIdParam).then((data) => {
+      if (data) setClientePreseleccionado(data)
+    })
   }, [clienteIdParam])
 
   const razasDisponibles = useMemo(() => {
@@ -72,17 +65,12 @@ export function NuevaMascotaForm() {
     return []
   }, [tipoAnimal])
 
-  const buscarClientes = async (query: string) => {
+  const buscarClientesHandler = async (query: string) => {
     setSearchQuery(query)
     if (query.trim().length < 2) { setClientesEncontrados([]); return }
     setBuscando(true)
-    const supabase = createClient()
-    const { data } = await supabase
-      .from("clientes")
-      .select("id, nombre, telefono")
-      .ilike("nombre", `%${query}%`)
-      .limit(5)
-    setClientesEncontrados(data || [])
+    const data = await buscarClientes(query)
+    setClientesEncontrados(data)
     setBuscando(false)
   }
 
@@ -231,7 +219,7 @@ export function NuevaMascotaForm() {
                         <Input
                           placeholder="Buscar por nombre del dueño..."
                           value={searchQuery}
-                          onChange={(e) => buscarClientes(e.target.value)}
+                          onChange={(e) => buscarClientesHandler(e.target.value)}
                           className="pl-10 h-12"
                         />
                       </div>

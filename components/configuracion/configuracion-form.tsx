@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { updateConfiguracion, agregarDiaNoLaborable, quitarDiaNoLaborable } from "@/lib/actions/configuracion"
+import { exportarBackupCompleto } from "@/lib/actions/backup"
 import { cn } from "@/lib/utils"
-import { X, Plus, Check, Clock, Calendar, Moon, Sun } from "lucide-react"
+import { X, Plus, Check, Clock, Calendar, Moon, Sun, Download, DatabaseBackup } from "lucide-react"
 import { useTheme } from "next-themes"
 
 interface ConfiguracionFormProps {
@@ -25,6 +26,29 @@ const DIAS_SEMANA = [
   { value: 6, label: "Sab" },
   { value: 0, label: "Dom" },
 ]
+
+function exportarBackupExcel(datos: Awaited<ReturnType<typeof exportarBackupCompleto>>) {
+  import("xlsx").then((XLSX) => {
+    const workbook = XLSX.utils.book_new()
+
+    const hojas: { nombre: string; data: any[] }[] = [
+      { nombre: "Mascotas", data: datos.mascotas },
+      { nombre: "Clientes", data: datos.clientes },
+      { nombre: "Turnos", data: datos.turnos },
+      { nombre: "Egresos", data: datos.egresos },
+      { nombre: "Accesorios", data: datos.accesorios },
+      { nombre: "Ventas Accesorios", data: datos.ventas_accesorios },
+    ]
+
+    hojas.forEach(({ nombre, data }) => {
+      const worksheet = data.length > 0 ? XLSX.utils.json_to_sheet(data) : XLSX.utils.aoa_to_sheet([["Sin datos"]])
+      XLSX.utils.book_append_sheet(workbook, worksheet, nombre)
+    })
+
+    const fecha = datos.generado_en.slice(0, 10)
+    XLSX.writeFile(workbook, `backup-peluqueria-${fecha}.xlsx`)
+  })
+}
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme()
@@ -71,6 +95,7 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
   const [nuevoDiaNoLaborable, setNuevoDiaNoLaborable] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [exportandoBackup, setExportandoBackup] = useState(false)
 
   const toggleDia = (dia: number) => {
     setDiasLaborales((prev) => (prev.includes(dia) ? prev.filter((d) => d !== dia) : [...prev, dia]))
@@ -106,6 +131,16 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
     await quitarDiaNoLaborable(fecha)
     setDiasNoLaborables((prev) => prev.filter((d) => d !== fecha))
     setIsLoading(false)
+  }
+
+  const handleExportarBackup = async () => {
+    setExportandoBackup(true)
+    try {
+      const datos = await exportarBackupCompleto()
+      exportarBackupExcel(datos)
+    } finally {
+      setExportandoBackup(false)
+    }
   }
 
   return (
@@ -257,6 +292,33 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
         </CardHeader>
         <CardContent>
           <ThemeToggle />
+        </CardContent>
+      </Card>
+
+      {/* Respaldo de datos */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <DatabaseBackup className="h-4 w-4" />
+            Respaldo de datos
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Descarga un Excel con todo lo cargado en la app (mascotas, clientes, turnos, egresos y accesorios),
+            una hoja por cada uno. Sirve como copia de seguridad propia, además de los respaldos automáticos de
+            la base de datos.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full h-12 gap-2 bg-transparent"
+            onClick={handleExportarBackup}
+            disabled={exportandoBackup}
+          >
+            <Download className="h-4 w-4" />
+            {exportandoBackup ? "Generando backup..." : "Descargar backup completo"}
+          </Button>
         </CardContent>
       </Card>
     </div>

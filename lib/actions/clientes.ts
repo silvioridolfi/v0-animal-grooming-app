@@ -30,6 +30,28 @@ export async function getClientes(): Promise<Cliente[]> {
   return data || []
 }
 
+export async function getClientePorId(id: string): Promise<Pick<Cliente, "id" | "nombre" | "telefono"> | null> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.from("clientes").select("id, nombre, telefono").eq("id", id).single()
+
+  if (error) return null
+  return data
+}
+
+export async function buscarClientes(query: string): Promise<Pick<Cliente, "id" | "nombre" | "telefono">[]> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("clientes")
+    .select("id, nombre, telefono")
+    .ilike("nombre", `%${query}%`)
+    .limit(5)
+
+  if (error) return []
+  return data || []
+}
+
 export async function crearCliente(data: CreateClienteData) {
   const supabase = await createClient()
 
