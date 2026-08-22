@@ -11,6 +11,8 @@ import type { ResumenFinanciero, ResumenMes } from "@/lib/actions/finanzas"
 import { EgresosList } from "./egresos-list"
 import { EgresoForm } from "./egreso-form"
 import {
+  AreaChart,
+  Area,
   BarChart,
   Bar,
   XAxis,
@@ -22,6 +24,7 @@ import {
   Pie,
   Cell,
   Legend,
+  ReferenceLine,
 } from "recharts"
 
 interface FinanzasViewProps {
@@ -117,22 +120,34 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
   const totalTurnos = turnosRealizados + turnosPendientes + turnosCancelados
 
   // Datos gráficos
+  // Paleta financiera neutra: verde = ingreso, rojo = egreso, azul = transferencia,
+  // ámbar = pendiente, gris = cancelado/neutro. Nada de fucsia acá a propósito,
+  // aunque sea el color de identidad de la app en el resto de las pantallas.
+  const COLORS = {
+    ingresos: "#059669", // emerald-600
+    egresos: "#dc2626", // red-600
+    efectivo: "#059669",
+    transferencia: "#0284c7", // sky-600
+    pendiente: "#d97706", // amber-600
+    cancelado: "#94a3b8", // slate-400
+  }
+
   const dataDona = [
     { name: "Efectivo", value: efectivo },
     { name: "Transferencia", value: transferencia },
   ].filter((d) => d.value > 0)
 
-  const COLORS_DONA = ["#15803d", "#1d4ed8"]
+  const COLORS_DONA = [COLORS.efectivo, COLORS.transferencia]
 
   const dataTurnos = [
-    { name: "Realizados", value: turnosRealizados, color: "#15803d" },
-    { name: "Pendientes", value: turnosPendientes, color: "#b45309" },
-    { name: "Cancelados", value: turnosCancelados, color: "#9ca3af" },
+    { name: "Realizados", value: turnosRealizados, color: COLORS.ingresos },
+    { name: "Pendientes", value: turnosPendientes, color: COLORS.pendiente },
+    { name: "Cancelados", value: turnosCancelados, color: COLORS.cancelado },
   ].filter((d) => d.value > 0)
 
   const COLORS_BARRAS = {
-    ingresos: "#15803d",
-    egresos: "#be123c",
+    ingresos: COLORS.ingresos,
+    egresos: COLORS.egresos,
   }
 
   // Comparativa mensual: mejor/peor mes de los últimos 12, y variación %
@@ -392,16 +407,44 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
             {historialMeses.every((m) => m.ingresos === 0 && m.egresos === 0) ? (
               <p className="text-sm text-muted-foreground text-center py-6">Sin datos suficientes aún</p>
             ) : (
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={historialMeses} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={historialMeses} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="gradIngresos" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={COLORS.ingresos} stopOpacity={0.35} />
+                      <stop offset="95%" stopColor={COLORS.ingresos} stopOpacity={0.02} />
+                    </linearGradient>
+                    <linearGradient id="gradEgresos" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={COLORS.egresos} stopOpacity={0.35} />
+                      <stop offset="95%" stopColor={COLORS.egresos} stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
                   <XAxis dataKey="label" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={formatPesos} tick={{ fontSize: 11 }} width={45} />
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} labelStyle={{ fontWeight: 600 }} />
+                  <Tooltip
+                    formatter={(value: number) => formatCurrency(value)}
+                    labelStyle={{ fontWeight: 600 }}
+                    contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }}
+                  />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Bar dataKey="ingresos" name="Ingresos" fill={COLORS_BARRAS.ingresos} radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="egresos" name="Egresos" fill={COLORS_BARRAS.egresos} radius={[3, 3, 0, 0]} />
-                </BarChart>
+                  <Area
+                    type="monotone"
+                    dataKey="ingresos"
+                    name="Ingresos"
+                    stroke={COLORS.ingresos}
+                    strokeWidth={2}
+                    fill="url(#gradIngresos)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="egresos"
+                    name="Egresos"
+                    stroke={COLORS.egresos}
+                    strokeWidth={2}
+                    fill="url(#gradEgresos)"
+                  />
+                </AreaChart>
               </ResponsiveContainer>
             )}
           </CardContent>
@@ -418,11 +461,15 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
             ) : (
               <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={historialMeses} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
                   <XAxis dataKey="label" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={formatPesos} tick={{ fontSize: 11 }} width={45} />
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                  <Bar dataKey="balance" name="Balance" radius={[3, 3, 0, 0]}>
+                  <Tooltip
+                    formatter={(value: number) => formatCurrency(value)}
+                    contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }}
+                  />
+                  <ReferenceLine y={0} stroke="#94a3b8" strokeWidth={1} />
+                  <Bar dataKey="balance" name="Balance" radius={[4, 4, 4, 4]}>
                     {historialMeses.map((entry, index) => (
                       <Cell key={index} fill={entry.balance >= 0 ? COLORS_BARRAS.ingresos : COLORS_BARRAS.egresos} />
                     ))}
@@ -443,14 +490,17 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
               {dataDona.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-4">Sin cobros</p>
               ) : (
-                <ResponsiveContainer width="100%" height={150}>
+                <ResponsiveContainer width="100%" height={160}>
                   <PieChart>
-                    <Pie data={dataDona} cx="50%" cy="50%" innerRadius={35} outerRadius={55} paddingAngle={3} dataKey="value">
+                    <Pie data={dataDona} cx="50%" cy="50%" innerRadius={38} outerRadius={58} paddingAngle={4} dataKey="value" stroke="none">
                       {dataDona.map((_, index) => (
                         <Cell key={index} fill={COLORS_DONA[index % COLORS_DONA.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                    <Tooltip
+                      formatter={(value: number) => formatCurrency(value)}
+                      contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }}
+                    />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
                   </PieChart>
                 </ResponsiveContainer>
@@ -466,14 +516,14 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
               {dataTurnos.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-4">Sin turnos</p>
               ) : (
-                <ResponsiveContainer width="100%" height={150}>
+                <ResponsiveContainer width="100%" height={160}>
                   <PieChart>
-                    <Pie data={dataTurnos} cx="50%" cy="50%" innerRadius={35} outerRadius={55} paddingAngle={3} dataKey="value">
+                    <Pie data={dataTurnos} cx="50%" cy="50%" innerRadius={38} outerRadius={58} paddingAngle={4} dataKey="value" stroke="none">
                       {dataTurnos.map((entry, index) => (
                         <Cell key={index} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }} />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
                   </PieChart>
                 </ResponsiveContainer>
