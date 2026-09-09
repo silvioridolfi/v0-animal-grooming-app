@@ -38,7 +38,7 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "operacion",
     label: "Operación",
     items: [
-      { href: "/agenda", label: "Agenda", icon: Calendar, kpiKey: "turnosHoyPendientes" },
+      { href: "/agenda", label: "Agenda", icon: Calendar, primary: true, kpiKey: "turnosHoyPendientes" },
       { href: "/mascotas", label: "Mascotas", icon: Dog, primary: true },
       { href: "/buscar", label: "Buscar", icon: Search },
     ],
@@ -54,7 +54,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     id: "negocio",
     label: "Negocio",
-    items: [{ href: "/finanzas", label: "Finanzas", icon: Wallet, primary: true }],
+    items: [{ href: "/finanzas", label: "Finanzas", icon: Wallet }],
   },
 ]
 
