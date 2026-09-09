@@ -164,10 +164,10 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
 
       {/* Cobro */}
       {!yaCobrado && (
-        <Card className="border-2 border-accent/30">
+        <Card className="border-2 border-emerald-300">
           <CardContent className="pt-4 space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="flex items-center gap-2 text-accent-foreground font-medium">
+              <Label className="flex items-center gap-2 text-emerald-700 font-medium">
                 <DollarSign className="h-4 w-4" />
                 Cobrar turno
               </Label>
@@ -178,7 +178,7 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
               )}
             </div>
             {!mostraCobro ? (
-              <Button type="button" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => setMostraCobro(true)}>
+              <Button type="button" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setMostraCobro(true)}>
                 Registrar cobro
               </Button>
             ) : (
@@ -222,13 +222,13 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
                   </Button>
                 </div>
                 {precioManual && Number(precioManual) > 0 && (
-                  <div className="rounded-lg bg-green-50 border border-green-200 p-3 flex justify-between font-semibold">
+                  <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 flex justify-between font-semibold">
                     <span>Total:</span>
-                    <span className="text-green-700">${precioFinal.toLocaleString("es-AR")}</span>
+                    <span className="text-emerald-700">${precioFinal.toLocaleString("es-AR")}</span>
                   </div>
                 )}
                 {errorMsg && <p className="text-sm text-destructive">{errorMsg}</p>}
-                <Button type="button" className="w-full h-12 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
+                <Button type="button" className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
                   onClick={handleCobrar} disabled={isLoading}>
                   {isLoading ? "Guardando..." : "Confirmar cobro"}
                 </Button>
@@ -239,12 +239,12 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
       )}
 
       {yaCobrado && turno.precio_final && turno.precio_final > 0 && (
-        <Card className="bg-accent/15 border-accent/30">
+        <Card className="bg-emerald-50 border-emerald-200">
           <CardContent className="py-4 flex items-center justify-between">
-            <span className="text-accent-foreground font-medium">✓ Turno cobrado</span>
+            <span className="text-emerald-700 font-medium">✓ Turno cobrado</span>
             <div className="text-right">
-              <p className="text-xl font-bold text-accent-foreground">${turno.precio_final.toLocaleString("es-AR")}</p>
-              {turno.metodo_pago && <p className="text-sm text-accent-foreground/70 capitalize">{turno.metodo_pago}</p>}
+              <p className="text-xl font-bold text-emerald-700">${turno.precio_final.toLocaleString("es-AR")}</p>
+              {turno.metodo_pago && <p className="text-sm text-emerald-600 capitalize">{turno.metodo_pago}</p>}
             </div>
           </CardContent>
         </Card>

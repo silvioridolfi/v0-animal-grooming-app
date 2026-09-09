@@ -153,8 +153,8 @@ export function NuevaMascotaForm() {
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6">
 
       {/* Sección cliente */}
-      <Card className="border-2 border-accent/20">
-        <CardHeader className="bg-gradient-to-r from-accent/5 to-accent/10">
+      <Card className="border-2 border-primary/20">
+        <CardHeader className="bg-muted/50">
           <CardTitle className="text-lg">Dueño</CardTitle>
         </CardHeader>
         <CardContent className="pt-6 space-y-4">
@@ -273,7 +273,7 @@ export function NuevaMascotaForm() {
 
       {/* Sección mascota */}
       <Card className="border-2 border-primary/20">
-        <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
+        <CardHeader className="bg-primary/5">
           <CardTitle className="text-lg">Datos de la Mascota</CardTitle>
         </CardHeader>
         <CardContent className="pt-6 space-y-4">

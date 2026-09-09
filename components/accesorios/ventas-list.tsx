@@ -107,8 +107,8 @@ export function VentasList({ ventas, onDelete }: VentasListProps) {
             <Card key={venta.id}>
               <CardContent className="p-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20">
-                    <ShoppingBag className="h-5 w-5 text-accent-foreground" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                    <ShoppingBag className="h-5 w-5 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-foreground truncate">
@@ -125,7 +125,7 @@ export function VentasList({ ventas, onDelete }: VentasListProps) {
                     )}
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-accent-foreground">{formatCurrency(venta.precio_total)}</p>
+                    <p className="font-semibold text-foreground">{formatCurrency(venta.precio_total)}</p>
                   </div>
                   <div className="flex gap-1">
                     {!estaReembolsada && (

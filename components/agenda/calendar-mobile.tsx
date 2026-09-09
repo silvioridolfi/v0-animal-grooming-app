@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Plus, DollarSign, Calendar } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getNombreFeriado } from "@/lib/feriados-argentina-2026"
+import { DiaTurnoRow } from "./dia-turno-row"
+import { ESTADO_DOT, FERIADO_BANNER, FERIADO_TEXT, FERIADO_DOT } from "@/lib/config/estado-turno"
 
 interface CalendarMobileProps {
   turnos: Turno[]
@@ -113,22 +115,6 @@ export function CalendarMobile({
     ? selectedDateObj.toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" })
     : ""
 
-  const getBorderColor = (estado: string) => {
-    switch (estado) {
-      case "realizado": return "border-accent"
-      case "cancelado": return "border-muted-foreground/30"
-      default: return "border-primary"
-    }
-  }
-
-  const getEstadoBadge = (estado: string) => {
-    switch (estado) {
-      case "realizado": return "bg-accent/15 text-accent"
-      case "cancelado": return "bg-muted text-muted-foreground"
-      default: return "bg-primary/15 text-primary"
-    }
-  }
-
   const calcularPuntos = (realizados: number, pendientes: number) => {
     const total = realizados + pendientes
     if (total === 0) return { dotsRealizados: 0, dotsPendientes: 0 }
@@ -174,15 +160,15 @@ export function CalendarMobile({
 
           <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
             <div className="flex items-center gap-1">
-              <div className="h-2.5 w-2.5 rounded-full bg-accent" />
+              <div className={cn("h-2.5 w-2.5 rounded-full", ESTADO_DOT.realizado)} />
               <span>Realizado</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="h-2.5 w-2.5 rounded-full bg-primary" />
+              <div className={cn("h-2.5 w-2.5 rounded-full", ESTADO_DOT.pendiente)} />
               <span>Pendiente</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+              <div className={cn("h-2.5 w-2.5 rounded-full", FERIADO_DOT)} />
               <span>Feriado</span>
             </div>
           </div>
@@ -202,27 +188,24 @@ export function CalendarMobile({
                   onClick={() => handleDateClick(dateStr)}
                   className={cn(
                     "w-full flex items-center justify-between rounded-xl p-3 transition-all text-left border",
-                    isSelected && "bg-primary text-primary-foreground border-primary shadow-sm",
+                    isSelected && "bg-primary/5 border-primary shadow-sm",
                     !isSelected && isToday && "bg-primary/5 border-primary/40 ring-1 ring-primary/30",
                     !isSelected && !isToday && !nonWorking && !holidayName && "bg-muted/30 border-border hover:bg-muted",
-                    holidayName && !isSelected && "bg-amber-50 text-amber-900 border border-amber-200",
+                    holidayName && !isSelected && FERIADO_BANNER,
                     nonWorking && !holidayName && !isSelected && "opacity-40",
                   )}
                 >
                   <div className="flex items-center gap-3">
                     <div className="text-center min-w-[44px]">
-                      <div className={cn(
-                        "text-xs font-semibold uppercase tracking-wide",
-                        isSelected ? "text-primary-foreground/70" : "text-muted-foreground"
-                      )}>
+                      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         {dayName}
                       </div>
-                      <div className="text-xl font-bold leading-tight">{day}</div>
+                      <div className="text-xl font-bold leading-tight text-foreground">{day}</div>
                     </div>
                     {holidayName && (
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-amber-600" />
-                        <span className="text-xs font-semibold text-amber-700 max-w-[120px] truncate">
+                        <Calendar className={cn("h-3.5 w-3.5", FERIADO_TEXT.icon)} />
+                        <span className={cn("text-xs font-semibold max-w-[120px] truncate", FERIADO_TEXT.icon)}>
                           {holidayName}
                         </span>
                       </div>
@@ -231,24 +214,15 @@ export function CalendarMobile({
 
                   {turnosCount > 0 && (
                     <div className="flex flex-col items-end gap-1">
-                      <span className={cn(
-                        "text-xs font-semibold",
-                        isSelected ? "text-primary-foreground" : "text-foreground"
-                      )}>
+                      <span className="text-xs font-semibold text-foreground">
                         {turnosCount} turno{turnosCount !== 1 ? "s" : ""}
                       </span>
                       <div className="flex items-center gap-1">
                         {Array.from({ length: dotsRealizados }).map((_, i) => (
-                          <div key={`r-${i}`} className={cn(
-                            "h-2.5 w-2.5 rounded-full",
-                            isSelected ? "bg-white/80" : "bg-accent"
-                          )} />
+                          <div key={`r-${i}`} className={cn("h-2.5 w-2.5 rounded-full", ESTADO_DOT.realizado)} />
                         ))}
                         {Array.from({ length: dotsPendientes }).map((_, i) => (
-                          <div key={`p-${i}`} className={cn(
-                            "h-2.5 w-2.5 rounded-full",
-                            isSelected ? "bg-white/40" : "bg-primary"
-                          )} />
+                          <div key={`p-${i}`} className={cn("h-2.5 w-2.5 rounded-full", ESTADO_DOT.pendiente)} />
                         ))}
                       </div>
                     </div>
@@ -270,12 +244,12 @@ export function CalendarMobile({
           </CardHeader>
           <CardContent className="space-y-3">
             {selectedHoliday && (
-              <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3">
+              <div className={cn("rounded-lg px-4 py-3 border", FERIADO_BANNER)}>
                 <div className="flex items-start gap-3">
-                  <Calendar className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <Calendar className={cn("h-5 w-5 flex-shrink-0 mt-0.5", FERIADO_TEXT.icon)} />
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-amber-900">{selectedHoliday}</p>
-                    <p className="text-xs text-amber-700 mt-1">Feriado nacional de Argentina</p>
+                    <p className={cn("text-sm font-semibold", FERIADO_TEXT.title)}>{selectedHoliday}</p>
+                    <p className={cn("text-xs mt-1", FERIADO_TEXT.body)}>Feriado nacional de Argentina</p>
                   </div>
                 </div>
               </div>
@@ -297,36 +271,7 @@ export function CalendarMobile({
                 {selectedTurnos
                   .sort((a, b) => a.hora.localeCompare(b.hora))
                   .map((turno) => (
-                    <div
-                      key={turno.id}
-                      onClick={() => onTurnoClick?.(turno)}
-                      className={cn(
-                        "rounded-lg bg-muted/50 p-3 border-l-4 cursor-pointer hover:bg-muted transition-colors",
-                        getBorderColor(turno.estado)
-                      )}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-sm">{turno.hora.slice(0, 5)}</span>
-                            <span className={cn("text-xs px-2 py-0.5 rounded", getEstadoBadge(turno.estado))}>
-                              {turno.estado}
-                            </span>
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            <p>{turno.mascota?.nombre} ({turno.mascota?.cliente?.nombre})</p>
-                            <p>{turno.tipo_servicio}</p>
-                          </div>
-                          <div className="text-xs font-semibold mt-1 text-foreground">
-                            {turno.estado === "realizado"
-                              ? `$${turno.precio_final?.toLocaleString("es-AR")}`
-                              : turno.estado === "cancelado"
-                              ? "Cancelado"
-                              : "Pendiente"}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <DiaTurnoRow key={turno.id} turno={turno} onClick={() => onTurnoClick?.(turno)} />
                   ))}
               </div>
             )}

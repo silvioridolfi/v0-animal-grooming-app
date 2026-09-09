@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { eliminarMascota } from "@/lib/actions/mascotas"
 import { actualizarNotasTurno } from "@/lib/actions/turnos"
+import { ESTADO_BADGE } from "@/lib/config/estado-turno"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
@@ -176,7 +177,7 @@ export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }:
 
       {/* Próximo turno */}
       {proximoTurno && (
-        <Card className="border-2 border-accent/30 bg-accent/10">
+        <Card className="border-2 border-primary/30 bg-primary/5">
           <CardContent className="py-3 px-4 flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground uppercase mb-1">Próximo turno</p>
@@ -209,9 +210,9 @@ export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }:
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-medium text-sm">{entry.tipo_servicio}</p>
                         <span className={`text-xs px-2 py-0.5 rounded font-medium ${
-                          entry.estado === "realizado" ? "bg-accent/20 text-accent-foreground" :
-                          entry.estado === "cancelado" ? "bg-muted text-muted-foreground" :
-                          "bg-primary/20 text-primary"
+                          entry.estado === "realizado" ? ESTADO_BADGE.realizado :
+                          entry.estado === "cancelado" ? ESTADO_BADGE.cancelado :
+                          ESTADO_BADGE.pendiente
                         }`}>
                           {entry.estado}
                         </span>

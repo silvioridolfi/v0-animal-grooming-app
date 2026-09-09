@@ -221,9 +221,9 @@ export function NuevoTurnoForm({
           )}
 
           {hora && (
-            <div className="flex items-center justify-center gap-2 rounded-lg bg-accent/30 p-3">
-              <Check className="h-4 w-4 text-accent-foreground" />
-              <span className="font-medium">Turno a las {hora}</span>
+            <div className="flex items-center justify-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 p-3">
+              <Check className="h-4 w-4 text-emerald-700" />
+              <span className="font-medium text-emerald-700">Turno a las {hora}</span>
             </div>
           )}
         </CardContent>
