@@ -4,14 +4,14 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatCurrency } from "@/lib/utils"
 import type { Accesorio, Cliente, VentaAccesorio } from "@/lib/types"
 import { getAccesorios } from "@/lib/actions/accesorios"
 import { getVentasAccesorios } from "@/lib/actions/ventas-accesorios"
 import { AccesoriosList } from "./accesorios-list"
 import { AccesorioForm } from "./accesorio-form"
 import { VentasList } from "./ventas-list"
-import { VentaForm } from "./venta-form"
+import { PosView } from "./pos-view"
 
 interface AccesoriosViewProps {
   accesoriosIniciales: Accesorio[]
@@ -20,13 +20,20 @@ interface AccesoriosViewProps {
   mesInicial: string
 }
 
+const TABS = [
+  { id: "vender", label: "Vender" },
+  { id: "historial", label: "Historial" },
+  { id: "productos", label: "Productos" },
+] as const
+
+type Tab = (typeof TABS)[number]["id"]
+
 export function AccesoriosView({ accesoriosIniciales, ventasIniciales, clientes, mesInicial }: AccesoriosViewProps) {
-  const [tab, setTab] = useState<"ventas" | "productos">("ventas")
+  const [tab, setTab] = useState<Tab>("vender")
   const [accesorios, setAccesorios] = useState(accesoriosIniciales)
   const [ventas, setVentas] = useState(ventasIniciales)
   const [mes] = useState(mesInicial)
 
-  const [showVentaForm, setShowVentaForm] = useState(false)
   const [showAccesorioForm, setShowAccesorioForm] = useState(false)
   const [editingAccesorio, setEditingAccesorio] = useState<Accesorio | null>(null)
 
@@ -42,25 +49,9 @@ export function AccesoriosView({ accesoriosIniciales, ventasIniciales, clientes,
     await Promise.all([refreshAccesorios(), refreshVentas()])
   }
 
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 }).format(amount)
-
   const totalVendidoMes = ventas.reduce((sum, v) => sum + v.precio_total, 0)
   const unidadesVendidasMes = ventas.reduce((sum, v) => sum + v.cantidad, 0)
   const accesoriosSinStock = accesorios.filter((a) => a.activo && a.stock <= 0).length
-
-  if (showVentaForm) {
-    return (
-      <div className="flex-1 p-4">
-        <VentaForm
-          accesorios={accesorios}
-          clientes={clientes}
-          onSuccess={() => { setShowVentaForm(false); refreshAll() }}
-          onCancel={() => setShowVentaForm(false)}
-        />
-      </div>
-    )
-  }
 
   if (showAccesorioForm) {
     return (
@@ -102,34 +93,32 @@ export function AccesoriosView({ accesoriosIniciales, ventasIniciales, clientes,
 
       {/* Tabs */}
       <div className="flex rounded-lg bg-muted p-1">
-        <button
-          onClick={() => setTab("ventas")}
-          className={cn("flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors",
-            tab === "ventas" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}
-        >
-          Ventas
-        </button>
-        <button
-          onClick={() => setTab("productos")}
-          className={cn("flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors",
-            tab === "productos" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}
-        >
-          Productos
-        </button>
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={cn(
+              "flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors",
+              tab === t.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground",
+            )}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
 
-      {tab === "ventas" ? (
+      {tab === "vender" && (
+        <PosView accesorios={accesorios} clientes={clientes} onVentaConfirmada={refreshAll} />
+      )}
+
+      {tab === "historial" && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-foreground">Ventas del Mes</h2>
-            <Button size="sm" onClick={() => setShowVentaForm(true)} disabled={accesorios.every((a) => a.stock <= 0)}>
-              <Plus className="h-4 w-4 mr-1" />
-              Nueva
-            </Button>
-          </div>
+          <h2 className="font-semibold text-foreground">Ventas del mes</h2>
           <VentasList ventas={ventas} onDelete={refreshAll} />
         </div>
-      ) : (
+      )}
+
+      {tab === "productos" && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-foreground">Catálogo</h2>

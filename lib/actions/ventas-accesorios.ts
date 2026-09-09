@@ -93,6 +93,97 @@ export async function crearVentaAccesorio(formData: FormData) {
   return { success: true }
 }
 
+export interface ItemCarrito {
+  accesorio_id: string
+  cantidad: number
+  precio_unitario: number
+}
+
+export interface DatosVentaCarrito {
+  cliente_id: string | null
+  metodo_pago: "efectivo" | "transferencia"
+  fecha: string
+  notas: string | null
+}
+
+/**
+ * Confirma una venta de mostrador con varios productos a la vez (carrito del POS).
+ * Inserta una fila en `ventas_accesorios` por cada línea (mismo modelo de datos
+ * que ya existía, solo que ahora entran varias juntas). Si un ítem falla a mitad
+ * de camino (p.ej. alguien vació el stock en simultáneo), se revierte el stock
+ * de los ítems que ya se habían descontado antes de cortar.
+ */
+export async function crearVentaCarrito(items: ItemCarrito[], datos: DatosVentaCarrito) {
+  if (items.length === 0) {
+    return { success: false, error: "El carrito está vacío" }
+  }
+
+  const supabase = await createClient()
+  const descontados: { accesorio_id: string; cantidad: number }[] = []
+
+  for (const item of items) {
+    const { data: accesorio, error: errorAccesorio } = await supabase
+      .from("accesorios")
+      .select("stock")
+      .eq("id", item.accesorio_id)
+      .single()
+
+    if (errorAccesorio || !accesorio) {
+      await revertirDescuentos(supabase, descontados)
+      return { success: false, error: "Uno de los accesorios ya no existe" }
+    }
+
+    const { data: updateResult, error: errorUpdate } = await supabase
+      .from("accesorios")
+      .update({ stock: accesorio.stock - item.cantidad })
+      .eq("id", item.accesorio_id)
+      .gte("stock", item.cantidad)
+      .select("id")
+
+    if (errorUpdate || !updateResult || updateResult.length === 0) {
+      await revertirDescuentos(supabase, descontados)
+      return { success: false, error: "Stock insuficiente en algún producto, alguien se te adelantó" }
+    }
+
+    descontados.push({ accesorio_id: item.accesorio_id, cantidad: item.cantidad })
+  }
+
+  const filas = items.map((item) => ({
+    accesorio_id: item.accesorio_id,
+    cliente_id: datos.cliente_id,
+    cantidad: item.cantidad,
+    precio_unitario: item.precio_unitario,
+    precio_total: item.precio_unitario * item.cantidad,
+    metodo_pago: datos.metodo_pago,
+    fecha: datos.fecha,
+    notas: datos.notas,
+  }))
+
+  const { error: errorInsert } = await supabase.from("ventas_accesorios").insert(filas)
+
+  if (errorInsert) {
+    await revertirDescuentos(supabase, descontados)
+    return { success: false, error: errorInsert.message }
+  }
+
+  revalidatePath("/accesorios")
+  revalidatePath("/finanzas")
+  revalidatePath("/")
+  return { success: true }
+}
+
+async function revertirDescuentos(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  descontados: { accesorio_id: string; cantidad: number }[],
+) {
+  for (const { accesorio_id, cantidad } of descontados) {
+    const { data: actual } = await supabase.from("accesorios").select("stock").eq("id", accesorio_id).single()
+    if (actual) {
+      await supabase.from("accesorios").update({ stock: actual.stock + cantidad }).eq("id", accesorio_id)
+    }
+  }
+}
+
 export async function eliminarVentaAccesorio(id: string) {
   const supabase = await createClient()
 
