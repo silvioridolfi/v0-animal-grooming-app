@@ -82,7 +82,7 @@ export function BuscarPageClient() {
             <Link
               key={`${r.tipo}-${r.id}`}
               href={linkPorTipo[r.tipo](r.id)}
-              className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
+              className="tap-scale flex items-center gap-3 p-3 rounded-lg border hover:bg-muted transition-colors"
             >
               <div className="h-10 w-10 flex items-center justify-center rounded-full bg-primary/10 shrink-0">
                 {renderIcono(r)}

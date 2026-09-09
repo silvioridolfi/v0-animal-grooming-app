@@ -1,6 +1,9 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
+import { Dog, Cat } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { METODO_PAGO_BADGE } from "@/lib/config/finanzas-colors"
 
 interface PagoCardProps {
   pago: {
@@ -28,23 +31,32 @@ export function PagoCard({ pago }: PagoCardProps) {
   return (
     <Card>
       <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="font-medium">{pago.mascota?.nombre}</span>
-              <span className="text-sm text-muted-foreground">— {pago.tipo_servicio}</span>
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+            {pago.mascota?.tipo_animal === "Gato" ? (
+              <Cat className="h-5 w-5 text-primary" />
+            ) : (
+              <Dog className="h-5 w-5 text-primary" />
+            )}
+          </div>
+
+          <div className="flex-1 min-w-0 space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-medium truncate">{pago.mascota?.nombre}</span>
+              <span className="text-sm text-muted-foreground truncate">— {pago.tipo_servicio}</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
               <span>{fecha}</span>
               {pago.mascota?.cliente?.nombre && (
-                <span className="text-xs text-muted-foreground">{pago.mascota.cliente.nombre}</span>
+                <span className="text-xs text-muted-foreground truncate">{pago.mascota.cliente.nombre}</span>
               )}
               {pago.metodo_pago && (
-                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                  pago.metodo_pago === "efectivo"
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-blue-50 text-blue-700 border border-blue-200"
-                }`}>
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+                    METODO_PAGO_BADGE[pago.metodo_pago as "efectivo" | "transferencia"],
+                  )}
+                >
                   {pago.metodo_pago === "efectivo" ? "Efectivo" : "Transferencia"}
                 </span>
               )}
@@ -55,9 +67,10 @@ export function PagoCard({ pago }: PagoCardProps) {
               )}
             </div>
           </div>
-          <div className="text-right">
-            <span className="text-lg font-semibold">${(pago.precio_final || 0).toLocaleString("es-AR")}</span>
-          </div>
+
+          <span className="shrink-0 text-lg font-bold font-heading text-foreground">
+            ${(pago.precio_final || 0).toLocaleString("es-AR")}
+          </span>
         </div>
       </CardContent>
     </Card>

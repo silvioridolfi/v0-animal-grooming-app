@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog"
 import { Check, Trash2, Dog, Cat, Pencil, Scissors, DollarSign, Droplet, Undo2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ESTADO_CARD, ESTADO_BADGE } from "@/lib/config/estado-turno"
 import { marcarTurnoRealizado, eliminarTurno, reembolsarTurno } from "@/lib/actions/turnos"
 import Link from "next/link"
 
@@ -118,15 +119,9 @@ export function TurnoCard({ turno }: TurnoCardProps) {
     }
   }
 
-  const estadoStyles = {
-    pendiente: "border-l-amber-500 bg-amber-50",
-    realizado: "border-l-accent bg-accent/10",
-    cancelado: "border-l-destructive bg-destructive/10",
-  }
-
   return (
     <>
-      <Card className={cn("border-l-4 transition-all", estadoStyles[turno.estado])}>
+      <Card className={cn("border-l-4 transition-all", ESTADO_CARD[turno.estado])}>
         <CardContent className="p-4">
           <div className="space-y-3">
             {/* Información principal */}
@@ -142,14 +137,7 @@ export function TurnoCard({ turno }: TurnoCardProps) {
                 <div className="flex-1 min-w-0 space-y-1.5">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-semibold text-foreground">{turno.hora.slice(0, 5)}</span>
-                    <span
-                      className={cn(
-                        "rounded-full px-2 py-0.5 text-xs font-medium",
-                        turno.estado === "pendiente" && "bg-amber-100 text-amber-700",
-                        turno.estado === "realizado" && "bg-accent/20 text-accent-foreground",
-                        turno.estado === "cancelado" && "bg-destructive/20 text-destructive",
-                      )}
-                    >
+                    <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", ESTADO_BADGE[turno.estado])}>
                       {turno.estado}
                     </span>
                     {estaReembolsado && (

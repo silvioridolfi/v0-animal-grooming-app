@@ -7,6 +7,8 @@ import { CreditCard, DollarSign, Banknote, ArrowRightLeft, Download } from "luci
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { METODO_PAGO_TEXTO } from "@/lib/config/finanzas-colors"
+import { cn } from "@/lib/utils"
 
 interface PagosListProps {
   pagos: any[]
@@ -104,7 +106,7 @@ export function PagosList({ pagos, totalHoy, efectivoHoy, transferenciaHoy }: Pa
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                 <span>Efectivo</span>
               </div>
-              <p className="font-semibold text-green-700">${efectivoHoy.toLocaleString("es-AR")}</p>
+              <p className={cn("font-semibold", METODO_PAGO_TEXTO.efectivo)}>${efectivoHoy.toLocaleString("es-AR")}</p>
             </CardContent>
           </Card>
           <Card>
@@ -112,7 +114,7 @@ export function PagosList({ pagos, totalHoy, efectivoHoy, transferenciaHoy }: Pa
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                 <span>Transferencia</span>
               </div>
-              <p className="font-semibold text-blue-700">${transferenciaHoy.toLocaleString("es-AR")}</p>
+              <p className={cn("font-semibold", METODO_PAGO_TEXTO.transferencia)}>${transferenciaHoy.toLocaleString("es-AR")}</p>
             </CardContent>
           </Card>
         </div>

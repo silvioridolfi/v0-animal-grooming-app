@@ -2,8 +2,9 @@
 
 import type { HistorialServicio } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Scissors, Droplet, Calendar, DollarSign, TrendingUp } from "lucide-react"
+import { METODO_PAGO_BADGE } from "@/lib/config/finanzas-colors"
+import { cn } from "@/lib/utils"
 
 interface HistorialServiciosProps {
   historial: HistorialServicio[]
@@ -40,24 +41,13 @@ export function HistorialServicios({ historial, isLoading }: HistorialServiciosP
   const getServiceIcon = (tipo: string) => {
     switch (tipo) {
       case "Corte":
-        return <Scissors className="h-4 w-4 text-blue-500" />
+        return <Scissors className="h-4 w-4 text-primary" />
       case "Baño":
-        return <Droplet className="h-4 w-4 text-cyan-500" />
+        return <Droplet className="h-4 w-4 text-primary" />
       case "Corte y Baño":
-        return <Scissors className="h-4 w-4 text-purple-500" />
+        return <Scissors className="h-4 w-4 text-primary" />
       default:
         return null
-    }
-  }
-
-  const getPaymentBadgeColor = (metodo: string | null) => {
-    switch (metodo) {
-      case "efectivo":
-        return "bg-green-100 text-green-800"
-      case "transferencia":
-        return "bg-blue-100 text-blue-800"
-      default:
-        return "bg-gray-100 text-gray-800"
     }
   }
 
@@ -124,9 +114,14 @@ export function HistorialServicios({ historial, isLoading }: HistorialServiciosP
               </div>
               <div className="text-right space-y-1">
                 <p className="font-semibold">${item.precio.toLocaleString("es-AR")}</p>
-                <Badge className={`text-xs ${getPaymentBadgeColor(item.metodo_pago)}`}>
+                <span
+                  className={cn(
+                    "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
+                    item.metodo_pago ? METODO_PAGO_BADGE[item.metodo_pago] : "bg-muted text-muted-foreground",
+                  )}
+                >
                   {item.metodo_pago === "efectivo" ? "Efectivo" : item.metodo_pago === "transferencia" ? "Transf." : "N/A"}
-                </Badge>
+                </span>
               </div>
             </div>
           ))}

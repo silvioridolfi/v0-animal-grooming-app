@@ -7,7 +7,7 @@ import { TurnoModal } from "@/components/turnos/turno-modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { X, Trash2, Pencil, DollarSign, Check, RotateCcw } from "lucide-react"
+import { X, Trash2, Pencil, DollarSign, Check, RotateCcw, Dog, Cat } from "lucide-react"
 import Link from "next/link"
 import {
   AlertDialog,
@@ -206,17 +206,26 @@ export function AgendaPageClient({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-lg font-semibold">
-                  {selectedTurno.mascota?.nombre} — {selectedTurno.hora?.slice(0, 5)}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {selectedTurno.mascota?.cliente?.nombre} · {selectedTurno.tipo_servicio}
-                </p>
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  {selectedTurno.mascota?.tipo_animal === "Gato" ? (
+                    <Cat className="h-5 w-5 text-primary" />
+                  ) : (
+                    <Dog className="h-5 w-5 text-primary" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-lg font-semibold truncate">
+                    {selectedTurno.mascota?.nombre} — {selectedTurno.hora?.slice(0, 5)}
+                  </h2>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {selectedTurno.mascota?.cliente?.nombre} · {selectedTurno.tipo_servicio}
+                  </p>
+                </div>
               </div>
               <button
                 onClick={handleDetailsModalClose}
-                className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
+                className="h-8 w-8 shrink-0 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -296,19 +305,19 @@ export function AgendaPageClient({
 
               {yaCobrado && (
                 <div className="space-y-2">
-                  <div className="rounded-xl bg-green-50 border border-green-200 p-3 flex items-center justify-between">
-                    <span className="font-medium text-green-700">✓ Turno cobrado</span>
+                  <div className="rounded-xl bg-accent/10 border border-accent/20 p-3 flex items-center justify-between">
+                    <span className="font-medium text-accent-foreground">✓ Turno cobrado</span>
                     <div className="text-right">
-                      <p className="font-bold text-green-700">${selectedTurno.precio_final?.toLocaleString("es-AR")}</p>
+                      <p className="font-bold text-accent-foreground">${selectedTurno.precio_final?.toLocaleString("es-AR")}</p>
                       {selectedTurno.metodo_pago && (
-                        <p className="text-xs text-green-600 capitalize">{selectedTurno.metodo_pago}</p>
+                        <p className="text-xs text-accent capitalize">{selectedTurno.metodo_pago}</p>
                       )}
                     </div>
                   </div>
                   <Button
                     onClick={() => setShowConfirmRevertir(true)}
                     disabled={isReverting}
-                    className="w-full gap-2 bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200 shadow-none"
+                    className="w-full gap-2 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 shadow-none"
                   >
                     <RotateCcw className="h-4 w-4" />
                     {isReverting ? "Revirtiendo..." : "Revertir cobro"}
@@ -349,7 +358,7 @@ export function AgendaPageClient({
                       })
                       handleDetailsModalClose()
                     }}
-                    className="w-full gap-2 bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200 shadow-none"
+                    className="w-full gap-2 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 shadow-none"
                   >
                     Cancelar turno
                   </Button>
@@ -408,7 +417,7 @@ export function AgendaPageClient({
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRevertirConfirmado}
-              className="bg-orange-600 hover:bg-orange-700 text-white"
+              className="bg-amber-600 hover:bg-amber-700 text-white"
             >
               Revertir
             </AlertDialogAction>

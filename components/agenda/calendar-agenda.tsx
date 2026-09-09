@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { getNombreFeriado } from "@/lib/feriados-argentina-2026"
 import { DiaTurnoRow } from "./dia-turno-row"
+import { ESTADO_PASTILLA, ESTADO_DOT } from "@/lib/config/estado-turno"
 
 interface CalendarAgendaProps {
   turnos: Turno[]
@@ -26,15 +27,6 @@ const MESES = [
 ]
 
 const DIAS_SEMANA_CORTO = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
-
-const getBadgeColor = (estado: string, isSelected: boolean) => {
-  if (isSelected) return "bg-white/20 text-white"
-  switch (estado) {
-    case "realizado": return "bg-accent/15 text-accent"
-    case "cancelado": return "bg-muted text-muted-foreground"
-    default: return "bg-primary/15 text-primary"
-  }
-}
 
 const toArgentinaDateStr = (date: Date): string => {
   return date.toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" })
@@ -159,11 +151,7 @@ export function CalendarAgenda({
               onClick={(e) => { e.stopPropagation(); onTurnoClick?.(turno) }}
               className={cn(
                 "text-xs rounded-md px-2 py-1 font-medium cursor-pointer hover:opacity-80 transition-opacity truncate",
-                isSelected
-                  ? "bg-white/20 text-white"
-                  : turno.estado === "realizado"
-                  ? "bg-accent/15 text-accent"
-                  : "bg-primary/15 text-primary"
+                isSelected ? "bg-white/20 text-white" : ESTADO_PASTILLA[turno.estado],
               )}
               title={`${turno.hora.slice(0, 5)} - ${turno.mascota?.nombre}`}
             >
@@ -256,11 +244,11 @@ export function CalendarAgenda({
               <span>Feriado</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="h-3 w-3 rounded-md bg-primary/15" />
+              <div className={cn("h-3 w-3 rounded-full", ESTADO_DOT.pendiente)} />
               <span>Pendiente</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="h-3 w-3 rounded-md bg-accent/15" />
+              <div className={cn("h-3 w-3 rounded-full", ESTADO_DOT.realizado)} />
               <span>Realizado</span>
             </div>
             <div className="flex items-center gap-1">

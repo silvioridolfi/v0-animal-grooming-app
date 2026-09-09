@@ -118,7 +118,7 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
   ].filter((d) => d.value > 0)
 
   const dataTurnos = [
-    { name: "Realizados", value: turnosRealizados, color: COLORS.ingresos },
+    { name: "Realizados", value: turnosRealizados, color: "var(--accent)" },
     { name: "Pendientes", value: turnosPendientes, color: COLORS.pendiente },
     { name: "Cancelados", value: turnosCancelados, color: COLORS.cancelado },
   ].filter((d) => d.value > 0)
@@ -213,15 +213,13 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
               <p className="text-2xl font-bold text-primary">{totalTurnos}</p>
             </div>
             <div className="flex items-center gap-3 text-xs">
-              {/* Realizados — verde */}
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">
+              {/* Mismos colores que el resto de la app para el estado de un turno */}
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent/20 text-accent-foreground border border-accent/30">
                 ✓ {turnosRealizados} realizados
               </span>
-              {/* Pendientes — naranja */}
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200">
+              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
                 ⏳ {turnosPendientes} pendientes
               </span>
-              {/* Cancelados — gris */}
               <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
                 ✗ {turnosCancelados} cancelados
               </span>
@@ -246,13 +244,13 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
               <p className="text-xs text-green-600 mt-1">Efectivo</p>
             </CardContent>
           </Card>
-          {/* Transferencia — azul */}
-          <Card className="bg-blue-50 border-blue-100">
+          {/* Transferencia — sky (mismo tono que el gráfico de método de pago) */}
+          <Card className="bg-sky-50 border-sky-100">
             <CardContent className="p-3 text-center">
-              <p className="text-lg font-bold text-blue-700">
+              <p className="text-lg font-bold text-sky-700">
                 {formatCurrency(transferencia)}
               </p>
-              <p className="text-xs text-blue-600 mt-1">Transf.</p>
+              <p className="text-xs text-sky-600 mt-1">Transf.</p>
             </CardContent>
           </Card>
         </div>

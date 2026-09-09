@@ -1,22 +1,11 @@
 import { Dog, Cat, User, Scissors, Droplet } from "lucide-react"
 import { cn, formatCurrency } from "@/lib/utils"
+import { ESTADO_CARD, ESTADO_BADGE } from "@/lib/config/estado-turno"
 import type { Turno } from "@/lib/types"
 
 interface DiaTurnoRowProps {
   turno: Turno
   onClick?: () => void
-}
-
-const ESTADO_BORDE: Record<string, string> = {
-  pendiente: "border-l-amber-500 bg-amber-50/60",
-  realizado: "border-l-accent bg-accent/5",
-  cancelado: "border-l-destructive/60 bg-destructive/5",
-}
-
-const ESTADO_BADGE: Record<string, string> = {
-  pendiente: "bg-amber-100 text-amber-700",
-  realizado: "bg-accent/20 text-accent-foreground",
-  cancelado: "bg-destructive/20 text-destructive",
 }
 
 function ServiceIcon({ tipo }: { tipo: Turno["tipo_servicio"] }) {
@@ -35,7 +24,7 @@ export function DiaTurnoRow({ turno, onClick }: DiaTurnoRowProps) {
       onClick={onClick}
       className={cn(
         "tap-scale w-full rounded-lg border-l-4 p-3 text-left transition-colors hover:brightness-95",
-        ESTADO_BORDE[turno.estado],
+        ESTADO_CARD[turno.estado],
       )}
     >
       <div className="flex items-start gap-3">
