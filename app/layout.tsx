@@ -3,7 +3,8 @@ import type { Metadata, Viewport } from "next"
 import { Poppins, DM_Sans } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
-import { BottomNav } from "@/components/bottom-nav"
+import { AppShell } from "@/components/app-shell"
+import { getShellKpis } from "@/lib/actions/shell-kpis"
 import "./globals.css"
 
 const poppins = Poppins({
@@ -35,11 +36,13 @@ export const viewport: Viewport = {
   themeColor: "#E91E8C",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const kpis = await getShellKpis()
+
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
@@ -47,8 +50,7 @@ export default function RootLayout({
       </head>
       <body className={`${dmSans.variable} ${poppins.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          {children}
-          <BottomNav />
+          <AppShell kpis={kpis}>{children}</AppShell>
           <Analytics />
         </ThemeProvider>
       </body>
