@@ -84,7 +84,7 @@ export function DashboardView({ resumen, turnosHoy, stockBajo }: DashboardData) 
                 <Link
                   key={turno.id}
                   href="/agenda"
-                  className="flex items-center justify-between rounded-lg border border-border px-3 py-2 active:bg-muted transition-colors"
+                  className="tap-scale flex items-center justify-between rounded-lg border border-border px-3 py-2 active:bg-muted transition-colors"
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">
@@ -117,7 +117,7 @@ export function DashboardView({ resumen, turnosHoy, stockBajo }: DashboardData) 
                 <Link
                   key={accesorio.id}
                   href="/accesorios"
-                  className="flex items-center justify-between rounded-lg border border-border px-3 py-2 active:bg-muted transition-colors"
+                  className="tap-scale flex items-center justify-between rounded-lg border border-border px-3 py-2 active:bg-muted transition-colors"
                 >
                   <p className="text-sm font-medium truncate">{accesorio.nombre}</p>
                   <Badge variant="destructive" className="font-normal shrink-0">

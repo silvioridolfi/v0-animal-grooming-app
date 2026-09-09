@@ -98,7 +98,7 @@ export function MascotasList({ mascotas }: MascotasListProps) {
               <div key={group.cliente.id} className="rounded-lg border bg-card overflow-hidden">
                 <button
                   onClick={() => toggleClient(group.cliente.id)}
-                  className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/50 active:bg-muted transition-colors"
+                  className="tap-scale flex w-full items-center justify-between p-4 text-left hover:bg-muted/50 active:bg-muted transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
@@ -124,11 +124,15 @@ export function MascotasList({ mascotas }: MascotasListProps) {
                   <div className="border-t bg-muted/20 p-3 space-y-2">
                     {group.mascotas.map((mascota) => (
                       <div key={mascota.id} className="flex items-center justify-between rounded-lg bg-background p-3">
-                        <Link href={`/mascotas/${mascota.id}`} className="flex items-center gap-3 flex-1">
+                        <Link href={`/mascotas/${mascota.id}`} className="tap-scale flex items-center gap-3 flex-1">
                           {mascota.tipo_animal === "Perro" ? (
-                            <Dog className="h-5 w-5 text-primary" />
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                              <Dog className="h-4 w-4 text-primary" />
+                            </div>
                           ) : (
-                            <Cat className="h-5 w-5 text-primary" />
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                              <Cat className="h-4 w-4 text-primary" />
+                            </div>
                           )}
                           <div>
                             <p className="font-medium text-foreground">{mascota.nombre}</p>

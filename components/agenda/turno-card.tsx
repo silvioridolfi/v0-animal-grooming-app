@@ -142,51 +142,53 @@ export function TurnoCard({ turno }: TurnoCardProps) {
           <div className="space-y-3">
             {/* Información principal */}
             <div className="flex items-start justify-between gap-3">
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">{turno.hora.slice(0, 5)}</span>
-                  <span
-                    className={cn(
-                      "rounded-full px-2 py-0.5 text-xs font-medium",
-                      turno.estado === "pendiente" && "bg-amber-100 text-amber-700",
-                      turno.estado === "realizado" && "bg-accent/20 text-accent-foreground",
-                      turno.estado === "cancelado" && "bg-destructive/20 text-destructive",
-                    )}
-                  >
-                    {turno.estado}
-                  </span>
-                  {estaReembolsado && (
-                    <span className="rounded-full px-2 py-0.5 text-xs font-medium bg-destructive/10 text-destructive">
-                      Reembolsado ${Number(turno.monto_reembolsado).toLocaleString("es-AR")}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2">
+              <div className="flex items-start gap-3 flex-1 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
                   {mascota?.tipo_animal === "Perro" ? (
-                    <Dog className="h-4 w-4 text-primary" />
+                    <Dog className="h-5 w-5 text-primary" />
                   ) : (
-                    <Cat className="h-4 w-4 text-primary" />
+                    <Cat className="h-5 w-5 text-primary" />
                   )}
-                  <span className="font-medium text-foreground">{mascota?.nombre}</span>
-                  {sexoInfo && <span className={`${sexoInfo.color}`}>{sexoInfo.symbol}</span>}
-                  <span className="text-sm text-muted-foreground">({cliente?.nombre})</span>
                 </div>
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-foreground">{turno.hora.slice(0, 5)}</span>
+                    <span
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-xs font-medium",
+                        turno.estado === "pendiente" && "bg-amber-100 text-amber-700",
+                        turno.estado === "realizado" && "bg-accent/20 text-accent-foreground",
+                        turno.estado === "cancelado" && "bg-destructive/20 text-destructive",
+                      )}
+                    >
+                      {turno.estado}
+                    </span>
+                    {estaReembolsado && (
+                      <span className="rounded-full px-2 py-0.5 text-xs font-medium bg-destructive/10 text-destructive">
+                        Reembolsado ${Number(turno.monto_reembolsado).toLocaleString("es-AR")}
+                      </span>
+                    )}
+                  </div>
 
-                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                  {getServiceIcon()}
-                  <span>{turno.tipo_servicio}</span>
-                  <span className="text-muted-foreground">·</span>
-                  <DollarSign className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-muted-foreground text-xs">{getPaymentMethod()}</span>
-                </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium text-foreground truncate">{mascota?.nombre}</span>
+                    {sexoInfo && <span className={sexoInfo.color}>{sexoInfo.symbol}</span>}
+                    <span className="text-sm text-muted-foreground truncate">({cliente?.nombre})</span>
+                  </div>
 
-                <div className="pt-1">
-                  <span className="text-lg font-semibold text-foreground">
-                    ${Number(turno.precio_final).toLocaleString("es-AR")}
-                  </span>
+                  <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                    {getServiceIcon()}
+                    <span>{turno.tipo_servicio}</span>
+                    <span className="text-muted-foreground">·</span>
+                    <DollarSign className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-muted-foreground text-xs">{getPaymentMethod()}</span>
+                  </div>
                 </div>
               </div>
+
+              <span className="shrink-0 text-lg font-bold font-heading text-foreground">
+                ${Number(turno.precio_final).toLocaleString("es-AR")}
+              </span>
             </div>
 
             {/* Botones de acción principal */}

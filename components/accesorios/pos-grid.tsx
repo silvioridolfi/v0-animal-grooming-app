@@ -82,7 +82,7 @@ export function PosGrid({ accesorios, cantidadesEnCarrito, onAdd, onRemove }: Po
                     type="button"
                     disabled={sinStock}
                     onClick={() => onAdd(accesorio)}
-                    className="mt-auto flex items-center justify-center gap-1 rounded-lg bg-primary py-2 text-xs font-semibold text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed active:opacity-80"
+                    className="tap-scale mt-auto flex items-center justify-center gap-1 rounded-lg bg-primary py-2 text-xs font-semibold text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed active:opacity-80"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Agregar
@@ -122,7 +122,7 @@ function CategoriaChip({ label, active, onClick }: { label: string; active: bool
       type="button"
       onClick={onClick}
       className={cn(
-        "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors",
+        "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors tap-scale",
         active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground",
       )}
     >
