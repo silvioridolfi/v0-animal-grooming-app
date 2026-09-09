@@ -87,11 +87,11 @@ export function PetEditForm({ mascota, mascotaId, clienteId }: PetEditFormProps)
   return (
     <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-6">
       {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 flex gap-3">
-          <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+        <div className="rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 px-4 py-3 flex gap-3">
+          <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-medium text-red-900">Error</p>
-            <p className="text-sm text-red-700 mt-1">{error}</p>
+            <p className="font-medium text-red-900 dark:text-red-200">Error</p>
+            <p className="text-sm text-red-700 dark:text-red-300 mt-1">{error}</p>
           </div>
         </div>
       )}

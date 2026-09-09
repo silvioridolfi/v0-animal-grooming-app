@@ -305,19 +305,19 @@ export function AgendaPageClient({
 
               {yaCobrado && (
                 <div className="space-y-2">
-                  <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 flex items-center justify-between">
-                    <span className="font-medium text-emerald-700">✓ Turno cobrado</span>
+                  <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 p-3 flex items-center justify-between">
+                    <span className="font-medium text-emerald-700 dark:text-emerald-300">✓ Turno cobrado</span>
                     <div className="text-right">
-                      <p className="font-bold text-emerald-700">${selectedTurno.precio_final?.toLocaleString("es-AR")}</p>
+                      <p className="font-bold text-emerald-700 dark:text-emerald-300">${selectedTurno.precio_final?.toLocaleString("es-AR")}</p>
                       {selectedTurno.metodo_pago && (
-                        <p className="text-xs text-emerald-600 capitalize">{selectedTurno.metodo_pago}</p>
+                        <p className="text-xs text-emerald-600 dark:text-emerald-400 capitalize">{selectedTurno.metodo_pago}</p>
                       )}
                     </div>
                   </div>
                   <Button
                     onClick={() => setShowConfirmRevertir(true)}
                     disabled={isReverting}
-                    className="w-full gap-2 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 shadow-none"
+                    className="w-full gap-2 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-800 shadow-none"
                   >
                     <RotateCcw className="h-4 w-4" />
                     {isReverting ? "Revirtiendo..." : "Revertir cobro"}
@@ -358,7 +358,7 @@ export function AgendaPageClient({
                       })
                       handleDetailsModalClose()
                     }}
-                    className="w-full gap-2 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 shadow-none"
+                    className="w-full gap-2 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-800 shadow-none"
                   >
                     Cancelar turno
                   </Button>
@@ -417,7 +417,7 @@ export function AgendaPageClient({
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRevertirConfirmado}
-              className="bg-amber-600 hover:bg-amber-700 text-white"
+              className="bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 text-white"
             >
               Revertir
             </AlertDialogAction>

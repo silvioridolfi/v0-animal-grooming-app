@@ -164,10 +164,10 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
 
       {/* Cobro */}
       {!yaCobrado && (
-        <Card className="border-2 border-emerald-300">
+        <Card className="border-2 border-emerald-300 dark:border-emerald-800">
           <CardContent className="pt-4 space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="flex items-center gap-2 text-emerald-700 font-medium">
+              <Label className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300 font-medium">
                 <DollarSign className="h-4 w-4" />
                 Cobrar turno
               </Label>
@@ -222,9 +222,9 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
                   </Button>
                 </div>
                 {precioManual && Number(precioManual) > 0 && (
-                  <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 flex justify-between font-semibold">
+                  <div className="rounded-lg bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 p-3 flex justify-between font-semibold">
                     <span>Total:</span>
-                    <span className="text-emerald-700">${precioFinal.toLocaleString("es-AR")}</span>
+                    <span className="text-emerald-700 dark:text-emerald-300">${precioFinal.toLocaleString("es-AR")}</span>
                   </div>
                 )}
                 {errorMsg && <p className="text-sm text-destructive">{errorMsg}</p>}
@@ -239,12 +239,12 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
       )}
 
       {yaCobrado && turno.precio_final && turno.precio_final > 0 && (
-        <Card className="bg-emerald-50 border-emerald-200">
+        <Card className="bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-800">
           <CardContent className="py-4 flex items-center justify-between">
-            <span className="text-emerald-700 font-medium">✓ Turno cobrado</span>
+            <span className="text-emerald-700 dark:text-emerald-300 font-medium">✓ Turno cobrado</span>
             <div className="text-right">
-              <p className="text-xl font-bold text-emerald-700">${turno.precio_final.toLocaleString("es-AR")}</p>
-              {turno.metodo_pago && <p className="text-sm text-emerald-600 capitalize">{turno.metodo_pago}</p>}
+              <p className="text-xl font-bold text-emerald-700 dark:text-emerald-300">${turno.precio_final.toLocaleString("es-AR")}</p>
+              {turno.metodo_pago && <p className="text-sm text-emerald-600 dark:text-emerald-400 capitalize">{turno.metodo_pago}</p>}
             </div>
           </CardContent>
         </Card>

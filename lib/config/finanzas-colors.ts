@@ -18,12 +18,14 @@ export const FINANZAS_COLORS = {
 // badges y textos fuera de los gráficos (pago-card, pagos-list,
 // historial-servicios). Mismos colores que arriba (emerald-600 / sky-600),
 // pero como clases en vez de hex porque acá no hace falta recharts.
+// Con variante dark: explícita — sin ella, un bg-emerald-50 (casi blanco)
+// queda igual de pálido en modo oscuro y el texto se pierde.
 export const METODO_PAGO_BADGE = {
-  efectivo: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-  transferencia: "bg-sky-50 text-sky-700 border border-sky-200",
+  efectivo: "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800",
+  transferencia: "bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-900/30 dark:text-sky-300 dark:border-sky-800",
 } as const
 
 export const METODO_PAGO_TEXTO = {
-  efectivo: "text-emerald-700",
-  transferencia: "text-sky-700",
+  efectivo: "text-emerald-700 dark:text-emerald-400",
+  transferencia: "text-sky-700 dark:text-sky-400",
 } as const

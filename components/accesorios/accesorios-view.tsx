@@ -69,10 +69,10 @@ export function AccesoriosView({ accesoriosIniciales, ventasIniciales, clientes,
     <div className="flex-1 p-4 space-y-4">
       {/* Stats del mes */}
       <div className="grid grid-cols-3 gap-3">
-        <Card className="bg-green-50 border-green-200">
+        <Card className="bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800">
           <CardContent className="p-3 text-center">
-            <p className="text-xs text-green-600 mb-1">Vendido (mes)</p>
-            <p className="font-bold text-green-700">{formatCurrency(totalVendidoMes)}</p>
+            <p className="text-xs text-green-600 dark:text-green-400 mb-1">Vendido (mes)</p>
+            <p className="font-bold text-green-700 dark:text-green-300">{formatCurrency(totalVendidoMes)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -81,9 +81,9 @@ export function AccesoriosView({ accesoriosIniciales, ventasIniciales, clientes,
             <p className="text-xs text-muted-foreground mt-1">Unidades</p>
           </CardContent>
         </Card>
-        <Card className={cn(accesoriosSinStock > 0 && "bg-amber-50 border-amber-200")}>
+        <Card className={cn(accesoriosSinStock > 0 && "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800")}>
           <CardContent className="p-3 text-center">
-            <p className={cn("text-2xl font-bold", accesoriosSinStock > 0 ? "text-amber-600" : "text-muted-foreground")}>
+            <p className={cn("text-2xl font-bold", accesoriosSinStock > 0 ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground")}>
               {accesoriosSinStock}
             </p>
             <p className="text-xs text-muted-foreground mt-1">Sin stock</p>

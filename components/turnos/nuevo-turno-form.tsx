@@ -179,7 +179,7 @@ export function NuevoTurnoForm({
             </Button>
             <div className="text-center">
               <p className="text-sm font-medium capitalize">{fechaFormateada}</p>
-              {feriadoNombre && <p className="text-xs text-amber-600 font-medium">{feriadoNombre}</p>}
+              {feriadoNombre && <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">{feriadoNombre}</p>}
               {!isValidDay && !feriadoNombre && <p className="text-xs text-destructive">Día no laborable</p>}
             </div>
             <Button type="button" variant="ghost" size="icon" onClick={() => navigateDate(1)} className="h-10 w-10">
@@ -188,8 +188,8 @@ export function NuevoTurnoForm({
           </div>
 
           {feriadoNombre && (
-            <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-center">
-              <p className="text-sm text-amber-800">No se pueden agendar turnos en feriados</p>
+            <div className="rounded-lg bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 p-3 text-center">
+              <p className="text-sm text-amber-800 dark:text-amber-300">No se pueden agendar turnos en feriados</p>
             </div>
           )}
 
@@ -221,9 +221,9 @@ export function NuevoTurnoForm({
           )}
 
           {hora && (
-            <div className="flex items-center justify-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 p-3">
-              <Check className="h-4 w-4 text-emerald-700" />
-              <span className="font-medium text-emerald-700">Turno a las {hora}</span>
+            <div className="flex items-center justify-center gap-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 p-3">
+              <Check className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
+              <span className="font-medium text-emerald-700 dark:text-emerald-300">Turno a las {hora}</span>
             </div>
           )}
         </CardContent>

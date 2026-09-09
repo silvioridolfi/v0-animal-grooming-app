@@ -64,11 +64,11 @@ export default async function MascotaDetailPage({
           action={<BackButton />}
         />
         <main className="flex-1 px-4 py-4">
-          <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-4 flex gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 px-4 py-4 flex gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium text-red-900">Error al cargar mascota</p>
-              <p className="text-sm text-red-700 mt-1">{error.message}</p>
+              <p className="font-medium text-red-900 dark:text-red-200">Error al cargar mascota</p>
+              <p className="text-sm text-red-700 dark:text-red-300 mt-1">{error.message}</p>
               <Link href="/mascotas">
                 <Button variant="outline" size="sm" className="mt-3 bg-transparent">
                   Volver a mascotas

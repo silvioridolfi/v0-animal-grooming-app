@@ -211,7 +211,7 @@ export function TurnoModal({
                         <div className="text-center">
                           <p className="font-medium capitalize">{fechaFormateada}</p>
                           {feriadoNombre && (
-                            <p className="text-xs text-amber-600 font-medium">🎉 {feriadoNombre}</p>
+                            <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">🎉 {feriadoNombre}</p>
                           )}
                           {!isWorkingDay(fecha) && (
                             <p className="text-xs text-destructive">Día no laborable</p>

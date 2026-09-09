@@ -237,21 +237,21 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
             </CardContent>
           </Card>
           {/* Efectivo — verde */}
-          <Card className="bg-green-50 border-green-100">
+          <Card className="bg-green-50 dark:bg-green-900/30 border-green-100 dark:border-green-800">
             <CardContent className="p-3 text-center">
-              <p className="text-lg font-bold text-green-700">
+              <p className="text-lg font-bold text-green-700 dark:text-green-300">
                 {formatCurrency(efectivo)}
               </p>
-              <p className="text-xs text-green-600 mt-1">Efectivo</p>
+              <p className="text-xs text-green-600 dark:text-green-400 mt-1">Efectivo</p>
             </CardContent>
           </Card>
           {/* Transferencia — sky (mismo tono que el gráfico de método de pago) */}
-          <Card className="bg-sky-50 border-sky-100">
+          <Card className="bg-sky-50 dark:bg-sky-900/30 border-sky-100 dark:border-sky-800">
             <CardContent className="p-3 text-center">
-              <p className="text-lg font-bold text-sky-700">
+              <p className="text-lg font-bold text-sky-700 dark:text-sky-300">
                 {formatCurrency(transferencia)}
               </p>
-              <p className="text-xs text-sky-600 mt-1">Transf.</p>
+              <p className="text-xs text-sky-600 dark:text-sky-400 mt-1">Transf.</p>
             </CardContent>
           </Card>
         </div>
@@ -260,24 +260,24 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
       {/* Balance cards */}
       <div className="grid grid-cols-3 gap-3">
         {/* Ingresos — verde */}
-        <Card className="bg-green-50 border-green-200">
+        <Card className="bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800">
           <CardContent className="p-3 text-center">
-            <p className="text-xs text-green-600 mb-1">Ingresos</p>
-            <p className="font-bold text-green-700">{formatCurrency(ingresos)}</p>
+            <p className="text-xs text-green-600 dark:text-green-400 mb-1">Ingresos</p>
+            <p className="font-bold text-green-700 dark:text-green-300">{formatCurrency(ingresos)}</p>
             {ingresosAccesorios > 0 && (
-              <p className="text-[10px] text-green-600/70 mt-0.5">
+              <p className="text-[10px] text-green-600/70 dark:text-green-400/70 mt-0.5">
                 {formatCurrency(ingresosAccesorios)} en accesorios
               </p>
             )}
           </CardContent>
         </Card>
         {/* Egresos — rojo */}
-        <Card className="bg-red-50 border-red-200">
+        <Card className="bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800">
           <CardContent className="p-3 text-center">
-            <p className="text-xs text-red-600 mb-1">Egresos</p>
-            <p className="font-bold text-red-700">{formatCurrency(egresosTotal)}</p>
+            <p className="text-xs text-red-600 dark:text-red-400 mb-1">Egresos</p>
+            <p className="font-bold text-red-700 dark:text-red-300">{formatCurrency(egresosTotal)}</p>
             {egresosPersonal > 0 && (
-              <p className="text-[10px] text-red-600/70 mt-0.5">
+              <p className="text-[10px] text-red-600/70 dark:text-red-400/70 mt-0.5">
                 + {formatCurrency(egresosPersonal)} personal (no incluido)
               </p>
             )}
@@ -286,13 +286,13 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
         {/* Balance — verde o rojo según valor */}
         <Card className={cn(
           "border",
-          balance >= 0 ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"
+          balance >= 0 ? "bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800" : "bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800"
         )}>
           <CardContent className="p-3 text-center">
-            <p className={cn("text-xs mb-1", balance >= 0 ? "text-green-600" : "text-red-600")}>
+            <p className={cn("text-xs mb-1", balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")}>
               Balance
             </p>
-            <p className={cn("font-bold", balance >= 0 ? "text-green-700" : "text-red-700")}>
+            <p className={cn("font-bold", balance >= 0 ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300")}>
               {formatCurrency(balance)}
             </p>
           </CardContent>
@@ -308,24 +308,24 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Card className="bg-emerald-50 border-emerald-200">
+            <Card className="bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-800">
               <CardContent className="p-3">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <Trophy className="h-3.5 w-3.5 text-emerald-600" />
-                  <p className="text-xs text-emerald-600 font-medium">Mejor mes</p>
+                  <Trophy className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Mejor mes</p>
                 </div>
-                <p className="font-bold text-emerald-700">{mejorMes?.label}</p>
-                <p className="text-sm text-emerald-700/80">{formatCurrency(mejorMes?.balance || 0)}</p>
+                <p className="font-bold text-emerald-700 dark:text-emerald-300">{mejorMes?.label}</p>
+                <p className="text-sm text-emerald-700 dark:text-emerald-300/80">{formatCurrency(mejorMes?.balance || 0)}</p>
               </CardContent>
             </Card>
-            <Card className="bg-amber-50 border-amber-200">
+            <Card className="bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800">
               <CardContent className="p-3">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <TrendingDown className="h-3.5 w-3.5 text-amber-600" />
-                  <p className="text-xs text-amber-600 font-medium">Peor mes</p>
+                  <TrendingDown className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                  <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">Peor mes</p>
                 </div>
-                <p className="font-bold text-amber-700">{peorMes?.label}</p>
-                <p className="text-sm text-amber-700/80">{formatCurrency(peorMes?.balance || 0)}</p>
+                <p className="font-bold text-amber-700 dark:text-amber-300">{peorMes?.label}</p>
+                <p className="text-sm text-amber-700 dark:text-amber-300/80">{formatCurrency(peorMes?.balance || 0)}</p>
               </CardContent>
             </Card>
           </div>
@@ -337,7 +337,7 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
                   <p className="text-xs text-muted-foreground mb-1">Ingresos vs. mes anterior</p>
                   <p className={cn(
                     "font-bold flex items-center justify-center gap-1",
-                    variacionIngresos >= 0 ? "text-green-700" : "text-red-700"
+                    variacionIngresos >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"
                   )}>
                     {variacionIngresos >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                     {variacionIngresos >= 0 ? "+" : ""}{variacionIngresos.toFixed(0)}%
@@ -349,7 +349,7 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
                   <p className="text-xs text-muted-foreground mb-1">Egresos vs. mes anterior</p>
                   <p className={cn(
                     "font-bold flex items-center justify-center gap-1",
-                    variacionEgresos <= 0 ? "text-green-700" : "text-red-700"
+                    variacionEgresos <= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"
                   )}>
                     {variacionEgresos >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                     {variacionEgresos >= 0 ? "+" : ""}{variacionEgresos.toFixed(0)}%
