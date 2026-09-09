@@ -6,11 +6,7 @@ import { Button } from "@/components/ui/button"
 import { CalendarClock, DollarSign, PackageX, PawPrint, Plus, ShoppingBag, ArrowRight } from "lucide-react"
 import { formatCurrency, cn } from "@/lib/utils"
 import type { DashboardData } from "@/lib/actions/dashboard"
-
-const ESTADO_STYLES: Record<string, string> = {
-  pendiente: "bg-secondary text-secondary-foreground",
-  realizado: "bg-primary/10 text-primary",
-}
+import { ESTADO_BADGE } from "@/lib/config/estado-turno"
 
 export function DashboardView({ resumen, turnosHoy, stockBajo }: DashboardData) {
   return (
@@ -92,7 +88,7 @@ export function DashboardView({ resumen, turnosHoy, stockBajo }: DashboardData) 
                     </p>
                     <p className="text-xs text-muted-foreground truncate">{turno.tipo_servicio}</p>
                   </div>
-                  <Badge className={cn("shrink-0 font-normal", ESTADO_STYLES[turno.estado])} variant="outline">
+                  <Badge className={cn("shrink-0 font-normal", ESTADO_BADGE[turno.estado as keyof typeof ESTADO_BADGE])} variant="outline">
                     {turno.estado}
                   </Badge>
                 </Link>
