@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, DollarSign, Plus, Calendar } from "lucide-re
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { getNombreFeriado } from "@/lib/feriados-argentina-2026"
+import { DiaTurnoRow } from "./dia-turno-row"
 
 interface CalendarAgendaProps {
   turnos: Turno[]
@@ -32,22 +33,6 @@ const getBadgeColor = (estado: string, isSelected: boolean) => {
     case "realizado": return "bg-accent/15 text-accent"
     case "cancelado": return "bg-muted text-muted-foreground"
     default: return "bg-primary/15 text-primary"
-  }
-}
-
-const getEstadoBadge = (estado: string) => {
-  switch (estado) {
-    case "realizado": return "bg-accent/15 text-accent"
-    case "cancelado": return "bg-muted/80 text-muted-foreground"
-    default: return "bg-primary/15 text-primary"
-  }
-}
-
-const getBorderColor = (estado: string) => {
-  switch (estado) {
-    case "realizado": return "border-accent"
-    case "cancelado": return "border-muted-foreground/30"
-    default: return "border-primary"
   }
 }
 
@@ -326,34 +311,7 @@ export function CalendarAgenda({
                 {selectedTurnos
                   .sort((a, b) => a.hora.localeCompare(b.hora))
                   .map((turno) => (
-                    <div
-                      key={turno.id}
-                      onClick={() => onTurnoClick?.(turno)}
-                      className={cn(
-                        "rounded-lg bg-muted/50 p-3 border-l-4 cursor-pointer hover:bg-muted transition-colors",
-                        getBorderColor(turno.estado)
-                      )}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-sm">{turno.hora.slice(0, 5)}</span>
-                            <span className={cn("text-xs px-2 py-0.5 rounded", getEstadoBadge(turno.estado))}>
-                              {turno.estado}
-                            </span>
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            <p>{turno.mascota?.nombre} ({turno.mascota?.cliente?.nombre})</p>
-                            <p>{turno.tipo_servicio}</p>
-                          </div>
-                          <div className="text-xs font-semibold mt-1 text-foreground">
-                            {turno.estado === "realizado"
-                              ? `$${turno.precio_final?.toLocaleString("es-AR")}`
-                              : "Pendiente"}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <DiaTurnoRow key={turno.id} turno={turno} onClick={() => onTurnoClick?.(turno)} />
                   ))}
               </div>
             )}
@@ -376,32 +334,11 @@ export function CalendarAgenda({
           </DialogHeader>
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {expandedDay && turnosPorDia[expandedDay]?.map((turno) => (
-              <div
+              <DiaTurnoRow
                 key={turno.id}
+                turno={turno}
                 onClick={() => { onTurnoClick?.(turno); setExpandedDay(null) }}
-                className={cn(
-                  "rounded-lg bg-muted/50 p-3 border-l-4 cursor-pointer hover:bg-muted/70 transition-colors",
-                  getBorderColor(turno.estado)
-                )}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm">{turno.hora.slice(0, 5)}</span>
-                      <span className={cn("text-xs px-2 py-0.5 rounded", getEstadoBadge(turno.estado))}>
-                        {turno.estado}
-                      </span>
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      <p>{turno.mascota?.nombre} ({turno.mascota?.cliente?.nombre})</p>
-                      <p>{turno.tipo_servicio}</p>
-                    </div>
-                    <div className="text-xs font-semibold mt-1 text-foreground">
-                      ${turno.precio_final?.toLocaleString("es-AR")}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              />
             ))}
           </div>
         </DialogContent>
