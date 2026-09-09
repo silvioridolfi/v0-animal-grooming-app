@@ -23,7 +23,7 @@ export default async function EditarTurnoPage({ params }: { params: Promise<{ id
       <PageHeader
         title="Editar turno"
         action={
-          <Link href="/">
+          <Link href="/agenda">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="mr-1 h-4 w-4" />
               Volver

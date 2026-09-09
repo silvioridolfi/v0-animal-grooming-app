@@ -7,14 +7,14 @@ import { MoreHorizontal } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS, isActiveHref } from "@/lib/config/nav"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import type { ShellKpis } from "@/lib/actions/shell-kpis"
+import type { ShellKpis } from "@/lib/config/stock"
 
 export function BottomNav({ kpis }: { kpis: ShellKpis }) {
   const pathname = usePathname()
   const [moreOpen, setMoreOpen] = useState(false)
 
   const isSecondaryActive = SECONDARY_NAV_ITEMS.some((item) => isActiveHref(pathname, item.href))
-  const hasSecondaryAlert = kpis.stockBajoCount > 0 && !PRIMARY_NAV_ITEMS.some((i) => i.href === "/accesorios")
+  const hasSecondaryAlert = SECONDARY_NAV_ITEMS.some((item) => item.kpiKey && kpis[item.kpiKey] > 0)
 
   return (
     <>
@@ -22,7 +22,7 @@ export function BottomNav({ kpis }: { kpis: ShellKpis }) {
         <div className="flex items-center justify-around py-1">
           {PRIMARY_NAV_ITEMS.map((item) => {
             const isActive = isActiveHref(pathname, item.href)
-            const badge = item.href === "/accesorios" ? kpis.stockBajoCount : 0
+            const badge = item.kpiKey ? kpis[item.kpiKey] : 0
             return (
               <Link
                 key={item.href}
@@ -73,17 +73,25 @@ export function BottomNav({ kpis }: { kpis: ShellKpis }) {
           <div className="grid grid-cols-3 gap-3 px-4 pt-2">
             {SECONDARY_NAV_ITEMS.map((item) => {
               const isActive = isActiveHref(pathname, item.href)
+              const badge = item.kpiKey ? kpis[item.kpiKey] : 0
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setMoreOpen(false)}
                   className={cn(
-                    "flex flex-col items-center gap-1.5 rounded-lg border border-border p-3 text-xs transition-colors",
+                    "relative flex flex-col items-center gap-1.5 rounded-lg border border-border p-3 text-xs transition-colors",
                     isActive ? "border-primary text-primary bg-primary/5" : "text-muted-foreground active:bg-muted",
                   )}
                 >
-                  <item.icon className="h-5 w-5" />
+                  <span className="relative">
+                    <item.icon className="h-5 w-5" />
+                    {badge > 0 && (
+                      <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-destructive-foreground">
+                        {badge}
+                      </span>
+                    )}
+                  </span>
                   <span className="font-medium">{item.label}</span>
                 </Link>
               )

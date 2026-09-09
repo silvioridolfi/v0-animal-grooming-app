@@ -18,12 +18,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { NAV_GROUPS, CONFIG_ITEM, isActiveHref } from "@/lib/config/nav"
-import type { ShellKpis } from "@/lib/actions/shell-kpis"
-
-const KPI_BADGE_BY_HREF: Record<string, keyof ShellKpis> = {
-  "/": "turnosHoyPendientes",
-  "/accesorios": "stockBajoCount",
-}
+import type { ShellKpis } from "@/lib/config/stock"
 
 export function AppSidebar({ kpis }: { kpis: ShellKpis }) {
   const pathname = usePathname()
@@ -47,8 +42,7 @@ export function AppSidebar({ kpis }: { kpis: ShellKpis }) {
               <SidebarMenu>
                 {group.items.map((item) => {
                   const active = isActiveHref(pathname, item.href)
-                  const kpiKey = KPI_BADGE_BY_HREF[item.href]
-                  const kpiValue = kpiKey ? kpis[kpiKey] : 0
+                  const kpiValue = item.kpiKey ? kpis[item.kpiKey] : 0
 
                   return (
                     <SidebarMenuItem key={item.href}>
@@ -60,7 +54,7 @@ export function AppSidebar({ kpis }: { kpis: ShellKpis }) {
                       </SidebarMenuButton>
                       {kpiValue > 0 && (
                         <SidebarMenuBadge
-                          className={item.href === "/accesorios" ? "bg-destructive text-destructive-foreground" : undefined}
+                          className={item.kpiKey === "stockBajoCount" ? "bg-destructive text-destructive-foreground" : undefined}
                         >
                           {kpiValue}
                         </SidebarMenuBadge>

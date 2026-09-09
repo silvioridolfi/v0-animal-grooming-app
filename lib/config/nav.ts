@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react"
-import { Calendar, Dog, CreditCard, Wallet, Search, ShoppingBag, Settings } from "lucide-react"
+import { Calendar, Dog, CreditCard, Wallet, Search, ShoppingBag, Settings, Home } from "lucide-react"
+import type { ShellKpis } from "@/lib/config/stock"
 
 export interface NavItem {
   href: string
@@ -7,6 +8,8 @@ export interface NavItem {
   icon: LucideIcon
   /** Se muestra siempre como tab principal en mobile (bottom-nav) */
   primary?: boolean
+  /** Si está seteado, sidebar/bottom-nav muestran ese KPI como badge numérico */
+  kpiKey?: keyof ShellKpis
 }
 
 export interface NavGroup {
@@ -17,6 +20,7 @@ export interface NavGroup {
 
 /**
  * Jerarquía única de navegación del sistema.
+ * - Inicio: dashboard con el pulso del negocio (turnos hoy, ingresos, stock)
  * - Operación: lo que pasa en el día a día del local (turnos, mascotas, clientes)
  * - Ventas: mostrador / caja chica de accesorios y cobros
  * - Negocio: números grandes, config
@@ -26,10 +30,15 @@ export interface NavGroup {
  */
 export const NAV_GROUPS: NavGroup[] = [
   {
+    id: "inicio",
+    label: "Inicio",
+    items: [{ href: "/", label: "Inicio", icon: Home, primary: true }],
+  },
+  {
     id: "operacion",
     label: "Operación",
     items: [
-      { href: "/", label: "Agenda", icon: Calendar, primary: true },
+      { href: "/agenda", label: "Agenda", icon: Calendar, kpiKey: "turnosHoyPendientes" },
       { href: "/mascotas", label: "Mascotas", icon: Dog, primary: true },
       { href: "/buscar", label: "Buscar", icon: Search },
     ],
@@ -38,7 +47,7 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "ventas",
     label: "Ventas",
     items: [
-      { href: "/accesorios", label: "Accesorios", icon: ShoppingBag, primary: true },
+      { href: "/accesorios", label: "Accesorios", icon: ShoppingBag, primary: true, kpiKey: "stockBajoCount" },
       { href: "/pagos", label: "Pagos", icon: CreditCard },
     ],
   },

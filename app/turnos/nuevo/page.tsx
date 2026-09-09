@@ -34,7 +34,7 @@ export default async function NuevoTurnoPage({
       <PageHeader
         title="Nuevo turno"
         action={
-          <Link href="/">
+          <Link href="/agenda">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="mr-1 h-4 w-4" />
               Volver
