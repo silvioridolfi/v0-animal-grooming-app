@@ -113,7 +113,7 @@ interface CrearMascotaConClienteInput {
   mascota: {
     nombre: string
     tipo_animal: "Perro" | "Gato"
-    raza: string
+    raza?: string
     tamano: "S" | "M" | "L"
     sexo?: "Macho" | "Hembra"
     notas?: string
@@ -123,15 +123,15 @@ interface CrearMascotaConClienteInput {
 export async function crearMascotaConCliente(input: CrearMascotaConClienteInput) {
   const supabase = await createClient()
 
-  let clienteId: string
+  let cliente: { id: string; nombre: string; telefono: string | null; notas: string | null; created_at: string }
   const { data: clienteExistente } = await supabase
     .from("clientes")
-    .select("id")
+    .select("*")
     .eq("nombre", input.cliente.nombre.trim())
     .maybeSingle()
 
   if (clienteExistente) {
-    clienteId = clienteExistente.id
+    cliente = clienteExistente
   } else {
     const { data: nuevoCliente, error: clienteError } = await supabase
       .from("clientes")
@@ -147,7 +147,7 @@ export async function crearMascotaConCliente(input: CrearMascotaConClienteInput)
       return { error: `Error al crear cliente: ${clienteError?.message || "desconocido"}` }
     }
 
-    clienteId = nuevoCliente.id
+    cliente = nuevoCliente
   }
 
   const { data: nuevaMascota, error: mascotaError } = await supabase
@@ -155,11 +155,11 @@ export async function crearMascotaConCliente(input: CrearMascotaConClienteInput)
     .insert({
       nombre: input.mascota.nombre.trim(),
       tipo_animal: input.mascota.tipo_animal,
-      raza: input.mascota.raza.trim(),
+      raza: input.mascota.raza?.trim() || null,
       tamano: input.mascota.tamano,
       sexo: input.mascota.sexo || null,
       notas: input.mascota.notas?.trim() || null,
-      cliente_id: clienteId,
+      cliente_id: cliente.id,
     })
     .select()
     .single()
@@ -171,7 +171,7 @@ export async function crearMascotaConCliente(input: CrearMascotaConClienteInput)
   revalidatePath("/mascotas")
   revalidatePath("/clientes")
 
-  return { success: true, mascotaId: nuevaMascota.id, mascota: nuevaMascota }
+  return { success: true, mascotaId: nuevaMascota.id, mascota: nuevaMascota, cliente }
 }
 
 export async function actualizarMascota(mascotaId: string, data: Partial<CreateMascotaData>) {

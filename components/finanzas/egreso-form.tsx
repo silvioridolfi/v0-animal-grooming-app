@@ -42,7 +42,7 @@ const categoriasPorTipo = {
 const mediosPago = [
   { value: "efectivo", label: "Efectivo" },
   { value: "transferencia", label: "Transferencia" },
-]
+] as const
 
 function categoriaValidaParaTipo(tipo: "negocio" | "personal", categoria?: string) {
   return (categoriasPorTipo[tipo] || []).some((c) => c.value === categoria)

@@ -125,11 +125,11 @@ export function EgresosList({ egresos, onEdit, onDelete }: EgresosListProps) {
             const Icon = categoriaIcons[egreso.categoria] || MoreHorizontal
             const esPersonal = egreso.tipo === "personal"
             return (
-              <Card key={egreso.id} className={cn("border-l-4", esPersonal ? "border-l-blue-400" : "border-l-destructive")}>
+              <Card key={egreso.id} className={cn("border-l-4", esPersonal ? "border-l-violet-400" : "border-l-destructive")}>
                 <CardContent className="p-3">
                   <div className="flex items-center gap-3">
-                    <div className={cn("flex h-10 w-10 items-center justify-center rounded-full", esPersonal ? "bg-blue-50" : "bg-destructive/10")}>
-                      <Icon className={cn("h-5 w-5", esPersonal ? "text-blue-600" : "text-destructive")} />
+                    <div className={cn("flex h-10 w-10 items-center justify-center rounded-full", esPersonal ? "bg-violet-50" : "bg-destructive/10")}>
+                      <Icon className={cn("h-5 w-5", esPersonal ? "text-violet-600" : "text-destructive")} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-foreground truncate">{egreso.concepto}</p>
@@ -139,7 +139,7 @@ export function EgresosList({ egresos, onEdit, onDelete }: EgresosListProps) {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className={cn("font-semibold", esPersonal ? "text-blue-600" : "text-destructive")}>
+                      <p className={cn("font-semibold", esPersonal ? "text-violet-600" : "text-destructive")}>
                         {formatCurrency(egreso.monto)}
                       </p>
                     </div>

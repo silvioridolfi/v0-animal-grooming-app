@@ -17,7 +17,10 @@ import { getNombreFeriado } from "@/lib/feriados"
 interface NuevoTurnoFormProps {
   mascotas: Mascota[]
   config: ConfiguracionNegocio | null
-  turnosExistentes: Turno[]
+  // Solo se usa para saber qué horarios están ocupados — no hace falta
+  // el Turno completo, y la query que lo alimenta (app/turnos/nuevo/page.tsx)
+  // trae a propósito nada más que estas 4 columnas.
+  turnosExistentes: Pick<Turno, "id" | "fecha" | "hora" | "estado">[]
   fechaInicial?: string
   horaInicial?: string
 }
@@ -61,7 +64,7 @@ export function NuevoTurnoForm({
 
   const { horariosDisponibles, turnosPorHora } = useMemo(() => {
     const slots: string[] = []
-    const ocupados: Record<string, Turno> = {}
+    const ocupados: Record<string, Pick<Turno, "id" | "fecha" | "hora" | "estado">> = {}
 
     turnosExistentes
       .filter((t) => t.fecha === fecha && t.estado !== "cancelado")
@@ -115,7 +118,7 @@ export function NuevoTurnoForm({
   const handleCrearClienteYMascota = async () => {
     if (!nuevoCliente.nombre || !nuevaMascota.nombre) return
     setIsLoading(true)
-    const result = await crearMascotaConCliente(nuevoCliente, nuevaMascota)
+    const result = await crearMascotaConCliente({ cliente: nuevoCliente, mascota: nuevaMascota })
     if (result.success && result.mascota) {
       const newMascota: Mascota = { ...result.mascota, cliente: result.cliente }
       setLocalMascotas([...localMascotas, newMascota])

@@ -157,7 +157,7 @@ export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }:
           <CardContent className="pt-4 text-center">
             {diasDesdeUltimo !== null ? (
               <>
-                <p className={`text-2xl font-bold ${diasDesdeUltimo > 30 ? "text-amber-500" : "text-blue-600"}`}>
+                <p className={`text-2xl font-bold ${diasDesdeUltimo > 30 ? "text-amber-500" : "text-emerald-600"}`}>
                   {diasDesdeUltimo}d
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
