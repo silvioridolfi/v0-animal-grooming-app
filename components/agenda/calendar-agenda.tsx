@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { getNombreFeriado } from "@/lib/feriados-argentina-2026"
 import { DiaTurnoRow } from "./dia-turno-row"
-import { ESTADO_PASTILLA, ESTADO_DOT } from "@/lib/config/estado-turno"
+import { ESTADO_PASTILLA, ESTADO_DOT, FERIADO_BANNER, FERIADO_TEXT, FERIADO_DOT } from "@/lib/config/estado-turno"
 
 interface CalendarAgendaProps {
   turnos: Turno[]
@@ -125,22 +125,19 @@ export function CalendarAgenda({
         onClick={() => handleDateClick(day)}
         className={cn(
           "relative group flex flex-col aspect-square rounded-lg border-2 transition-all active:scale-95 cursor-pointer p-3 overflow-hidden",
-          isSelected && "border-primary bg-primary text-white shadow-lg",
+          isSelected && "border-primary bg-primary/5 shadow-sm",
           isToday && !isSelected && "ring-2 ring-primary ring-offset-1 border-primary/40",
           !isSelected && "border-border hover:bg-muted/50 hover:border-primary/30",
         )}
       >
-        <div className={cn(
-          "text-center text-xs font-semibold mb-1 uppercase tracking-wide",
-          isSelected ? "text-white/70" : "text-muted-foreground"
-        )}>
+        <div className="text-center text-xs font-semibold mb-1 uppercase tracking-wide text-muted-foreground">
           {dayName}
         </div>
 
         {getNombreFeriado(dateStr) && (
-          <div className="mb-1 flex items-center justify-center gap-1 px-1 py-0.5 rounded bg-amber-100/80 border border-amber-200">
-            <Calendar className="h-2.5 w-2.5 text-amber-700" />
-            <span className="text-xs font-semibold text-amber-700 truncate">{getNombreFeriado(dateStr)}</span>
+          <div className={cn("mb-1 flex items-center justify-center gap-1 px-1 py-0.5 rounded border", FERIADO_BANNER)}>
+            <Calendar className={cn("h-2.5 w-2.5", FERIADO_TEXT.icon)} />
+            <span className={cn("text-xs font-semibold truncate", FERIADO_TEXT.icon)}>{getNombreFeriado(dateStr)}</span>
           </div>
         )}
 
@@ -151,7 +148,7 @@ export function CalendarAgenda({
               onClick={(e) => { e.stopPropagation(); onTurnoClick?.(turno) }}
               className={cn(
                 "text-xs rounded-md px-2 py-1 font-medium cursor-pointer hover:opacity-80 transition-opacity truncate",
-                isSelected ? "bg-white/20 text-white" : ESTADO_PASTILLA[turno.estado],
+                ESTADO_PASTILLA[turno.estado],
               )}
               title={`${turno.hora.slice(0, 5)} - ${turno.mascota?.nombre}`}
             >
@@ -162,31 +159,20 @@ export function CalendarAgenda({
           {turnosDelDia.length > 2 && (
             <button
               onClick={(e) => { e.stopPropagation(); setExpandedDay(dateStr) }}
-              className={cn(
-                "text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity text-left px-2 py-1",
-                isSelected ? "text-white/80" : "text-primary hover:text-primary/80",
-              )}
+              className="text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity text-left px-2 py-1 text-primary hover:text-primary/80"
             >
               +{turnosDelDia.length - 2} más
             </button>
           )}
         </div>
 
-        <div className={cn(
-          "text-2xl font-bold leading-none",
-          isSelected ? "text-white" : "text-foreground/80"
-        )}>
+        <div className="text-2xl font-bold leading-none text-foreground/80">
           {day}
         </div>
 
         <button
           onClick={(e) => { e.stopPropagation(); onAddTurno(dateStr) }}
-          className={cn(
-            "absolute bottom-2 right-2 h-8 w-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110",
-            isSelected
-              ? "bg-white text-primary opacity-100"
-              : "bg-primary text-primary-foreground"
-          )}
+          className="absolute bottom-2 right-2 h-8 w-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110 bg-primary text-primary-foreground"
           title="Agregar turno"
         >
           <Plus className="h-4 w-4" />
@@ -240,7 +226,7 @@ export function CalendarAgenda({
 
           <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
-              <div className="h-3 w-3 rounded-full bg-amber-100 ring-1 ring-amber-300" />
+              <div className={cn("h-3 w-3 rounded-full", FERIADO_DOT)} />
               <span>Feriado</span>
             </div>
             <div className="flex items-center gap-1">
@@ -271,13 +257,13 @@ export function CalendarAgenda({
           </CardHeader>
           <CardContent className="space-y-3">
             {getNombreFeriado(selectedDate) && (
-              <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-4">
+              <div className={cn("rounded-lg px-4 py-4 border", FERIADO_BANNER)}>
                 <div className="flex items-start gap-3">
-                  <Calendar className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <Calendar className={cn("h-5 w-5 flex-shrink-0 mt-0.5", FERIADO_TEXT.icon)} />
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-amber-900">{getNombreFeriado(selectedDate)}</p>
-                    <p className="text-xs text-amber-700 mt-1">Feriado nacional de Argentina</p>
-                    <p className="text-xs text-amber-600 mt-2 italic">Puedes agendar turnos normalmente en esta fecha</p>
+                    <p className={cn("text-sm font-semibold", FERIADO_TEXT.title)}>{getNombreFeriado(selectedDate)}</p>
+                    <p className={cn("text-xs mt-1", FERIADO_TEXT.body)}>Feriado nacional de Argentina</p>
+                    <p className={cn("text-xs mt-2 italic", FERIADO_TEXT.hint)}>Puedes agendar turnos normalmente en esta fecha</p>
                   </div>
                 </div>
               </div>

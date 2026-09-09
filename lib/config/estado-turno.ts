@@ -1,34 +1,65 @@
-// Pendiente = ámbar, Realizado = accent (fucsia de marca), Cancelado = destructivo.
-// Definido en un solo lugar porque antes calendar-agenda.tsx usaba azul (primary)
-// para "pendiente" mientras turno-card.tsx y el resto de la app ya usaban ámbar —
-// mismo estado, dos colores distintos. Todo lo que muestre un estado de turno
-// (badges, franjas de color, pastillas del calendario, la leyenda) importa de acá.
+// Colores de ESTADO — deliberadamente separados de los colores de MARCA
+// (--primary navy y --accent fucsia, definidos en globals.css a partir del
+// logo). Antes "realizado" reusaba el fucsia de marca, y como el navy de
+// marca también pinta el día seleccionado del calendario, terminaban
+// pisándose entre sí (un turno "realizado" en un día seleccionado se veía
+// igual que uno "pendiente" — todo azul). Esta paleta nunca se cruza con
+// los colores de marca ni con nada que use el "estado seleccionado/activo"
+// de la UI, así el color de un turno se lee igual esté donde esté:
+//
+//   Pendiente  → ámbar    (algo por hacer)
+//   Realizado  → esmeralda (hecho / cobrado — mismo verde que "efectivo",
+//                familia "cosas buenas ya pasaron")
+//   Cancelado  → gris neutro
+//   Feriado    → violeta  (no es un estado de turno, es un atributo del
+//                día — antes compartía el ámbar con "pendiente" y se
+//                confundían)
 export type EstadoTurno = "pendiente" | "realizado" | "cancelado"
 
 // Badge de texto ("pendiente", "realizado"...)
 export const ESTADO_BADGE: Record<EstadoTurno, string> = {
   pendiente: "bg-amber-100 text-amber-700",
-  realizado: "bg-accent/20 text-accent-foreground",
-  cancelado: "bg-destructive/20 text-destructive",
+  realizado: "bg-emerald-100 text-emerald-700",
+  cancelado: "bg-slate-100 text-slate-600",
 }
 
 // Franja izquierda + fondo tenue de una card (turno-card, dia-turno-row)
 export const ESTADO_CARD: Record<EstadoTurno, string> = {
   pendiente: "border-l-amber-500 bg-amber-50/60",
-  realizado: "border-l-accent bg-accent/5",
-  cancelado: "border-l-destructive/60 bg-destructive/5",
+  realizado: "border-l-emerald-500 bg-emerald-50/60",
+  cancelado: "border-l-slate-400 bg-slate-50/60",
 }
 
-// Pastilla chica dentro de una celda del calendario mensual
+// Pastilla chica dentro de una celda del calendario mensual — SIEMPRE
+// visible con este color, nunca se pisa con el estilo de "día seleccionado"
 export const ESTADO_PASTILLA: Record<EstadoTurno, string> = {
   pendiente: "bg-amber-100 text-amber-700",
-  realizado: "bg-accent/15 text-accent",
-  cancelado: "bg-muted text-muted-foreground",
+  realizado: "bg-emerald-100 text-emerald-700",
+  cancelado: "bg-slate-200 text-slate-600",
 }
 
 // Punto de color para leyendas
 export const ESTADO_DOT: Record<EstadoTurno, string> = {
   pendiente: "bg-amber-100 ring-1 ring-amber-300",
-  realizado: "bg-accent/20 ring-1 ring-accent/40",
-  cancelado: "bg-muted ring-1 ring-border",
+  realizado: "bg-emerald-100 ring-1 ring-emerald-300",
+  cancelado: "bg-slate-200 ring-1 ring-slate-300",
 }
+
+// Hex planos para donde no se puede usar clases Tailwind (recharts)
+export const ESTADO_HEX: Record<EstadoTurno, string> = {
+  pendiente: "#d97706", // amber-600
+  realizado: "#059669", // emerald-600
+  cancelado: "#94a3b8", // slate-400
+}
+
+// Feriado: no es un estado de turno, es un atributo del día. Violeta a
+// propósito para que nunca se confunda con "pendiente" (ámbar).
+export const FERIADO_BADGE = "bg-violet-100 text-violet-700 border border-violet-200"
+export const FERIADO_BANNER = "bg-violet-50 border-violet-200"
+export const FERIADO_TEXT = {
+  icon: "text-violet-600",
+  title: "text-violet-900",
+  body: "text-violet-700",
+  hint: "text-violet-600",
+}
+export const FERIADO_DOT = "bg-violet-100 ring-1 ring-violet-300"

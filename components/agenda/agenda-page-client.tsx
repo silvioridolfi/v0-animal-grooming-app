@@ -305,12 +305,12 @@ export function AgendaPageClient({
 
               {yaCobrado && (
                 <div className="space-y-2">
-                  <div className="rounded-xl bg-accent/10 border border-accent/20 p-3 flex items-center justify-between">
-                    <span className="font-medium text-accent-foreground">✓ Turno cobrado</span>
+                  <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 flex items-center justify-between">
+                    <span className="font-medium text-emerald-700">✓ Turno cobrado</span>
                     <div className="text-right">
-                      <p className="font-bold text-accent-foreground">${selectedTurno.precio_final?.toLocaleString("es-AR")}</p>
+                      <p className="font-bold text-emerald-700">${selectedTurno.precio_final?.toLocaleString("es-AR")}</p>
                       {selectedTurno.metodo_pago && (
-                        <p className="text-xs text-accent capitalize">{selectedTurno.metodo_pago}</p>
+                        <p className="text-xs text-emerald-600 capitalize">{selectedTurno.metodo_pago}</p>
                       )}
                     </div>
                   </div>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Plus, BarChart2, ShoppingBag, Trophy, TrendingDown, TrendingUp } from "lucide-react"
 import { cn, formatCurrency } from "@/lib/utils"
 import { FINANZAS_COLORS as COLORS } from "@/lib/config/finanzas-colors"
+import { ESTADO_HEX, ESTADO_BADGE } from "@/lib/config/estado-turno"
 import type { Egreso } from "@/lib/types"
 import type { ResumenFinanciero, ResumenMes } from "@/lib/actions/finanzas"
 import { EgresosList } from "./egresos-list"
@@ -118,9 +119,9 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
   ].filter((d) => d.value > 0)
 
   const dataTurnos = [
-    { name: "Realizados", value: turnosRealizados, color: "var(--accent)" },
-    { name: "Pendientes", value: turnosPendientes, color: COLORS.pendiente },
-    { name: "Cancelados", value: turnosCancelados, color: COLORS.cancelado },
+    { name: "Realizados", value: turnosRealizados, color: ESTADO_HEX.realizado },
+    { name: "Pendientes", value: turnosPendientes, color: ESTADO_HEX.pendiente },
+    { name: "Cancelados", value: turnosCancelados, color: ESTADO_HEX.cancelado },
   ].filter((d) => d.value > 0)
 
   // Comparativa mensual: mejor/peor mes de los últimos 12, y variación %
@@ -214,13 +215,13 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
             </div>
             <div className="flex items-center gap-3 text-xs">
               {/* Mismos colores que el resto de la app para el estado de un turno */}
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent/20 text-accent-foreground border border-accent/30">
+              <span className={cn("flex items-center gap-1 px-2 py-0.5 rounded-full border border-transparent", ESTADO_BADGE.realizado)}>
                 ✓ {turnosRealizados} realizados
               </span>
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+              <span className={cn("flex items-center gap-1 px-2 py-0.5 rounded-full border border-transparent", ESTADO_BADGE.pendiente)}>
                 ⏳ {turnosPendientes} pendientes
               </span>
-              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
+              <span className={cn("flex items-center gap-1 px-2 py-0.5 rounded-full border border-transparent", ESTADO_BADGE.cancelado)}>
                 ✗ {turnosCancelados} cancelados
               </span>
             </div>
