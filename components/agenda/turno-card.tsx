@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import type { Turno } from "@/lib/types"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -23,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Check, MoreVertical, Trash2, Dog, Cat, Pencil, ChevronDown, Scissors, DollarSign, Droplet, Undo2 } from "lucide-react"
+import { Check, Trash2, Dog, Cat, Pencil, Scissors, DollarSign, Droplet, Undo2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { marcarTurnoRealizado, eliminarTurno, reembolsarTurno } from "@/lib/actions/turnos"
 import Link from "next/link"
@@ -45,17 +45,6 @@ export function TurnoCard({ turno }: TurnoCardProps) {
   const [montoReembolso, setMontoReembolso] = useState("")
   const [reembolsoError, setReembolsoError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [showExtraActions, setShowExtraActions] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
-  }, [])
 
   const mascota = turno.mascota
   const cliente = mascota?.cliente
@@ -191,68 +180,43 @@ export function TurnoCard({ turno }: TurnoCardProps) {
               </span>
             </div>
 
-            {/* Botones de acción principal */}
-            <div className={cn(
-              "grid gap-2 pt-2 border-t",
-              isMobile ? "grid-cols-1" : "grid-cols-2"
-            )}>
+            {/* Acciones — nunca son más de 3 a la vez, entran en una sola fila */}
+            <div className="flex items-center gap-2 pt-2 border-t">
               {turno.estado === "pendiente" && (
                 <Button
                   onClick={handleMarcarRealizado}
                   disabled={isLoading}
-                  variant="outline"
                   size="sm"
-                  className="w-full gap-1 bg-transparent"
+                  className="flex-1 gap-1.5"
+                  title="Marcar como realizado"
                 >
                   <Check className="h-4 w-4" />
-                  <span className="hidden sm:inline">Realizado</span>
+                  Realizado
                 </Button>
               )}
-              <Link href={`/turnos/${turno.id}/editar`} className="w-full">
-                <Button variant="outline" size="sm" className="w-full gap-1 bg-transparent">
-                  <Pencil className="h-4 w-4" />
-                  <span className="hidden sm:inline">Editar</span>
-                </Button>
-              </Link>
 
-              {/* Botón para más acciones */}
+              <Button variant="outline" size="icon-sm" asChild title="Editar turno">
+                <Link href={`/turnos/${turno.id}/editar`}>
+                  <Pencil className="h-4 w-4" />
+                </Link>
+              </Button>
+
+              {turno.estado === "realizado" && !estaReembolsado && (
+                <Button variant="outline" size="icon-sm" onClick={abrirReembolso} title="Reembolsar">
+                  <Undo2 className="h-4 w-4" />
+                </Button>
+              )}
+
               <Button
-                onClick={() => setShowExtraActions(!showExtraActions)}
-                variant="ghost"
-                size="sm"
-                className="w-full gap-1"
+                variant="outline"
+                size="icon-sm"
+                className="text-destructive hover:text-destructive ml-auto"
+                onClick={() => { setShowDeleteDialog(true); setDeleteError(null) }}
+                title="Eliminar turno"
               >
-                <MoreVertical className="h-4 w-4" />
-                <span className="hidden sm:inline">Más</span>
-                <ChevronDown className={cn("h-3 w-3 transition-transform", showExtraActions && "rotate-180")} />
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
-
-            {/* Acciones adicionales colapsables */}
-            {showExtraActions && (
-              <div className="grid gap-2 pt-2 border-t">
-                {turno.estado === "realizado" && !estaReembolsado && (
-                  <Button
-                    onClick={abrirReembolso}
-                    variant="outline"
-                    size="sm"
-                    className="w-full gap-1 bg-transparent"
-                  >
-                    <Undo2 className="h-4 w-4" />
-                    <span>Reembolsar</span>
-                  </Button>
-                )}
-                <Button
-                  onClick={() => { setShowDeleteDialog(true); setDeleteError(null) }}
-                  variant="outline"
-                  size="sm"
-                  className="w-full gap-1 text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  <span>Eliminar</span>
-                </Button>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
