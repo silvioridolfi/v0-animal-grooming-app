@@ -82,7 +82,11 @@ const axisTick = { fontSize: 11, fill: "var(--muted-foreground)" }
 const legendStyle = { fontSize: 12, color: "var(--muted-foreground)" }
 const gridStroke = "var(--border)"
 
-export default function FinanzasCharts({ historialMeses, dataDona, dataTurnos }: FinanzasChartsProps) {
+// Se exportan por separado (en vez de un solo componente combinado) para
+// poder ubicar "tendencia" y "distribución" en columnas distintas del
+// layout de escritorio — en finanzas-view.tsx la primera ocupa la columna
+// principal (2/3) y la segunda queda en la barra lateral (1/3).
+export function TrendCharts({ historialMeses }: { historialMeses: ResumenMes[] }) {
   return (
     <div className="space-y-4">
       {/* Ingresos vs Egresos por mes */}
@@ -166,9 +170,20 @@ export default function FinanzasCharts({ historialMeses, dataDona, dataTurnos }:
           )}
         </CardContent>
       </Card>
+    </div>
+  )
+}
 
-      {/* Dona: método de pago + turnos por estado */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+// Se exportan por separado (en vez de un solo componente combinado) para
+// poder ubicar "tendencia" y "distribución" en columnas distintas del
+// layout de escritorio — en finanzas-view.tsx la primera ocupa la columna
+// principal (2/3) y la segunda queda en la barra lateral (1/3). Siempre
+// apiladas en columna (antes alternaban a 2 columnas a partir de tablet)
+// porque ahora suelen vivir en un espacio angosto (la barra lateral); en
+// un celular no cambia nada, ahí ya se apilaban igual.
+export function DistributionCharts({ dataDona, dataTurnos }: { dataDona: DonaDatum[]; dataTurnos: DonaDatum[] }) {
+  return (
+    <div className="space-y-4">
         <Card>
           <CardHeader className="pb-1">
             <CardTitle className="text-sm font-medium text-muted-foreground">Método de pago</CardTitle>
@@ -234,7 +249,6 @@ export default function FinanzasCharts({ historialMeses, dataDona, dataTurnos }:
             )}
           </CardContent>
         </Card>
-      </div>
     </div>
   )
 }
