@@ -35,6 +35,14 @@ BEGIN
     'ventas_accesorios'
   ]
   LOOP
+    -- Si la tabla no existe en este proyecto (algunas quedaron solo en el
+    -- historial de scripts, nunca se llegaron a crear), la saltea en vez
+    -- de romper todo el script.
+    IF to_regclass('public.' || tabla) IS NULL THEN
+      RAISE NOTICE 'Tabla % no existe, salteada', tabla;
+      CONTINUE;
+    END IF;
+
     EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY;', tabla);
 
     -- DROP + CREATE en vez de "IF NOT EXISTS" porque Postgres no soporta
