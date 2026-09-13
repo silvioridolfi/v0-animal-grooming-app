@@ -23,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Check, Trash2, Dog, Cat, Pencil, Scissors, DollarSign, Droplet, Undo2 } from "lucide-react"
+import { Check, Trash2, Dog, Cat, Pencil, Scissors, DollarSign, Droplet, Undo2, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ESTADO_CARD, ESTADO_BADGE } from "@/lib/config/estado-turno"
 import { marcarTurnoRealizado, eliminarTurno, reembolsarTurno } from "@/lib/actions/turnos"
@@ -76,10 +76,14 @@ export function TurnoCard({ turno }: TurnoCardProps) {
     }
   }
 
+  const [justCompleted, setJustCompleted] = useState(false)
+
   const handleMarcarRealizado = async () => {
     setIsLoading(true)
     await marcarTurnoRealizado(turno.id)
     setIsLoading(false)
+    setJustCompleted(true)
+    setTimeout(() => setJustCompleted(false), 900)
   }
 
   const handleEliminar = async () => {
@@ -121,7 +125,12 @@ export function TurnoCard({ turno }: TurnoCardProps) {
 
   return (
     <>
-      <Card className={cn("border-l-4 transition-all", ESTADO_CARD[turno.estado])}>
+      <Card className={cn("relative overflow-hidden border-l-4 transition-all", ESTADO_CARD[turno.estado])}>
+        {justCompleted && (
+          <div className="animate-check-pop absolute inset-0 z-10 flex items-center justify-center bg-emerald-600/90 pointer-events-none">
+            <CheckCircle2 className="h-12 w-12 text-white" />
+          </div>
+        )}
         <CardContent className="p-4">
           <div className="space-y-3">
             {/* Información principal */}

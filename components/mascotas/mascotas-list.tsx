@@ -91,11 +91,15 @@ export function MascotasList({ mascotas }: MascotasListProps) {
         </div>
       ) : (
         <div className="space-y-3">
-          {filteredGroups.map((group) => {
+          {filteredGroups.map((group, i) => {
             const isExpanded = effectiveExpanded.has(group.cliente.id)
 
             return (
-              <div key={group.cliente.id} className="rounded-lg border bg-card overflow-hidden">
+              <div
+                key={group.cliente.id}
+                style={{ animationDelay: `${i * 50}ms`, animationFillMode: "backwards" }}
+                className="animate-in fade-in slide-in-from-bottom-2 duration-300 rounded-lg border bg-card overflow-hidden"
+              >
                 <button
                   onClick={() => toggleClient(group.cliente.id)}
                   className="tap-scale flex w-full items-center justify-between p-4 text-left hover:bg-muted/50 active:bg-muted transition-colors"
@@ -122,8 +126,12 @@ export function MascotasList({ mascotas }: MascotasListProps) {
 
                 {isExpanded && (
                   <div className="border-t bg-muted/20 p-3 space-y-2">
-                    {group.mascotas.map((mascota) => (
-                      <div key={mascota.id} className="flex items-center justify-between rounded-lg bg-background p-3">
+                    {group.mascotas.map((mascota, mi) => (
+                      <div
+                        key={mascota.id}
+                        style={{ animationDelay: `${mi * 40}ms`, animationFillMode: "backwards" }}
+                        className="animate-in fade-in slide-in-from-bottom-1 duration-200 flex items-center justify-between rounded-lg bg-background p-3"
+                      >
                         <Link href={`/mascotas/${mascota.id}`} className="tap-scale flex items-center gap-3 flex-1">
                           {mascota.tipo_animal === "Perro" ? (
                             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">

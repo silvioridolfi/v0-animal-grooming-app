@@ -6,6 +6,8 @@ import type { Turno } from "@/lib/types"
 interface DiaTurnoRowProps {
   turno: Turno
   onClick?: () => void
+  /** Índice dentro de la lista — solo para el delay del fade-in en cascada */
+  index?: number
 }
 
 function ServiceIcon({ tipo }: { tipo: Turno["tipo_servicio"] }) {
@@ -13,7 +15,7 @@ function ServiceIcon({ tipo }: { tipo: Turno["tipo_servicio"] }) {
   return <Scissors className="h-3.5 w-3.5 text-muted-foreground" />
 }
 
-export function DiaTurnoRow({ turno, onClick }: DiaTurnoRowProps) {
+export function DiaTurnoRow({ turno, onClick, index = 0 }: DiaTurnoRowProps) {
   const mascota = turno.mascota
   const cliente = mascota?.cliente
   const estaReembolsado = Number(turno.monto_reembolsado) > 0
@@ -22,8 +24,9 @@ export function DiaTurnoRow({ turno, onClick }: DiaTurnoRowProps) {
     <button
       type="button"
       onClick={onClick}
+      style={{ animationDelay: `${index * 60}ms`, animationFillMode: "backwards" }}
       className={cn(
-        "tap-scale w-full rounded-lg border-l-4 p-3 text-left transition-colors hover:brightness-95",
+        "tap-scale animate-in fade-in slide-in-from-bottom-2 duration-300 w-full rounded-lg border-l-4 p-3 text-left transition-colors hover:brightness-95",
         ESTADO_CARD[turno.estado],
       )}
     >

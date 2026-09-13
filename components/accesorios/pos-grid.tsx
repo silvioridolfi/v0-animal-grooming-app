@@ -54,7 +54,7 @@ export function PosGrid({ accesorios, cantidadesEnCarrito, onAdd, onRemove }: Po
         <p className="text-sm text-muted-foreground text-center py-10">No hay productos que coincidan.</p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {filtrados.map((accesorio) => {
+          {filtrados.map((accesorio, i) => {
             const enCarrito = cantidadesEnCarrito[accesorio.id] || 0
             const sinStock = accesorio.stock <= 0
             const alTope = enCarrito >= accesorio.stock
@@ -62,8 +62,9 @@ export function PosGrid({ accesorios, cantidadesEnCarrito, onAdd, onRemove }: Po
             return (
               <div
                 key={accesorio.id}
+                style={{ animationDelay: `${Math.min(i, 12) * 40}ms`, animationFillMode: "backwards" }}
                 className={cn(
-                  "flex flex-col rounded-xl border border-border bg-card p-3 transition-colors",
+                  "animate-in fade-in zoom-in-95 duration-300 flex flex-col rounded-xl border border-border bg-card p-3 transition-colors",
                   sinStock && "opacity-50",
                   enCarrito > 0 && "border-primary ring-1 ring-primary/30",
                 )}

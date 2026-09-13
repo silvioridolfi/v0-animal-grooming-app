@@ -23,7 +23,9 @@ export function AppShell({ kpis, children }: { kpis: ShellKpis; children: React.
       <AppSidebar kpis={kpis} />
       <SidebarInset>
         <GlobalHeader kpis={kpis} />
-        <div className="flex-1 pb-20 md:pb-0">{children}</div>
+        <div key={pathname} className="flex-1 pb-20 md:pb-0 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          {children}
+        </div>
         <BottomNav kpis={kpis} />
       </SidebarInset>
     </SidebarProvider>

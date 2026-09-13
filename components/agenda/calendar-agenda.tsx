@@ -284,8 +284,8 @@ export function CalendarAgenda({
               <div className="space-y-2">
                 {selectedTurnos
                   .sort((a, b) => a.hora.localeCompare(b.hora))
-                  .map((turno) => (
-                    <DiaTurnoRow key={turno.id} turno={turno} onClick={() => onTurnoClick?.(turno)} />
+                  .map((turno, i) => (
+                    <DiaTurnoRow key={turno.id} turno={turno} index={i} onClick={() => onTurnoClick?.(turno)} />
                   ))}
               </div>
             )}
@@ -307,10 +307,11 @@ export function CalendarAgenda({
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 max-h-96 overflow-y-auto">
-            {expandedDay && turnosPorDia[expandedDay]?.map((turno) => (
+            {expandedDay && turnosPorDia[expandedDay]?.map((turno, i) => (
               <DiaTurnoRow
                 key={turno.id}
                 turno={turno}
+                index={i}
                 onClick={() => { onTurnoClick?.(turno); setExpandedDay(null) }}
               />
             ))}

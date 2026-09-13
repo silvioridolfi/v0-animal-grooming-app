@@ -7,6 +7,7 @@ import { CalendarClock, DollarSign, PackageX, PawPrint, Plus, ShoppingBag, Arrow
 import { formatCurrency, cn } from "@/lib/utils"
 import type { DashboardData } from "@/lib/actions/dashboard"
 import { ESTADO_BADGE } from "@/lib/config/estado-turno"
+import { AnimatedNumber } from "@/components/animated-number"
 
 export function DashboardView({ resumen, turnosHoy, stockBajo }: DashboardData) {
   return (
@@ -16,26 +17,28 @@ export function DashboardView({ resumen, turnosHoy, stockBajo }: DashboardData) 
         <KpiCard
           icon={CalendarClock}
           label="Turnos hoy"
-          value={String(resumen.turnosPendientesDia + resumen.turnosRealizadosDia)}
+          numericValue={resumen.turnosPendientesDia + resumen.turnosRealizadosDia}
           hint={`${resumen.turnosRealizadosDia} hechos · ${resumen.turnosPendientesDia} pendientes`}
         />
         <KpiCard
           icon={DollarSign}
           label="Ingreso hoy"
-          value={formatCurrency(resumen.ingresosDia)}
+          numericValue={resumen.ingresosDia}
+          format={formatCurrency}
           hint={resumen.ingresosAccesoriosDia > 0 ? `${formatCurrency(resumen.ingresosAccesoriosDia)} en accesorios` : undefined}
         />
         <KpiCard
           icon={DollarSign}
           label="Balance hoy"
-          value={formatCurrency(resumen.balanceDia)}
+          numericValue={resumen.balanceDia}
+          format={formatCurrency}
           hint="Ingresos − egresos del negocio"
           tone={resumen.balanceDia >= 0 ? "positive" : "negative"}
         />
         <KpiCard
           icon={PackageX}
           label="Stock bajo"
-          value={String(stockBajo.length)}
+          numericValue={stockBajo.length}
           hint={stockBajo.length > 0 ? "Revisar accesorios" : "Todo en orden"}
           tone={stockBajo.length > 0 ? "negative" : undefined}
         />
@@ -76,11 +79,12 @@ export function DashboardView({ resumen, turnosHoy, stockBajo }: DashboardData) 
             {turnosHoy.length === 0 ? (
               <p className="text-sm text-muted-foreground py-4 text-center">No hay turnos para hoy.</p>
             ) : (
-              turnosHoy.map((turno) => (
+              turnosHoy.map((turno, i) => (
                 <Link
                   key={turno.id}
                   href="/agenda"
-                  className="tap-scale flex items-center justify-between rounded-lg border border-border px-3 py-2 active:bg-muted transition-colors"
+                  style={{ animationDelay: `${i * 60}ms`, animationFillMode: "backwards" }}
+                  className="tap-scale animate-in fade-in slide-in-from-bottom-2 duration-300 flex items-center justify-between rounded-lg border border-border px-3 py-2 active:bg-muted transition-colors"
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">
@@ -109,11 +113,12 @@ export function DashboardView({ resumen, turnosHoy, stockBajo }: DashboardData) 
             {stockBajo.length === 0 ? (
               <p className="text-sm text-muted-foreground py-4 text-center">Ningún accesorio con stock bajo.</p>
             ) : (
-              stockBajo.map((accesorio) => (
+              stockBajo.map((accesorio, i) => (
                 <Link
                   key={accesorio.id}
                   href="/accesorios"
-                  className="tap-scale flex items-center justify-between rounded-lg border border-border px-3 py-2 active:bg-muted transition-colors"
+                  style={{ animationDelay: `${i * 60}ms`, animationFillMode: "backwards" }}
+                  className="tap-scale animate-in fade-in slide-in-from-bottom-2 duration-300 flex items-center justify-between rounded-lg border border-border px-3 py-2 active:bg-muted transition-colors"
                 >
                   <p className="text-sm font-medium truncate">{accesorio.nombre}</p>
                   <Badge variant="destructive" className="font-normal shrink-0">
@@ -132,13 +137,15 @@ export function DashboardView({ resumen, turnosHoy, stockBajo }: DashboardData) 
 function KpiCard({
   icon: Icon,
   label,
-  value,
+  numericValue,
+  format,
   hint,
   tone,
 }: {
   icon: React.ComponentType<{ className?: string }>
   label: string
-  value: string
+  numericValue: number
+  format?: (n: number) => string
   hint?: string
   tone?: "positive" | "negative"
 }) {
@@ -156,7 +163,7 @@ function KpiCard({
             tone === "negative" && "text-destructive",
           )}
         >
-          {value}
+          <AnimatedNumber value={numericValue} format={format} />
         </p>
         {hint && <p className="text-[11px] text-muted-foreground truncate">{hint}</p>}
       </CardContent>

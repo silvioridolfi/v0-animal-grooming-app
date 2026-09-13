@@ -229,3 +229,23 @@
     animation: none;
   }
 }
+
+/* Festejo al marcar un turno como realizado: pop + hold + fade, todo en
+   una sola animación de 900ms (se agrega y se saca del DOM por timeout,
+   no hace falta una transición de salida aparte). */
+@keyframes check-pop {
+  0% { opacity: 0; transform: scale(0.5); }
+  15% { opacity: 1; transform: scale(1.15); }
+  30% { transform: scale(1); }
+  75% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1); }
+}
+.animate-check-pop {
+  animation: check-pop 900ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-check-pop {
+    animation: none;
+    opacity: 0;
+  }
+}

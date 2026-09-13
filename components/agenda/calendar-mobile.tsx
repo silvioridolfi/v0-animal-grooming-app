@@ -270,8 +270,8 @@ export function CalendarMobile({
               <div className="space-y-2">
                 {selectedTurnos
                   .sort((a, b) => a.hora.localeCompare(b.hora))
-                  .map((turno) => (
-                    <DiaTurnoRow key={turno.id} turno={turno} onClick={() => onTurnoClick?.(turno)} />
+                  .map((turno, i) => (
+                    <DiaTurnoRow key={turno.id} turno={turno} index={i} onClick={() => onTurnoClick?.(turno)} />
                   ))}
               </div>
             )}
