@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useMemo, useCallback } from "react"
+import { createPortal } from "react-dom"
 import type { Mascota, ConfiguracionNegocio, Turno, Cliente } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -170,8 +171,9 @@ export function TurnoModal({
 
   return (
     <>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={handleClose}>
+      {isOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={handleClose}>
           <Card
             className="w-full sm:max-w-md rounded-lg shadow-lg flex flex-col max-h-[85vh]"
             onClick={(e) => e.stopPropagation()}
@@ -476,8 +478,9 @@ export function TurnoModal({
               </div>
             </form>
           </Card>
-        </div>
-      )}
+        </div>,
+          document.body,
+        )}
     </>
   )
 }
