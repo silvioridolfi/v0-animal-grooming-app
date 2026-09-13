@@ -327,7 +327,7 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
           <h2 className="font-semibold text-foreground">Tendencias</h2>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-2">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-2 lg:items-start">
           {mesesConDatos.length > 0 && (
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-1 lg:col-start-3 lg:row-start-1">
               <Card>
