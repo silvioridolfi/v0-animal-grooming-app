@@ -203,3 +203,29 @@
     transform: scale(0.97);
   }
 }
+
+/* Fondo animado de /login: 3 manchas de color que flotan muy despacio
+   detrás de la tarjeta. Recorridos largos (28-40s) y de bajo desplazamiento
+   a propósito — es ambientación, no algo para mirar fijo. */
+@keyframes drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(4%, 6%) scale(1.08); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-5%, -4%) scale(1.05); }
+}
+@keyframes drift-c {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(3%, -5%) scale(1.1); }
+}
+
+.animate-drift-a { animation: drift-a 32s ease-in-out infinite; }
+.animate-drift-b { animation: drift-b 40s ease-in-out infinite; }
+.animate-drift-c { animation: drift-c 28s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-drift-a, .animate-drift-b, .animate-drift-c {
+    animation: none;
+  }
+}

@@ -76,8 +76,23 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm space-y-6">
+    <div className="relative min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden">
+      {/* Textura de marca: patitas repetidas, muy tenues — funciona igual en claro y oscuro porque el tono es fijo y bajito de opacidad */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23D6316F' fill-opacity='0.07'%3E%3Cellipse cx='32' cy='42' rx='11' ry='9'/%3E%3Cellipse cx='18' cy='24' rx='5' ry='6.5' transform='rotate(-15 18 24)'/%3E%3Cellipse cx='29' cy='18' rx='5' ry='6.5'/%3E%3Cellipse cx='41' cy='18' rx='5' ry='6.5'/%3E%3Cellipse cx='50' cy='26' rx='5' ry='6.5' transform='rotate(15 50 26)'/%3E%3C/g%3E%3C/svg%3E\")",
+          backgroundSize: "64px 64px",
+        }}
+      />
+
+      {/* Manchas de color que flotan despacio — pura ambientación */}
+      <div className="absolute -top-24 -left-16 h-80 w-80 rounded-full bg-primary/15 blur-3xl animate-drift-a pointer-events-none" />
+      <div className="absolute -bottom-28 -right-20 h-96 w-96 rounded-full bg-primary/10 blur-3xl animate-drift-b pointer-events-none" />
+      <div className="absolute top-1/3 right-1/4 h-64 w-64 rounded-full bg-secondary/40 blur-3xl animate-drift-c pointer-events-none" />
+
+      <div className="relative z-10 w-full max-w-sm space-y-6">
         <div className="flex flex-col items-center gap-2">
           <Image src="/patita.png" alt="Logo" width={48} height={48} className="h-12 w-12" />
           <h1 className="text-xl font-heading font-semibold text-foreground text-center">
