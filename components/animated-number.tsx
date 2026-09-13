@@ -1,11 +1,20 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { formatCurrency } from "@/lib/utils"
 
 interface AnimatedNumberProps {
   value: number
   duration?: number
-  format?: (n: number) => string
+  /**
+   * String, no función — este componente es "use client" pero se usa
+   * desde Server Components (dashboard-view.tsx). Pasar una función como
+   * prop de Server a Client Component no es válido en React Server
+   * Components ("Functions cannot be passed directly to Client
+   * Components..."), así que el formato se elige por nombre y se aplica
+   * acá adentro.
+   */
+  format?: "currency"
 }
 
 /**
@@ -44,5 +53,5 @@ export function AnimatedNumber({ value, duration = 700, format }: AnimatedNumber
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, duration])
 
-  return <>{format ? format(display) : display}</>
+  return <>{format === "currency" ? formatCurrency(display) : display}</>
 }

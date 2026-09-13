@@ -24,14 +24,14 @@ export function DashboardView({ resumen, turnosHoy, stockBajo }: DashboardData) 
           icon={DollarSign}
           label="Ingreso hoy"
           numericValue={resumen.ingresosDia}
-          format={formatCurrency}
+          format="currency"
           hint={resumen.ingresosAccesoriosDia > 0 ? `${formatCurrency(resumen.ingresosAccesoriosDia)} en accesorios` : undefined}
         />
         <KpiCard
           icon={DollarSign}
           label="Balance hoy"
           numericValue={resumen.balanceDia}
-          format={formatCurrency}
+          format="currency"
           hint="Ingresos − egresos del negocio"
           tone={resumen.balanceDia >= 0 ? "positive" : "negative"}
         />
@@ -145,7 +145,7 @@ function KpiCard({
   icon: React.ComponentType<{ className?: string }>
   label: string
   numericValue: number
-  format?: (n: number) => string
+  format?: "currency"
   hint?: string
   tone?: "positive" | "negative"
 }) {
