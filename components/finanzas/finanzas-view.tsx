@@ -315,49 +315,51 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
       </div>
 
       {/* ═══ TENDENCIAS ═══ — comparativa + gráficos agrupados, separados
-          del resumen con una línea divisoria clara. En escritorio se
-          reparte en 3 columnas: el gráfico principal ocupa 2/3 del ancho,
-          comparativa + donas quedan de barra lateral a la derecha — antes
-          todo esto iba apilado a lo ancho completo de la pantalla, con
-          mucho espacio vacío adentro de cada card y scroll de sobra. En
-          mobile no cambia nada: sigue todo apilado en el mismo orden. */}
+          del resumen con una línea divisoria clara. En escritorio, 2
+          columnas INDEPENDIENTES (sin filas ni row-span compartido): cada
+          una toma su propio alto natural, así la más corta no se estira
+          para igualar a la más alta ni deja huecos vacíos. Main = los 2
+          gráficos grandes (2/3 del ancho). Barra lateral = comparativa +
+          donas, agrupadas en un solo bloque que fluye con su propio alto.
+          En mobile se apilan en el mismo orden en que aparecen acá:
+          primero los gráficos grandes, después el bloque lateral. */}
       <div className="space-y-3 pt-3 border-t border-border">
         <div className="flex items-center gap-2">
           <BarChart2 className="h-4 w-4 text-primary" />
           <h2 className="font-semibold text-foreground">Tendencias</h2>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-2 lg:items-start">
-          {mesesConDatos.length > 0 && (
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-1 lg:col-start-3 lg:row-start-1">
-              <Card>
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-1.5 mb-1 text-muted-foreground">
-                    <Trophy className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                    <p className="text-xs font-medium">Mejor mes</p>
-                  </div>
-                  <p className="font-semibold text-foreground">{mejorMes?.label}</p>
-                  <p className="text-sm text-emerald-600 dark:text-emerald-400">{formatCurrency(mejorMes?.balance || 0)}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-1.5 mb-1 text-muted-foreground">
-                    <TrendingDown className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-                    <p className="text-xs font-medium">Peor mes</p>
-                  </div>
-                  <p className="font-semibold text-foreground">{peorMes?.label}</p>
-                  <p className="text-sm text-amber-600 dark:text-amber-400">{formatCurrency(peorMes?.balance || 0)}</p>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          <div className="lg:col-start-1 lg:col-span-2 lg:row-start-1 lg:row-span-2">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
+          <div className="lg:col-span-2">
             <TrendCharts historialMeses={historialMeses} />
           </div>
 
-          <div className="lg:col-start-3 lg:row-start-2">
+          <div className="space-y-4">
+            {mesesConDatos.length > 0 && (
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
+                <Card>
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-1.5 mb-1 text-muted-foreground">
+                      <Trophy className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <p className="text-xs font-medium">Mejor mes</p>
+                    </div>
+                    <p className="font-semibold text-foreground">{mejorMes?.label}</p>
+                    <p className="text-sm text-emerald-600 dark:text-emerald-400">{formatCurrency(mejorMes?.balance || 0)}</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-1.5 mb-1 text-muted-foreground">
+                      <TrendingDown className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                      <p className="text-xs font-medium">Peor mes</p>
+                    </div>
+                    <p className="font-semibold text-foreground">{peorMes?.label}</p>
+                    <p className="text-sm text-amber-600 dark:text-amber-400">{formatCurrency(peorMes?.balance || 0)}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
             <DistributionCharts dataDona={dataDona} dataTurnos={dataTurnos} />
           </div>
         </div>
