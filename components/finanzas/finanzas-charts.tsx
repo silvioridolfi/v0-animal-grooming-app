@@ -35,6 +35,53 @@ interface FinanzasChartsProps {
 
 const formatPesos = (v: number) => (v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`)
 
+// Tooltip propio, con la cara de la app (bg-card, bordes redondeados, sombra)
+// en vez del tooltip blanco fijo de recharts. El bug que reemplaza: sin esto,
+// el texto hereda el color de letra de la app (crema clarito en modo oscuro)
+// sobre un fondo que recharts deja blanco sí o sí — cream sobre blanco,
+// prácticamente invisible. Acá el fondo y el texto van de la mano siempre.
+interface TooltipPayloadEntry {
+  name: string
+  value: number
+  color: string
+}
+
+function ChartTooltip({
+  active,
+  payload,
+  label,
+  formatter = (v: number) => String(v),
+}: {
+  active?: boolean
+  payload?: TooltipPayloadEntry[]
+  label?: string
+  formatter?: (value: number) => string
+}) {
+  if (!active || !payload?.length) return null
+
+  return (
+    <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-lg">
+      {label && <p className="text-xs font-semibold text-foreground mb-1">{label}</p>}
+      <div className="space-y-1">
+        {payload.map((entry, i) => (
+          <div key={i} className="flex items-center gap-1.5 text-xs">
+            <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: entry.color }} />
+            <span className="text-muted-foreground">{entry.name}:</span>
+            <span className="font-semibold text-foreground">{formatter(entry.value)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// Ejes, grilla y leyenda con los mismos tokens de color que el resto de la
+// app (var(--border), var(--muted-foreground)) en vez de hex fijos — así
+// se adaptan solos al modo oscuro, igual que todo lo demás.
+const axisTick = { fontSize: 11, fill: "var(--muted-foreground)" }
+const legendStyle = { fontSize: 12, color: "var(--muted-foreground)" }
+const gridStroke = "var(--border)"
+
 export default function FinanzasCharts({ historialMeses, dataDona, dataTurnos }: FinanzasChartsProps) {
   return (
     <div className="space-y-4">
@@ -53,38 +100,36 @@ export default function FinanzasCharts({ historialMeses, dataDona, dataTurnos }:
               <AreaChart data={historialMeses} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="gradIngresos" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={COLORS.ingresos} stopOpacity={0.35} />
+                    <stop offset="5%" stopColor={COLORS.ingresos} stopOpacity={0.4} />
                     <stop offset="95%" stopColor={COLORS.ingresos} stopOpacity={0.02} />
                   </linearGradient>
                   <linearGradient id="gradEgresos" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={COLORS.egresos} stopOpacity={0.35} />
+                    <stop offset="5%" stopColor={COLORS.egresos} stopOpacity={0.4} />
                     <stop offset="95%" stopColor={COLORS.egresos} stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-                <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-                <YAxis tickFormatter={formatPesos} tick={{ fontSize: 11 }} width={45} />
-                <Tooltip
-                  formatter={(value: number) => formatCurrency(value)}
-                  labelStyle={{ fontWeight: 600 }}
-                  contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }}
-                />
-                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                <XAxis dataKey="label" tick={axisTick} axisLine={{ stroke: gridStroke }} tickLine={false} />
+                <YAxis tickFormatter={formatPesos} tick={axisTick} width={45} axisLine={false} tickLine={false} />
+                <Tooltip content={<ChartTooltip formatter={formatCurrency} />} cursor={{ stroke: "var(--muted-foreground)", strokeDasharray: "3 3" }} />
+                <Legend wrapperStyle={legendStyle} />
                 <Area
                   type="monotone"
                   dataKey="ingresos"
                   name="Ingresos"
                   stroke={COLORS.ingresos}
-                  strokeWidth={2}
+                  strokeWidth={2.5}
                   fill="url(#gradIngresos)"
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: "var(--card)" }}
                 />
                 <Area
                   type="monotone"
                   dataKey="egresos"
                   name="Egresos"
                   stroke={COLORS.egresos}
-                  strokeWidth={2}
+                  strokeWidth={2.5}
                   fill="url(#gradEgresos)"
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: "var(--card)" }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -102,16 +147,16 @@ export default function FinanzasCharts({ historialMeses, dataDona, dataTurnos }:
             <p className="text-sm text-muted-foreground text-center py-6">Sin datos suficientes aún</p>
           ) : (
             <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={historialMeses} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-                <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-                <YAxis tickFormatter={formatPesos} tick={{ fontSize: 11 }} width={45} />
+              <BarChart data={historialMeses} margin={{ top: 4, right: 4, left: 0, bottom: 0 }} barCategoryGap="30%">
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                <XAxis dataKey="label" tick={axisTick} axisLine={{ stroke: gridStroke }} tickLine={false} />
+                <YAxis tickFormatter={formatPesos} tick={axisTick} width={45} axisLine={false} tickLine={false} />
                 <Tooltip
-                  formatter={(value: number) => formatCurrency(value)}
-                  contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }}
+                  content={<ChartTooltip formatter={formatCurrency} />}
+                  cursor={{ fill: "var(--muted)", opacity: 0.5 }}
                 />
-                <ReferenceLine y={0} stroke="#94a3b8" strokeWidth={1} />
-                <Bar dataKey="balance" name="Balance" radius={[4, 4, 4, 4]}>
+                <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeWidth={1} />
+                <Bar dataKey="balance" name="Balance" radius={[6, 6, 6, 6]} maxBarSize={36}>
                   {historialMeses.map((entry, index) => (
                     <Cell key={index} fill={entry.balance >= 0 ? COLORS.ingresos : COLORS.egresos} />
                   ))}
@@ -134,16 +179,23 @@ export default function FinanzasCharts({ historialMeses, dataDona, dataTurnos }:
             ) : (
               <ResponsiveContainer width="100%" height={160}>
                 <PieChart>
-                  <Pie data={dataDona} cx="50%" cy="50%" innerRadius={38} outerRadius={58} paddingAngle={4} dataKey="value" stroke="none">
+                  <Pie
+                    data={dataDona}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={38}
+                    outerRadius={58}
+                    paddingAngle={4}
+                    cornerRadius={4}
+                    dataKey="value"
+                    stroke="none"
+                  >
                     {dataDona.map((entry, index) => (
                       <Cell key={index} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip
-                    formatter={(value: number) => formatCurrency(value)}
-                    contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }}
-                  />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Tooltip content={<ChartTooltip formatter={formatCurrency} />} />
+                  <Legend wrapperStyle={legendStyle} />
                 </PieChart>
               </ResponsiveContainer>
             )}
@@ -160,13 +212,23 @@ export default function FinanzasCharts({ historialMeses, dataDona, dataTurnos }:
             ) : (
               <ResponsiveContainer width="100%" height={160}>
                 <PieChart>
-                  <Pie data={dataTurnos} cx="50%" cy="50%" innerRadius={38} outerRadius={58} paddingAngle={4} dataKey="value" stroke="none">
+                  <Pie
+                    data={dataTurnos}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={38}
+                    outerRadius={58}
+                    paddingAngle={4}
+                    cornerRadius={4}
+                    dataKey="value"
+                    stroke="none"
+                  >
                     {dataTurnos.map((entry, index) => (
                       <Cell key={index} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Tooltip content={<ChartTooltip />} />
+                  <Legend wrapperStyle={legendStyle} />
                 </PieChart>
               </ResponsiveContainer>
             )}
