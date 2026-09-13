@@ -29,9 +29,6 @@ interface FinanzasViewProps {
   historialMesesInicial: ResumenMes[]
 }
 
-const formatPesos = (v: number) =>
-  v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`
-
 export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, historialMesesInicial }: FinanzasViewProps) {
   const [fecha, setFecha] = useState(fechaInicial)
   const [resumen, setResumen] = useState(resumenInicial)
@@ -198,183 +195,161 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
         </Card>
       </Link>
 
-      {/* Métricas */}
+      {/* ═══ RESUMEN ═══ — los 3 números que importan, arriba y neutros:
+          el color vive en el número y en la flechita de variación, no en
+          el fondo entero de la card (antes cada card era un bloque sólido
+          verde/rojo/azul, competían todas por atención al mismo tiempo) */}
       <div className="space-y-3">
-        <h2 className="font-semibold text-foreground">
-          {view === "dia" ? "Métricas del día" : "Métricas del mes"}
-        </h2>
+        <h2 className="font-semibold text-foreground">Resumen</h2>
 
-        {/* Card total turnos */}
-        <Card className="bg-primary/5 border-primary/20">
-          <CardContent className="p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">
-                {view === "dia" ? "Total turnos del día" : "Total turnos del mes"}
-              </p>
-              <p className="text-2xl font-bold text-primary">{totalTurnos}</p>
-            </div>
-            <div className="flex items-center gap-3 text-xs">
-              {/* Mismos colores que el resto de la app para el estado de un turno */}
-              <span className={cn("flex items-center gap-1 px-2 py-0.5 rounded-full border border-transparent", ESTADO_BADGE.realizado)}>
-                ✓ {turnosRealizados} realizados
-              </span>
-              <span className={cn("flex items-center gap-1 px-2 py-0.5 rounded-full border border-transparent", ESTADO_BADGE.pendiente)}>
-                ⏳ {turnosPendientes} pendientes
-              </span>
-              <span className={cn("flex items-center gap-1 px-2 py-0.5 rounded-full border border-transparent", ESTADO_BADGE.cancelado)}>
-                ✗ {turnosCancelados} cancelados
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Mascotas + Efectivo + Transferencia */}
         <div className="grid grid-cols-3 gap-3">
           <Card>
-            <CardContent className="p-3 text-center">
-              <p className="text-2xl font-bold text-primary">{resumen.totalMascotas}</p>
-              <p className="text-xs text-muted-foreground mt-1">Mascotas</p>
+            <CardContent className="p-3">
+              <p className="text-xs text-muted-foreground mb-1">Ingresos</p>
+              <p className="text-lg font-bold font-heading text-emerald-600 dark:text-emerald-400">
+                {formatCurrency(ingresos)}
+              </p>
+              {view === "mes" && variacionIngresos !== null && (
+                <p className={cn(
+                  "text-[11px] flex items-center gap-0.5 mt-0.5",
+                  variacionIngresos >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
+                )}>
+                  {variacionIngresos >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                  {variacionIngresos >= 0 ? "+" : ""}{variacionIngresos.toFixed(0)}%
+                </p>
+              )}
             </CardContent>
           </Card>
-          {/* Efectivo — verde */}
-          <Card className="bg-green-50 dark:bg-green-900/30 border-green-100 dark:border-green-800">
-            <CardContent className="p-3 text-center">
-              <p className="text-lg font-bold text-green-700 dark:text-green-300">
-                {formatCurrency(efectivo)}
-              </p>
-              <p className="text-xs text-green-600 dark:text-green-400 mt-1">Efectivo</p>
+
+          <Card>
+            <CardContent className="p-3">
+              <p className="text-xs text-muted-foreground mb-1">Egresos</p>
+              <p className="text-lg font-bold font-heading text-destructive">{formatCurrency(egresosTotal)}</p>
+              {view === "mes" && variacionEgresos !== null && (
+                <p className={cn(
+                  "text-[11px] flex items-center gap-0.5 mt-0.5",
+                  variacionEgresos <= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
+                )}>
+                  {variacionEgresos >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                  {variacionEgresos >= 0 ? "+" : ""}{variacionEgresos.toFixed(0)}%
+                </p>
+              )}
             </CardContent>
           </Card>
-          {/* Transferencia — sky (mismo tono que el gráfico de método de pago) */}
-          <Card className="bg-sky-50 dark:bg-sky-900/30 border-sky-100 dark:border-sky-800">
-            <CardContent className="p-3 text-center">
-              <p className="text-lg font-bold text-sky-700 dark:text-sky-300">
-                {formatCurrency(transferencia)}
+
+          <Card>
+            <CardContent className="p-3">
+              <p className="text-xs text-muted-foreground mb-1">Balance</p>
+              <p className={cn(
+                "text-lg font-bold font-heading",
+                balance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
+              )}>
+                {formatCurrency(balance)}
               </p>
-              <p className="text-xs text-sky-600 dark:text-sky-400 mt-1">Transf.</p>
             </CardContent>
           </Card>
         </div>
-      </div>
 
-      {/* Balance cards */}
-      <div className="grid grid-cols-3 gap-3">
-        {/* Ingresos — verde */}
-        <Card className="bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800">
-          <CardContent className="p-3 text-center">
-            <p className="text-xs text-green-600 dark:text-green-400 mb-1">Ingresos</p>
-            <p className="font-bold text-green-700 dark:text-green-300">{formatCurrency(ingresos)}</p>
-            {ingresosAccesorios > 0 && (
-              <p className="text-[10px] text-green-600/70 dark:text-green-400/70 mt-0.5">
-                {formatCurrency(ingresosAccesorios)} en accesorios
-              </p>
-            )}
-          </CardContent>
-        </Card>
-        {/* Egresos — rojo */}
-        <Card className="bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800">
-          <CardContent className="p-3 text-center">
-            <p className="text-xs text-red-600 dark:text-red-400 mb-1">Egresos</p>
-            <p className="font-bold text-red-700 dark:text-red-300">{formatCurrency(egresosTotal)}</p>
-            {egresosPersonal > 0 && (
-              <p className="text-[10px] text-red-600/70 dark:text-red-400/70 mt-0.5">
-                + {formatCurrency(egresosPersonal)} personal (no incluido)
-              </p>
-            )}
-          </CardContent>
-        </Card>
-        {/* Balance — verde o rojo según valor */}
-        <Card className={cn(
-          "border",
-          balance >= 0 ? "bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800" : "bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800"
-        )}>
-          <CardContent className="p-3 text-center">
-            <p className={cn("text-xs mb-1", balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")}>
-              Balance
-            </p>
-            <p className={cn("font-bold", balance >= 0 ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300")}>
-              {formatCurrency(balance)}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Comparativa mensual: mejor/peor mes + variación % */}
-      {mesesConDatos.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-primary" />
-            <h2 className="font-semibold text-foreground">Comparativa mensual</h2>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Card className="bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-800">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Trophy className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Mejor mes</p>
-                </div>
-                <p className="font-bold text-emerald-700 dark:text-emerald-300">{mejorMes?.label}</p>
-                <p className="text-sm text-emerald-700 dark:text-emerald-300/80">{formatCurrency(mejorMes?.balance || 0)}</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <TrendingDown className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-                  <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">Peor mes</p>
-                </div>
-                <p className="font-bold text-amber-700 dark:text-amber-300">{peorMes?.label}</p>
-                <p className="text-sm text-amber-700 dark:text-amber-300/80">{formatCurrency(peorMes?.balance || 0)}</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {variacionIngresos !== null && variacionEgresos !== null && (
-            <div className="grid grid-cols-2 gap-3">
-              <Card>
-                <CardContent className="p-3 text-center">
-                  <p className="text-xs text-muted-foreground mb-1">Ingresos vs. mes anterior</p>
-                  <p className={cn(
-                    "font-bold flex items-center justify-center gap-1",
-                    variacionIngresos >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"
-                  )}>
-                    {variacionIngresos >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                    {variacionIngresos >= 0 ? "+" : ""}{variacionIngresos.toFixed(0)}%
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-3 text-center">
-                  <p className="text-xs text-muted-foreground mb-1">Egresos vs. mes anterior</p>
-                  <p className={cn(
-                    "font-bold flex items-center justify-center gap-1",
-                    variacionEgresos <= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"
-                  )}>
-                    {variacionEgresos >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                    {variacionEgresos >= 0 ? "+" : ""}{variacionEgresos.toFixed(0)}%
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+        {/* Desglose fino — antes eran 2 cards propias del mismo tamaño que
+            "Ingresos", como si fueran datos aparte en vez de un detalle
+            de esa misma plata */}
+        <div className="flex flex-wrap gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            Efectivo {formatCurrency(efectivo)}
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
+            <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
+            Transferencia {formatCurrency(transferencia)}
+          </span>
+          {ingresosAccesorios > 0 && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
+              <ShoppingBag className="h-3 w-3" />
+              {formatCurrency(ingresosAccesorios)} en accesorios
+            </span>
+          )}
+          {egresosPersonal > 0 && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
+              {formatCurrency(egresosPersonal)} personal (no incluido en Egresos)
+            </span>
           )}
         </div>
-      )}
 
-      {/* ── GRÁFICOS ── */}
-      <div className="space-y-4 pt-2">
+        {/* Turnos + mascotas */}
+        <div className="grid grid-cols-2 gap-3">
+          <Card>
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-foreground">
+                  {view === "dia" ? "Turnos hoy" : "Turnos del mes"}
+                </p>
+                <p className="text-xl font-bold font-heading text-foreground">{totalTurnos}</p>
+              </div>
+              <div className="flex items-center gap-1.5 mt-2">
+                <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium border border-transparent", ESTADO_BADGE.realizado)}>
+                  ✓ {turnosRealizados}
+                </span>
+                <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium border border-transparent", ESTADO_BADGE.pendiente)}>
+                  ⏳ {turnosPendientes}
+                </span>
+                {turnosCancelados > 0 && (
+                  <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium border border-transparent", ESTADO_BADGE.cancelado)}>
+                    ✗ {turnosCancelados}
+                  </span>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-3 flex items-center justify-between h-full">
+              <p className="text-sm font-medium text-foreground">Mascotas registradas</p>
+              <p className="text-xl font-bold font-heading text-foreground">{resumen.totalMascotas}</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* ═══ TENDENCIAS ═══ — comparativa + gráficos agrupados, separados
+          del resumen con una línea divisoria clara */}
+      <div className="space-y-3 pt-3 border-t border-border">
         <div className="flex items-center gap-2">
           <BarChart2 className="h-4 w-4 text-primary" />
-          <h2 className="font-semibold text-foreground">Gráficos</h2>
+          <h2 className="font-semibold text-foreground">Tendencias</h2>
         </div>
+
+        {mesesConDatos.length > 0 && (
+          <div className="grid grid-cols-2 gap-3">
+            <Card>
+              <CardContent className="p-3">
+                <div className="flex items-center gap-1.5 mb-1 text-muted-foreground">
+                  <Trophy className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <p className="text-xs font-medium">Mejor mes</p>
+                </div>
+                <p className="font-semibold text-foreground">{mejorMes?.label}</p>
+                <p className="text-sm text-emerald-600 dark:text-emerald-400">{formatCurrency(mejorMes?.balance || 0)}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-3">
+                <div className="flex items-center gap-1.5 mb-1 text-muted-foreground">
+                  <TrendingDown className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                  <p className="text-xs font-medium">Peor mes</p>
+                </div>
+                <p className="font-semibold text-foreground">{peorMes?.label}</p>
+                <p className="text-sm text-amber-600 dark:text-amber-400">{formatCurrency(peorMes?.balance || 0)}</p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         <FinanzasCharts historialMeses={historialMeses} dataDona={dataDona} dataTurnos={dataTurnos} />
       </div>
 
       {/* Egresos */}
-      <div className="space-y-3">
+      <div className="space-y-3 pt-3 border-t border-border">
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold text-foreground">Egresos del Mes</h2>
+          <h2 className="font-semibold text-foreground">Egresos del mes</h2>
           <Button size="sm" onClick={() => setShowForm(true)}>
             <Plus className="h-4 w-4 mr-1" />
             Nuevo
