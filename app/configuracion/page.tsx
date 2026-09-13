@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { PageHeader } from "@/components/page-header"
 import { ConfiguracionForm } from "@/components/configuracion/configuracion-form"
+import { CuentaSection } from "@/components/configuracion/cuenta-section"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -8,6 +9,9 @@ import Link from "next/link"
 export default async function ConfiguracionPage() {
   const supabase = await createClient()
   const { data: config } = await supabase.from("configuracion_negocio").select("*").single()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   return (
     <div className="flex min-h-screen flex-col pb-20">
@@ -22,7 +26,8 @@ export default async function ConfiguracionPage() {
           </Link>
         }
       />
-      <main className="flex-1 px-4 py-4">
+      <main className="flex-1 px-4 py-4 space-y-4">
+        <CuentaSection email={user?.email ?? null} />
         <ConfiguracionForm config={config} />
       </main>
     </div>
