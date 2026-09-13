@@ -77,15 +77,16 @@ export function LoginForm() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden">
-      {/* Textura de marca: la patita del logo (corazón + 4 dedos) repetida en
-          rombo — cada fila va corrida medio ancho de tile respecto a la
-          anterior, en vez de quedar todas alineadas en cuadrícula recta */}
+      {/* Textura de marca: la patita del logo (4 dedos ovalados + almohadilla
+          corazón) repetida en rombo — cada fila va corrida medio ancho de
+          tile respecto a la anterior, en vez de quedar todas alineadas en
+          cuadrícula recta */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Csymbol id='paw' viewBox='0 0 28 28'%3E%3Cpath d='M14 27c-4-2.6-9-6.2-9-11.2 0-3 2.3-5.3 5.1-5.3 1.6 0 3.1.8 3.9 2.1.8-1.3 2.3-2.1 3.9-2.1 2.8 0 5.1 2.3 5.1 5.3 0 5-5 8.6-9 11.2z'/%3E%3Cellipse cx='6' cy='10' rx='2.6' ry='3.4' transform='rotate(-15 6 10)'/%3E%3Cellipse cx='11' cy='5' rx='2.6' ry='3.4'/%3E%3Cellipse cx='17' cy='5' rx='2.6' ry='3.4'/%3E%3Cellipse cx='22' cy='10' rx='2.6' ry='3.4' transform='rotate(15 22 10)'/%3E%3C/symbol%3E%3C/defs%3E%3Cg fill='%23D6316F' fill-opacity='0.08'%3E%3Cuse href='%23paw' x='26' y='6' width='28' height='28'/%3E%3Cuse href='%23paw' x='-14' y='46' width='28' height='28'/%3E%3Cuse href='%23paw' x='66' y='46' width='28' height='28'/%3E%3C/g%3E%3C/svg%3E\")",
-          backgroundSize: "80px 80px",
+            "url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Csymbol id='paw' viewBox='0 0 40 48'%3E%3Cellipse cx='14' cy='11' rx='5' ry='6.5' transform='rotate(-10 14 11)'/%3E%3Cellipse cx='26' cy='11' rx='5' ry='6.5' transform='rotate(10 26 11)'/%3E%3Cellipse cx='6' cy='18' rx='4' ry='5.5' transform='rotate(-30 6 18)'/%3E%3Cellipse cx='34' cy='18' rx='4' ry='5.5' transform='rotate(30 34 18)'/%3E%3Cpath d='M20,28.4 C20,22 8,22 8,28.4 C8,36.4 20,40.4 20,46.8 C20,40.4 32,36.4 32,28.4 C32,22 20,22 20,28.4 Z'/%3E%3C/symbol%3E%3C/defs%3E%3Cg fill='%23D6316F' fill-opacity='0.09'%3E%3Cuse href='%23paw' x='30' y='2' width='40' height='48'/%3E%3Cuse href='%23paw' x='-20' y='50' width='40' height='48'/%3E%3Cuse href='%23paw' x='80' y='50' width='40' height='48'/%3E%3C/g%3E%3C/svg%3E\")",
+          backgroundSize: "100px 100px",
         }}
       />
 
