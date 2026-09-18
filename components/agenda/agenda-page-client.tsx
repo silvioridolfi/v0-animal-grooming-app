@@ -318,7 +318,7 @@ export function AgendaPageClient({
                   <Button
                     onClick={() => setShowConfirmRevertir(true)}
                     disabled={isReverting}
-                    className="w-full gap-2 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-800 shadow-none"
+                    className="w-full gap-2 bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-none"
                   >
                     <RotateCcw className="h-4 w-4" />
                     {isReverting ? "Revirtiendo..." : "Revertir cobro"}
@@ -419,7 +419,7 @@ export function AgendaPageClient({
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRevertirConfirmado}
-              className="bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 text-white"
+              className="bg-slate-600 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white"
             >
               Revertir
             </AlertDialogAction>
