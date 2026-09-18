@@ -206,53 +206,53 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
       <div className="space-y-3">
         <h2 className="font-semibold text-foreground">Resumen</h2>
 
-        <div className="grid grid-cols-3 gap-3">
-          <Card>
-            <CardContent className="p-2.5">
-              <p className="text-xs text-muted-foreground mb-1">Ingresos</p>
-              <p className="text-base font-bold font-heading text-emerald-600 dark:text-emerald-400 break-words leading-tight">
-                {formatCurrency(ingresos)}
-              </p>
-              {view === "mes" && variacionIngresos !== null && (
-                <p className={cn(
-                  "text-[11px] flex items-center gap-0.5 mt-0.5",
-                  variacionIngresos >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
-                )}>
-                  {variacionIngresos >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {variacionIngresos >= 0 ? "+" : ""}{variacionIngresos.toFixed(0)}%
+        <Card>
+          <CardContent className="p-4 divide-y divide-border">
+            <div className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+              <span className="text-sm text-muted-foreground">Ingresos</span>
+              <div className="text-right">
+                <p className="text-base font-bold font-heading text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+                  {formatCurrency(ingresos)}
                 </p>
-              )}
-            </CardContent>
-          </Card>
+                {view === "mes" && variacionIngresos !== null && (
+                  <p className={cn(
+                    "text-[11px] flex items-center justify-end gap-0.5",
+                    variacionIngresos >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
+                  )}>
+                    {variacionIngresos >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                    {variacionIngresos >= 0 ? "+" : ""}{variacionIngresos.toFixed(0)}%
+                  </p>
+                )}
+              </div>
+            </div>
 
-          <Card>
-            <CardContent className="p-2.5">
-              <p className="text-xs text-muted-foreground mb-1">Egresos</p>
-              <p className="text-base font-bold font-heading text-destructive break-words leading-tight">{formatCurrency(egresosTotal)}</p>
-              {view === "mes" && variacionEgresos !== null && (
-                <p className={cn(
-                  "text-[11px] flex items-center gap-0.5 mt-0.5",
-                  variacionEgresos <= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
-                )}>
-                  {variacionEgresos >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {variacionEgresos >= 0 ? "+" : ""}{variacionEgresos.toFixed(0)}%
-                </p>
-              )}
-            </CardContent>
-          </Card>
+            <div className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+              <span className="text-sm text-muted-foreground">Egresos</span>
+              <div className="text-right">
+                <p className="text-base font-bold font-heading text-destructive whitespace-nowrap">{formatCurrency(egresosTotal)}</p>
+                {view === "mes" && variacionEgresos !== null && (
+                  <p className={cn(
+                    "text-[11px] flex items-center justify-end gap-0.5",
+                    variacionEgresos <= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
+                  )}>
+                    {variacionEgresos >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                    {variacionEgresos >= 0 ? "+" : ""}{variacionEgresos.toFixed(0)}%
+                  </p>
+                )}
+              </div>
+            </div>
 
-          <Card>
-            <CardContent className="p-2.5">
-              <p className="text-xs text-muted-foreground mb-1">Balance</p>
+            <div className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+              <span className="text-sm text-muted-foreground">Balance</span>
               <p className={cn(
-                "text-base font-bold font-heading break-words leading-tight",
+                "text-base font-bold font-heading whitespace-nowrap",
                 balance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
               )}>
                 {formatCurrency(balance)}
               </p>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Desglose fino — antes eran 2 cards propias del mismo tamaño que
             "Ingresos", como si fueran datos aparte en vez de un detalle
