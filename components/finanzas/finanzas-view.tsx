@@ -208,9 +208,9 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
 
         <div className="grid grid-cols-3 gap-3">
           <Card>
-            <CardContent className="p-3">
+            <CardContent className="p-2.5">
               <p className="text-xs text-muted-foreground mb-1">Ingresos</p>
-              <p className="text-lg font-bold font-heading text-emerald-600 dark:text-emerald-400 truncate">
+              <p className="text-base font-bold font-heading text-emerald-600 dark:text-emerald-400 break-words leading-tight">
                 {formatCurrency(ingresos)}
               </p>
               {view === "mes" && variacionIngresos !== null && (
@@ -226,9 +226,9 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
           </Card>
 
           <Card>
-            <CardContent className="p-3">
+            <CardContent className="p-2.5">
               <p className="text-xs text-muted-foreground mb-1">Egresos</p>
-              <p className="text-lg font-bold font-heading text-destructive truncate">{formatCurrency(egresosTotal)}</p>
+              <p className="text-base font-bold font-heading text-destructive break-words leading-tight">{formatCurrency(egresosTotal)}</p>
               {view === "mes" && variacionEgresos !== null && (
                 <p className={cn(
                   "text-[11px] flex items-center gap-0.5 mt-0.5",
@@ -242,10 +242,10 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
           </Card>
 
           <Card>
-            <CardContent className="p-3">
+            <CardContent className="p-2.5">
               <p className="text-xs text-muted-foreground mb-1">Balance</p>
               <p className={cn(
-                "text-lg font-bold font-heading truncate",
+                "text-base font-bold font-heading break-words leading-tight",
                 balance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
               )}>
                 {formatCurrency(balance)}
