@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import { createPortal } from "react-dom"
 import { CalendarAgenda } from "@/components/agenda/calendar-agenda"
 import { CalendarMobile } from "@/components/agenda/calendar-mobile"
 import { TurnoModal } from "@/components/turnos/turno-modal"
@@ -196,13 +197,13 @@ export function AgendaPageClient({
         onTurnoCreated={handleTurnoCreated}
       />
 
-      {selectedTurno && detailsModalOpen && (
+      {selectedTurno && detailsModalOpen && createPortal(
         <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-end"
+          className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center sm:p-4"
           onClick={handleDetailsModalClose}
         >
           <div
-            className="bg-background w-full max-w-lg mx-auto rounded-t-2xl p-4 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom shadow-2xl"
+            className="bg-background w-full max-w-lg mx-auto rounded-t-2xl p-4 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom shadow-2xl sm:max-w-lg sm:rounded-2xl sm:zoom-in-95 sm:slide-in-from-bottom-0"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
@@ -378,7 +379,8 @@ export function AgendaPageClient({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       <AlertDialog open={showConfirmCobro} onOpenChange={setShowConfirmCobro}>

@@ -84,9 +84,9 @@ export function DashboardView({ resumen, turnosHoy, stockBajo }: DashboardData) 
                   key={turno.id}
                   href="/agenda"
                   style={{ animationDelay: `${i * 60}ms`, animationFillMode: "backwards" }}
-                  className="tap-scale animate-in fade-in slide-in-from-bottom-2 duration-300 flex items-center justify-between rounded-lg border border-border px-3 py-2 active:bg-muted transition-colors"
+                  className="tap-scale animate-in fade-in slide-in-from-bottom-2 duration-300 flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 active:bg-muted transition-colors"
                 >
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium truncate">
                       {turno.hora.slice(0, 5)} · {turno.mascota?.nombre ?? "Mascota"}
                     </p>

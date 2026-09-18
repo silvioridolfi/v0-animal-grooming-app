@@ -162,12 +162,12 @@ export function TurnoCard({ turno }: TurnoCardProps) {
                     <span className="text-sm text-muted-foreground truncate">({cliente?.nombre})</span>
                   </div>
 
-                  <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <div className="flex items-center gap-1.5 flex-wrap text-sm font-medium text-foreground min-w-0">
                     {getServiceIcon()}
-                    <span>{turno.tipo_servicio}</span>
+                    <span className="truncate">{turno.tipo_servicio}</span>
                     <span className="text-muted-foreground">·</span>
-                    <DollarSign className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground text-xs">{getPaymentMethod()}</span>
+                    <DollarSign className="h-3 w-3 text-muted-foreground shrink-0" />
+                    <span className="text-muted-foreground text-xs truncate">{getPaymentMethod()}</span>
                   </div>
                 </div>
               </div>
