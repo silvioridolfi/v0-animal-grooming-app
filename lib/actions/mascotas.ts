@@ -48,10 +48,13 @@ export async function verificarMascotaDuplicada(clienteId: string, nombreMascota
 export async function eliminarMascota(mascotaId: string) {
   const supabase = await createClient()
 
-  const { error } = await supabase.from("mascotas").delete().eq("id", mascotaId)
+  const { data: eliminado, error } = await supabase.from("mascotas").delete().eq("id", mascotaId).select("id")
 
   if (error) {
     return { error: error.message }
+  }
+  if (!eliminado || eliminado.length === 0) {
+    return { error: "No se pudo eliminar: la mascota ya no existe." }
   }
 
   revalidatePath("/mascotas")
@@ -177,10 +180,15 @@ export async function crearMascotaConCliente(input: CrearMascotaConClienteInput)
 export async function actualizarMascota(mascotaId: string, data: Partial<CreateMascotaData>) {
   const supabase = await createClient()
 
-  const { error } = await supabase.from("mascotas").update(data).eq("id", mascotaId)
+  const { data: actualizado, error } = await supabase
+    .from("mascotas")
+    .update(data)
+    .eq("id", mascotaId)
+    .select("id")
+    .single()
 
-  if (error) {
-    return { error: error.message }
+  if (error || !actualizado) {
+    return { error: "No se pudo actualizar: la mascota ya no existe." }
   }
 
   revalidatePath("/mascotas")

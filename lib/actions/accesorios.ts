@@ -57,7 +57,7 @@ export async function actualizarAccesorio(id: string, formData: FormData) {
     return { success: false, error: "Nombre y precio son requeridos" }
   }
 
-  const { error } = await supabase
+  const { data: actualizado, error } = await supabase
     .from("accesorios")
     .update({
       nombre,
@@ -66,8 +66,12 @@ export async function actualizarAccesorio(id: string, formData: FormData) {
       stock: Number.isNaN(stock) ? 0 : stock,
     })
     .eq("id", id)
+    .select("id")
+    .single()
 
-  if (error) return { success: false, error: error.message }
+  if (error || !actualizado) {
+    return { success: false, error: "No se pudo actualizar: el accesorio ya no existe." }
+  }
 
   revalidatePath("/accesorios")
   revalidatePath("/finanzas")
@@ -79,9 +83,16 @@ export async function actualizarAccesorio(id: string, formData: FormData) {
 export async function toggleActivoAccesorio(id: string, activo: boolean) {
   const supabase = await createClient()
 
-  const { error } = await supabase.from("accesorios").update({ activo }).eq("id", id)
+  const { data: actualizado, error } = await supabase
+    .from("accesorios")
+    .update({ activo })
+    .eq("id", id)
+    .select("id")
+    .single()
 
-  if (error) return { success: false, error: error.message }
+  if (error || !actualizado) {
+    return { success: false, error: "No se pudo actualizar: el accesorio ya no existe." }
+  }
 
   revalidatePath("/accesorios")
   return { success: true }
@@ -107,9 +118,12 @@ export async function eliminarAccesorio(id: string) {
     }
   }
 
-  const { error } = await supabase.from("accesorios").delete().eq("id", id)
+  const { data: eliminado, error } = await supabase.from("accesorios").delete().eq("id", id).select("id")
 
   if (error) return { success: false, error: error.message }
+  if (!eliminado || eliminado.length === 0) {
+    return { success: false, error: "No se pudo eliminar: el accesorio ya no existe." }
+  }
 
   revalidatePath("/accesorios")
   revalidatePath("/finanzas")
@@ -135,9 +149,16 @@ export async function ajustarStockAccesorio(id: string, delta: number) {
     return { success: false, error: "El stock no puede quedar negativo" }
   }
 
-  const { error } = await supabase.from("accesorios").update({ stock: nuevoStock }).eq("id", id)
+  const { data: actualizado, error } = await supabase
+    .from("accesorios")
+    .update({ stock: nuevoStock })
+    .eq("id", id)
+    .select("id")
+    .single()
 
-  if (error) return { success: false, error: error.message }
+  if (error || !actualizado) {
+    return { success: false, error: "No se pudo actualizar el stock: el accesorio ya no existe." }
+  }
 
   revalidatePath("/accesorios")
   return { success: true }

@@ -204,9 +204,16 @@ export async function eliminarVentaAccesorio(id: string) {
     }
   }
 
-  const { error: errorDelete } = await supabase.from("ventas_accesorios").delete().eq("id", id)
+  const { data: eliminado, error: errorDelete } = await supabase
+    .from("ventas_accesorios")
+    .delete()
+    .eq("id", id)
+    .select("id")
 
   if (errorDelete) return { success: false, error: errorDelete.message }
+  if (!eliminado || eliminado.length === 0) {
+    return { success: false, error: "No se pudo eliminar: la venta ya no existe." }
+  }
 
   // Devolvemos el stock descontado por esta venta
   const { data: accesorio } = await supabase
@@ -253,12 +260,16 @@ export async function reembolsarVentaAccesorio(ventaId: string, monto: number, r
     return { success: false, error: `El monto debe estar entre $1 y $${venta.precio_total}` }
   }
 
-  const { error: errorUpdate } = await supabase
+  const { data: actualizado, error: errorUpdate } = await supabase
     .from("ventas_accesorios")
     .update({ monto_reembolsado: monto })
     .eq("id", ventaId)
+    .select("id")
+    .single()
 
-  if (errorUpdate) return { success: false, error: errorUpdate.message }
+  if (errorUpdate || !actualizado) {
+    return { success: false, error: "No se pudo registrar el reembolso: la venta ya no existe." }
+  }
 
   if (reponerStock && venta.accesorio) {
     await supabase

@@ -69,10 +69,15 @@ export async function crearCliente(data: CreateClienteData) {
 export async function actualizarCliente(clienteId: string, data: CreateClienteData) {
   const supabase = await createClient()
 
-  const { error } = await supabase.from("clientes").update(data).eq("id", clienteId)
+  const { data: actualizado, error } = await supabase
+    .from("clientes")
+    .update(data)
+    .eq("id", clienteId)
+    .select("id")
+    .single()
 
-  if (error) {
-    return { error: error.message }
+  if (error || !actualizado) {
+    return { error: "No se pudo actualizar: el cliente ya no existe." }
   }
 
   revalidatePath("/clientes")
@@ -82,10 +87,13 @@ export async function actualizarCliente(clienteId: string, data: CreateClienteDa
 export async function eliminarCliente(clienteId: string) {
   const supabase = await createClient()
 
-  const { error } = await supabase.from("clientes").delete().eq("id", clienteId)
+  const { data: eliminado, error } = await supabase.from("clientes").delete().eq("id", clienteId).select("id")
 
   if (error) {
     return { error: error.message }
+  }
+  if (!eliminado || eliminado.length === 0) {
+    return { error: "No se pudo eliminar: el cliente ya no existe." }
   }
 
   revalidatePath("/clientes")

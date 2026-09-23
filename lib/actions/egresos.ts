@@ -76,7 +76,7 @@ export async function actualizarEgreso(id: string, formData: FormData) {
   const medio_pago = (formData.get("medio_pago") as string) || null
   const notas = (formData.get("notas") as string) || null
 
-  const { error } = await supabase
+  const { data: actualizado, error } = await supabase
     .from("egresos")
     .update({
       fecha,
@@ -88,16 +88,20 @@ export async function actualizarEgreso(id: string, formData: FormData) {
       notas,
     })
     .eq("id", id)
+    .select("id")
+    .single()
 
   if (error) throw error
+  if (!actualizado) throw new Error("No se pudo actualizar: el egreso ya no existe.")
   revalidatePath("/finanzas")
 }
 
 export async function eliminarEgreso(id: string) {
   const supabase = await createClient()
 
-  const { error } = await supabase.from("egresos").delete().eq("id", id)
+  const { data: eliminado, error } = await supabase.from("egresos").delete().eq("id", id).select("id")
 
   if (error) throw error
+  if (!eliminado || eliminado.length === 0) throw new Error("No se pudo eliminar: el egreso ya no existe.")
   revalidatePath("/finanzas")
 }

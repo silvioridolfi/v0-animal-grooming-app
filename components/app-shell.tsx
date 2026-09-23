@@ -6,6 +6,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { GlobalHeader } from "@/components/global-header"
 import { BottomNav } from "@/components/bottom-nav"
+import { InactivityLogout } from "@/components/auth/inactivity-logout"
 import type { ShellKpis } from "@/lib/actions/shell-kpis"
 
 export function AppShell({ kpis, children }: { kpis: ShellKpis; children: React.ReactNode }) {
@@ -20,6 +21,7 @@ export function AppShell({ kpis, children }: { kpis: ShellKpis; children: React.
 
   return (
     <SidebarProvider>
+      <InactivityLogout />
       <AppSidebar kpis={kpis} />
       <SidebarInset>
         <GlobalHeader kpis={kpis} />

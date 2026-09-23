@@ -17,10 +17,16 @@ export async function marcarTurnoRealizado(turnoId: string) {
     return { error: "Ingresá el precio antes de marcar el turno como realizado" }
   }
 
-  await supabase
+  const { data: actualizado, error } = await supabase
     .from("turnos")
     .update({ estado: "realizado" })
     .eq("id", turnoId)
+    .select("id")
+    .single()
+
+  if (error || !actualizado) {
+    return { error: "No se pudo marcar el turno como realizado: ya no existe." }
+  }
 
   revalidatePath("/")
   return { success: true }
@@ -42,9 +48,12 @@ export async function eliminarTurno(turnoId: string) {
     }
   }
 
-  const { error } = await supabase.from("turnos").delete().eq("id", turnoId)
+  const { data: eliminado, error } = await supabase.from("turnos").delete().eq("id", turnoId).select("id")
 
   if (error) return { success: false, error: error.message }
+  if (!eliminado || eliminado.length === 0) {
+    return { success: false, error: "No se pudo eliminar: el turno ya no existe." }
+  }
 
   revalidatePath("/")
   return { success: true }
@@ -92,7 +101,7 @@ export async function crearTurno(data: CreateTurnoData) {
 export async function actualizarTurno(turnoId: string, data: CreateTurnoData) {
   const supabase = await createClient()
 
-  const { error } = await supabase
+  const { data: actualizado, error } = await supabase
     .from("turnos")
     .update({
       fecha: data.fecha,
@@ -106,9 +115,11 @@ export async function actualizarTurno(turnoId: string, data: CreateTurnoData) {
       estado: data.estado,
     })
     .eq("id", turnoId)
+    .select("id")
+    .single()
 
-  if (error) {
-    return { error: error.message }
+  if (error || !actualizado) {
+    return { error: "No se pudo actualizar: el turno ya no existe." }
   }
 
   revalidatePath("/")
@@ -121,13 +132,15 @@ export async function actualizarEstadoTurno(
 ) {
   const supabase = await createClient()
 
-  const { error } = await supabase
+  const { data: actualizado, error } = await supabase
     .from("turnos")
     .update({ estado })
     .eq("id", turnoId)
+    .select("id")
+    .single()
 
-  if (error) {
-    return { error: error.message }
+  if (error || !actualizado) {
+    return { error: "No se pudo actualizar: el turno ya no existe." }
   }
 
   revalidatePath("/")
@@ -166,7 +179,7 @@ export async function revertirCobro(turnoId: string) {
     return { error: "Este turno ya tiene un reembolso registrado, no se puede revertir el cobro." }
   }
 
-  const { error } = await supabase
+  const { data: actualizado, error } = await supabase
     .from("turnos")
     .update({
       estado: "pendiente",
@@ -174,9 +187,11 @@ export async function revertirCobro(turnoId: string) {
       metodo_pago: null,
     })
     .eq("id", turnoId)
+    .select("id")
+    .single()
 
-  if (error) {
-    return { error: error.message }
+  if (error || !actualizado) {
+    return { error: "No se pudo revertir el cobro: el turno ya no existe." }
   }
 
   revalidatePath("/")
@@ -209,12 +224,16 @@ export async function reembolsarTurno(turnoId: string, monto: number) {
     return { success: false, error: `El monto debe estar entre $1 y $${turno.precio_final}` }
   }
 
-  const { error: errorUpdate } = await supabase
+  const { data: actualizado, error: errorUpdate } = await supabase
     .from("turnos")
     .update({ monto_reembolsado: monto })
     .eq("id", turnoId)
+    .select("id")
+    .single()
 
-  if (errorUpdate) return { success: false, error: errorUpdate.message }
+  if (errorUpdate || !actualizado) {
+    return { success: false, error: "No se pudo registrar el reembolso: el turno ya no existe." }
+  }
 
   const { error: errorEgreso } = await supabase.from("egresos").insert({
     fecha: getFechaArgentina(),
