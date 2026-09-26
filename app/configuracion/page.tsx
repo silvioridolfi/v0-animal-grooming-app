@@ -16,7 +16,7 @@ export default async function ConfiguracionPage() {
   return (
     <div className="flex flex-col">
       <PageHeader
-        title="Configuracion"
+        title="Configuración"
         action={
           <Link href="/">
             <Button variant="ghost" size="sm">
