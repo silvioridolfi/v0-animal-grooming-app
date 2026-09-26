@@ -294,7 +294,7 @@ export function CalendarAgenda({
       )}
 
       <Dialog open={expandedDay !== null} onOpenChange={(open) => !open && setExpandedDay(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>
               Turnos del{" "}
