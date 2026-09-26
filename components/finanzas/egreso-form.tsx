@@ -50,6 +50,7 @@ function categoriaValidaParaTipo(tipo: "negocio" | "personal", categoria?: strin
 
 export function EgresoForm({ egreso, onSuccess, onCancel }: EgresoFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const tipoInicial: "negocio" | "personal" = egreso?.tipo === "personal" ? "personal" : "negocio"
   const [tipo, setTipo] = useState<"negocio" | "personal">(tipoInicial)
   const [categoria, setCategoria] = useState(
@@ -70,6 +71,7 @@ export function EgresoForm({ egreso, onSuccess, onCancel }: EgresoFormProps) {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setError(null)
 
     try {
       const formData = new FormData(e.currentTarget)
@@ -83,6 +85,8 @@ export function EgresoForm({ egreso, onSuccess, onCancel }: EgresoFormProps) {
         await crearEgreso(formData)
       }
       onSuccess()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al guardar el egreso")
     } finally {
       setIsSubmitting(false)
     }
@@ -92,7 +96,7 @@ export function EgresoForm({ egreso, onSuccess, onCancel }: EgresoFormProps) {
     <Card className="max-w-lg mx-auto">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={onCancel}>
+          <Button variant="ghost" size="icon" aria-label="Volver" onClick={onCancel}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <CardTitle>{isEditing ? "Editar Egreso" : "Nuevo Egreso"}</CardTitle>
@@ -223,6 +227,8 @@ export function EgresoForm({ egreso, onSuccess, onCancel }: EgresoFormProps) {
               rows={2}
             />
           </div>
+
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex gap-3 pt-2">
             <Button type="button" variant="outline" className="flex-1 bg-transparent" onClick={onCancel}>

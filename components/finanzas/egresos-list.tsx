@@ -12,7 +12,6 @@ import type { Egreso } from "@/lib/types"
 import { eliminarEgreso } from "@/lib/actions/egresos"
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -61,6 +60,7 @@ const categoriaLabels = {
 export function EgresosList({ egresos, onEdit, onDelete }: EgresosListProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const [filtroTipo, setFiltroTipo] = useState<"todos" | "negocio" | "personal">("todos")
 
   const egresosFiltrados = useMemo(() => {
@@ -71,12 +71,15 @@ export function EgresosList({ egresos, onEdit, onDelete }: EgresosListProps) {
   const handleDelete = async () => {
     if (!deleteId) return
     setIsDeleting(true)
+    setDeleteError(null)
     try {
       await eliminarEgreso(deleteId)
+      setDeleteId(null)
       onDelete()
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "No se pudo eliminar")
     } finally {
       setIsDeleting(false)
-      setDeleteId(null)
     }
   }
 
@@ -144,14 +147,20 @@ export function EgresosList({ egresos, onEdit, onDelete }: EgresosListProps) {
                       </p>
                     </div>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(egreso)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`Editar egreso "${egreso.concepto}"`}
+                        onClick={() => onEdit(egreso)}
+                      >
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-destructive"
-                        onClick={() => setDeleteId(egreso.id)}
+                        className="text-destructive"
+                        aria-label={`Eliminar egreso "${egreso.concepto}"`}
+                        onClick={() => { setDeleteId(egreso.id); setDeleteError(null) }}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -164,23 +173,24 @@ export function EgresosList({ egresos, onEdit, onDelete }: EgresosListProps) {
         </div>
       )}
 
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => { if (!open) { setDeleteId(null); setDeleteError(null) } }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Eliminar egreso</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta accion no se puede deshacer. El egreso sera eliminado permanentemente.
+              Esta acción no se puede deshacer. El egreso será eliminado permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
+            <Button
               onClick={handleDelete}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isDeleting ? "Eliminando..." : "Eliminar"}
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
