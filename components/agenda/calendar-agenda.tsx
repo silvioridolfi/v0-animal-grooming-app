@@ -172,8 +172,9 @@ export function CalendarAgenda({
 
         <button
           onClick={(e) => { e.stopPropagation(); onAddTurno(dateStr) }}
-          className="absolute bottom-2 right-2 h-8 w-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110 bg-primary text-primary-foreground"
+          className="absolute bottom-2 right-2 h-9 w-9 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform bg-primary text-primary-foreground"
           title="Agregar turno"
+          aria-label={`Agregar turno el ${day} de ${MESES[month]}`}
         >
           <Plus className="h-4 w-4" />
         </button>
@@ -195,7 +196,7 @@ export function CalendarAgenda({
         <CardContent className="p-4">
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
-              <Button variant="ghost" size="icon" onClick={prevMonth} className="h-10 w-10">
+              <Button variant="ghost" size="icon" onClick={prevMonth} className="h-11 w-11" aria-label="Mes anterior">
                 <ChevronLeft className="h-5 w-5" />
               </Button>
               <div className="flex items-center gap-2">
@@ -211,7 +212,7 @@ export function CalendarAgenda({
                   </Button>
                 )}
               </div>
-              <Button variant="ghost" size="icon" onClick={nextMonth} className="h-10 w-10">
+              <Button variant="ghost" size="icon" onClick={nextMonth} className="h-11 w-11" aria-label="Mes siguiente">
                 <ChevronRight className="h-5 w-5" />
               </Button>
             </div>
