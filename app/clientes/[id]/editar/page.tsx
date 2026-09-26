@@ -23,7 +23,7 @@ export default async function EditarClientePage({
   if (error || !cliente) notFound()
 
   return (
-    <div className="flex min-h-screen flex-col pb-20">
+    <div className="flex flex-col">
       <PageHeader
         title="Editar dueño"
         action={

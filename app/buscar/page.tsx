@@ -4,7 +4,7 @@ import { BuscarPageClient } from "@/components/buscar/buscar-page-client"
 
 export default function BuscarPage() {
   return (
-    <div className="flex min-h-screen flex-col pb-20">
+    <div className="flex flex-col">
       <PageHeader title="Buscar" />
       <main className="flex-1 px-4 py-4">
         <Suspense fallback={<div className="text-center text-muted-foreground py-8">Cargando...</div>}>

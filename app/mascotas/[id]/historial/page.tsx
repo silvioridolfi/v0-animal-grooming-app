@@ -41,7 +41,7 @@ export default async function MascotaHistorialPage({ params }: MascotaHistorialP
   }))
 
   return (
-    <div className="flex min-h-screen flex-col pb-20">
+    <div className="flex flex-col">
       <PageHeader
         title={`Historial — ${mascota.nombre}`}
         action={<BackButton />}

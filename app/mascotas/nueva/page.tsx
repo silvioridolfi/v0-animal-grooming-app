@@ -7,7 +7,7 @@ import Link from "next/link"
 
 export default function NuevaMascotaPage() {
   return (
-    <div className="flex min-h-screen flex-col pb-20">
+    <div className="flex flex-col">
       <PageHeader
         title="Nueva Mascota"
         subtitle="Agrega una mascota y su dueño rápidamente"

@@ -30,7 +30,7 @@ export default async function NuevoTurnoPage({
     .lte("fecha", fechaLimiteStr)
 
   return (
-    <div className="flex min-h-screen flex-col pb-20">
+    <div className="flex flex-col">
       <PageHeader
         title="Nuevo turno"
         action={
