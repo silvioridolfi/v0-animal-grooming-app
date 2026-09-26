@@ -47,10 +47,12 @@ export function DiaTurnoRow({ turno, onClick, index = 0 }: DiaTurnoRowProps) {
             </span>
           </div>
 
-          <p className="truncate text-sm font-medium text-foreground">{mascota?.nombre}</p>
+          <p className="truncate text-sm font-medium text-foreground" title={mascota?.nombre}>
+            {mascota?.nombre}
+          </p>
 
           {cliente && (
-            <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
+            <p className="flex items-center gap-1 truncate text-xs text-muted-foreground" title={cliente.nombre}>
               <User className="h-3 w-3 shrink-0" />
               {cliente.nombre}
             </p>
