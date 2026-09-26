@@ -102,56 +102,54 @@ export function PetEditForm({ mascota, mascotaId, clienteId }: PetEditFormProps)
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Tipo de animal *</Label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => { setTipoAnimal("Perro"); setRaza("") }}
-                  disabled={isLoading}
-                  className={cn(
-                    "flex-1 py-2 px-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 font-medium",
-                    tipoAnimal === "Perro"
-                      ? "border-primary bg-primary text-white"
-                      : "border-border bg-background text-foreground hover:border-primary"
-                  )}
-                >
-                  <Dog className="h-4 w-4" />
-                  Perro
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setTipoAnimal("Gato"); setRaza("") }}
-                  disabled={isLoading}
-                  className={cn(
-                    "flex-1 py-2 px-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 font-medium",
-                    tipoAnimal === "Gato"
-                      ? "border-primary bg-primary text-white"
-                      : "border-border bg-background text-foreground hover:border-primary"
-                  )}
-                >
-                  <Cat className="h-4 w-4" />
-                  Gato
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="tamano">Tamaño *</Label>
-              <select
-                id="tamano"
-                value={tamano}
-                onChange={(e) => setTamano(e.target.value as "S" | "M" | "L" | "")}
+          <div className="space-y-2">
+            <Label>Tipo de animal *</Label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => { setTipoAnimal("Perro"); setRaza("") }}
                 disabled={isLoading}
-                className="w-full h-11 px-3 border rounded-lg bg-background focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                className={cn(
+                  "flex-1 py-2 px-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 font-medium",
+                  tipoAnimal === "Perro"
+                    ? "border-primary bg-primary text-white"
+                    : "border-border bg-background text-foreground hover:border-primary"
+                )}
               >
-                <option value="">Seleccionar</option>
-                <option value="S">Pequeño</option>
-                <option value="M">Mediano</option>
-                <option value="L">Grande</option>
-              </select>
+                <Dog className="h-4 w-4" />
+                Perro
+              </button>
+              <button
+                type="button"
+                onClick={() => { setTipoAnimal("Gato"); setRaza("") }}
+                disabled={isLoading}
+                className={cn(
+                  "flex-1 py-2 px-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 font-medium",
+                  tipoAnimal === "Gato"
+                    ? "border-primary bg-primary text-white"
+                    : "border-border bg-background text-foreground hover:border-primary"
+                )}
+              >
+                <Cat className="h-4 w-4" />
+                Gato
+              </button>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="tamano">Tamaño *</Label>
+            <select
+              id="tamano"
+              value={tamano}
+              onChange={(e) => setTamano(e.target.value as "S" | "M" | "L" | "")}
+              disabled={isLoading}
+              className="w-full h-11 px-3 border rounded-lg bg-background focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            >
+              <option value="">Seleccionar</option>
+              <option value="S">Pequeño</option>
+              <option value="M">Mediano</option>
+              <option value="L">Grande</option>
+            </select>
           </div>
 
           <div className="space-y-2">
