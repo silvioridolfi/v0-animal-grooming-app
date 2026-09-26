@@ -181,7 +181,14 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
                 Cobrar turno
               </Label>
               {mostraCobro && (
-                <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => setMostraCobro(false)}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => setMostraCobro(false)}
+                  aria-label="Cerrar cobro"
+                >
                   <X className="h-4 w-4" />
                 </Button>
               )}
