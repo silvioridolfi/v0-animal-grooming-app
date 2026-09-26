@@ -64,10 +64,7 @@ export const ALL_NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((g) => g.items)
 
 export const PRIMARY_NAV_ITEMS: NavItem[] = ALL_NAV_ITEMS.filter((item) => item.primary)
 
-export const SECONDARY_NAV_ITEMS: NavItem[] = [
-  ...ALL_NAV_ITEMS.filter((item) => !item.primary),
-  CONFIG_ITEM,
-]
+export const SECONDARY_NAV_ITEMS: NavItem[] = ALL_NAV_ITEMS.filter((item) => !item.primary)
 
 export function isActiveHref(pathname: string, href: string): boolean {
   return pathname === href || (href !== "/" && pathname.startsWith(href))
