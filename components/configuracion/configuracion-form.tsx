@@ -20,10 +20,10 @@ interface ConfiguracionFormProps {
 const DIAS_SEMANA = [
   { value: 1, label: "Lun" },
   { value: 2, label: "Mar" },
-  { value: 3, label: "Mie" },
+  { value: 3, label: "Mié" },
   { value: 4, label: "Jue" },
   { value: 5, label: "Vie" },
-  { value: 6, label: "Sab" },
+  { value: 6, label: "Sáb" },
   { value: 0, label: "Dom" },
 ]
 
@@ -95,6 +95,8 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
   const [nuevoDiaNoLaborable, setNuevoDiaNoLaborable] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [horariosError, setHorariosError] = useState<string | null>(null)
+  const [diasNoLaborablesError, setDiasNoLaborablesError] = useState<string | null>(null)
   const [exportandoBackup, setExportandoBackup] = useState(false)
 
   const toggleDia = (dia: number) => {
@@ -104,7 +106,8 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
 
   const handleSaveHorarios = async () => {
     setIsLoading(true)
-    await updateConfiguracion({
+    setHorariosError(null)
+    const resultado = await updateConfiguracion({
       dias_laborales: diasLaborales,
       hora_inicio_manana: horaInicioManana,
       hora_fin_manana: horaFinManana,
@@ -112,6 +115,10 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
       hora_fin_tarde: horaFinTarde,
     })
     setIsLoading(false)
+    if (!resultado.success) {
+      setHorariosError(resultado.error || "No se pudo guardar la configuración")
+      return
+    }
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -120,17 +127,27 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
     e.preventDefault()
     if (!nuevoDiaNoLaborable) return
     setIsLoading(true)
-    await agregarDiaNoLaborable(nuevoDiaNoLaborable)
+    setDiasNoLaborablesError(null)
+    const resultado = await agregarDiaNoLaborable(nuevoDiaNoLaborable)
+    setIsLoading(false)
+    if (!resultado.success) {
+      setDiasNoLaborablesError(resultado.error || "No se pudo agregar el día")
+      return
+    }
     setDiasNoLaborables((prev) => [...prev, nuevoDiaNoLaborable])
     setNuevoDiaNoLaborable("")
-    setIsLoading(false)
   }
 
   const handleQuitarDiaNoLaborable = async (fecha: string) => {
     setIsLoading(true)
-    await quitarDiaNoLaborable(fecha)
-    setDiasNoLaborables((prev) => prev.filter((d) => d !== fecha))
+    setDiasNoLaborablesError(null)
+    const resultado = await quitarDiaNoLaborable(fecha)
     setIsLoading(false)
+    if (!resultado.success) {
+      setDiasNoLaborablesError(resultado.error || "No se pudo quitar el día")
+      return
+    }
+    setDiasNoLaborables((prev) => prev.filter((d) => d !== fecha))
   }
 
   const handleExportarBackup = async () => {
@@ -149,7 +166,7 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Calendar className="h-4 w-4" />
-            Dias laborales
+            Días laborales
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -171,7 +188,7 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
             ))}
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            Toca los dias para activar/desactivar. Los dias no seleccionados no apareceran disponibles en el calendario.
+            Toca los días para activar/desactivar. Los días no seleccionados no aparecerán disponibles en el calendario.
           </p>
         </CardContent>
       </Card>
@@ -181,12 +198,12 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            Horarios de atencion
+            Horarios de atención
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Turno manana</Label>
+            <Label className="text-sm font-medium">Turno mañana</Label>
             <div className="flex items-center gap-2">
               <Input
                 type="time"
@@ -230,21 +247,22 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
             ) : isLoading ? (
               "Guardando..."
             ) : (
-              "Guardar configuracion"
+              "Guardar configuración"
             )}
           </Button>
+          {horariosError && <p className="text-sm text-destructive">{horariosError}</p>}
         </CardContent>
       </Card>
 
       {/* Dias no laborables */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Dias no laborables adicionales</CardTitle>
+          <CardTitle className="text-base">Días no laborables adicionales</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-xs text-muted-foreground">
-            Agrega dias especificos donde no trabajas (vacaciones, eventos, etc.). Los feriados nacionales ya estan
-            incluidos automaticamente.
+            Agrega días específicos donde no trabajas (vacaciones, eventos, etc.). Los feriados nacionales ya están
+            incluidos automáticamente.
           </p>
           <form onSubmit={handleAgregarDiaNoLaborable} className="flex gap-2">
             <Input
@@ -252,31 +270,43 @@ export function ConfiguracionForm({ config }: ConfiguracionFormProps) {
               value={nuevoDiaNoLaborable}
               onChange={(e) => setNuevoDiaNoLaborable(e.target.value)}
               className="flex-1 h-12"
+              aria-label="Fecha del día no laborable"
             />
-            <Button type="submit" size="icon" className="h-12 w-12" disabled={isLoading || !nuevoDiaNoLaborable}>
+            <Button
+              type="submit"
+              size="icon"
+              className="h-12 w-12"
+              disabled={isLoading || !nuevoDiaNoLaborable}
+              aria-label="Agregar día no laborable"
+            >
               <Plus className="h-5 w-5" />
             </Button>
           </form>
+          {diasNoLaborablesError && <p className="text-sm text-destructive">{diasNoLaborablesError}</p>}
           {diasNoLaborables.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {diasNoLaborables.sort().map((fecha) => (
-                <div
-                  key={fecha}
-                  className="flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-sm font-medium"
-                >
-                  {new Date(fecha + "T12:00:00").toLocaleDateString("es-AR", {
-                    day: "numeric",
-                    month: "short",
-                  })}
-                  <button
-                    type="button"
-                    onClick={() => handleQuitarDiaNoLaborable(fecha)}
-                    className="text-muted-foreground hover:text-destructive transition-colors"
+              {diasNoLaborables.sort().map((fecha) => {
+                const fechaFormateada = new Date(fecha + "T12:00:00").toLocaleDateString("es-AR", {
+                  day: "numeric",
+                  month: "short",
+                })
+                return (
+                  <div
+                    key={fecha}
+                    className="flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-sm font-medium"
                   >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
+                    {fechaFormateada}
+                    <button
+                      type="button"
+                      onClick={() => handleQuitarDiaNoLaborable(fecha)}
+                      className="text-muted-foreground hover:text-destructive transition-colors"
+                      aria-label={`Quitar ${fechaFormateada} de los días no laborables`}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                )
+              })}
             </div>
           )}
         </CardContent>

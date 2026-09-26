@@ -208,7 +208,13 @@ export function NuevaMascotaForm() {
                           <p className="text-sm text-muted-foreground">{clienteSeleccionado.telefono}</p>
                         )}
                       </div>
-                      <Button type="button" variant="ghost" size="icon" onClick={() => setClienteSeleccionado(null)}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setClienteSeleccionado(null)}
+                        aria-label="Quitar cliente seleccionado"
+                      >
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
