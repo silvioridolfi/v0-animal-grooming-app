@@ -28,7 +28,7 @@ export function BottomNav({ kpis }: { kpis: ShellKpis }) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative flex flex-col items-center gap-0.5 px-3 py-2 text-xs transition-colors min-w-[60px]",
+                  "relative flex flex-col items-center gap-0.5 px-3 py-2 text-xs transition-colors min-w-[60px] rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
                   isActive ? "text-primary" : "text-muted-foreground active:text-foreground",
                 )}
               >
@@ -48,8 +48,10 @@ export function BottomNav({ kpis }: { kpis: ShellKpis }) {
           <button
             type="button"
             onClick={() => setMoreOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={moreOpen}
             className={cn(
-              "relative flex flex-col items-center gap-0.5 px-3 py-2 text-xs transition-colors min-w-[60px]",
+              "relative flex flex-col items-center gap-0.5 px-3 py-2 text-xs transition-colors min-w-[60px] rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
               isSecondaryActive ? "text-primary" : "text-muted-foreground active:text-foreground",
             )}
           >
@@ -80,7 +82,7 @@ export function BottomNav({ kpis }: { kpis: ShellKpis }) {
                   href={item.href}
                   onClick={() => setMoreOpen(false)}
                   className={cn(
-                    "relative flex flex-col items-center gap-1.5 rounded-lg border border-border p-3 text-xs transition-colors",
+                    "relative flex flex-col items-center gap-1.5 rounded-lg border border-border p-3 text-xs transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
                     isActive ? "border-primary text-primary bg-primary/5" : "text-muted-foreground active:bg-muted",
                   )}
                 >
