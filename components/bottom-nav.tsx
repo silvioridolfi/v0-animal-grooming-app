@@ -62,7 +62,7 @@ export function BottomNav({ kpis }: { kpis: ShellKpis }) {
             <span className={cn("font-medium", isSecondaryActive && "font-semibold")}>Más</span>
           </button>
         </div>
-        <div className="h-safe-area-inset-bottom bg-card" />
+        <div className="h-safe-bottom bg-card" />
       </nav>
 
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>

@@ -202,6 +202,14 @@
   .tap-scale:active {
     transform: scale(0.97);
   }
+
+  /* Alto real del home indicator / gesto de borde inferior en iOS. Tailwind
+     no trae esto por default — h-safe-area-inset-bottom (el nombre que se
+     usaba antes acá) no es una clase real, no hacía nada: el bottom-nav
+     quedaba pegado al borde físico de la pantalla sin este espacio. */
+  .h-safe-bottom {
+    height: env(safe-area-inset-bottom, 0px);
+  }
 }
 
 /* Fondo animado de /login: 3 manchas de color que flotan muy despacio
@@ -247,5 +255,16 @@
   .animate-check-pop {
     animation: none;
     opacity: 0;
+  }
+}
+
+/* Guard global para las animaciones de entrada/salida de tw-animate-css
+   (animate-in/animate-out: fade-in, slide-in-from-*, zoom-in-95, etc.,
+   usadas en modales, listas y transiciones de página). Antes solo las
+   animaciones propias de este archivo (drift, check-pop) respetaban
+   reduced-motion; estas quedaban afuera. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-in, .animate-out {
+    animation: none !important;
   }
 }
