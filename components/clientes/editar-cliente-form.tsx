@@ -60,6 +60,8 @@ export function EditarClienteForm({ cliente }: EditarClienteFormProps) {
           <div className="space-y-2">
             <Label>Teléfono</Label>
             <Input
+              type="tel"
+              inputMode="tel"
               value={telefono}
               onChange={(e) => setTelefono(e.target.value)}
               placeholder="Teléfono"
