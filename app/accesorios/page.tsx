@@ -1,4 +1,3 @@
-import { PageHeader } from "@/components/page-header"
 import { AccesoriosView } from "@/components/accesorios/accesorios-view"
 import { getAccesorios } from "@/lib/actions/accesorios"
 import { getVentasAccesorios } from "@/lib/actions/ventas-accesorios"
@@ -17,7 +16,6 @@ export default async function AccesoriosPage() {
 
   return (
     <main className="flex flex-col">
-      <PageHeader title="Accesorios" subtitle="Ventas y stock" />
       <AccesoriosView
         accesoriosIniciales={accesorios}
         ventasIniciales={ventas}
