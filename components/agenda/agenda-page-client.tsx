@@ -45,7 +45,10 @@ export function AgendaPageClient({
   const [selectedTurno, setSelectedTurno] = useState<Turno | null>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const [deleteError, setDeleteError] = useState("")
+  const [detailsError, setDetailsError] = useState("")
+  const [showConfirmCancelar, setShowConfirmCancelar] = useState(false)
+  const [isCancelando, setIsCancelando] = useState(false)
 
   const [mostraCobro, setMostraCobro] = useState(false)
   const [precio, setPrecio] = useState("")
@@ -59,13 +62,6 @@ export function AgendaPageClient({
 
   const precioNum = useMemo(() => Number(precio) || 0, [precio])
 
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
-  }, [])
-
   const handleDayClick = (fecha: string) => setSelectedDate(fecha)
 
   const handleTurnoClick = (turno: Turno) => {
@@ -75,6 +71,7 @@ export function AgendaPageClient({
     setPrecio("")
     setMetodoPago("")
     setErrorCobro("")
+    setDetailsError("")
   }
 
   const handleAddTurno = (fecha?: string) => {
@@ -92,16 +89,16 @@ export function AgendaPageClient({
   const handleDeleteTurno = async () => {
     if (!selectedTurno) return
     setIsDeleting(true)
-    try {
-      await eliminarTurno(selectedTurno.id)
-      setShowDeleteDialog(false)
-      setDetailsModalOpen(false)
-      setSelectedTurno(null)
-    } catch (error) {
-      console.error("Error al eliminar turno:", error)
-    } finally {
-      setIsDeleting(false)
+    setDeleteError("")
+    const result = await eliminarTurno(selectedTurno.id)
+    setIsDeleting(false)
+    if (!result.success) {
+      setDeleteError(result.error || "No se pudo eliminar el turno.")
+      return
     }
+    setShowDeleteDialog(false)
+    setDetailsModalOpen(false)
+    setSelectedTurno(null)
   }
 
   const handleDetailsModalClose = () => {
@@ -111,6 +108,7 @@ export function AgendaPageClient({
     setPrecio("")
     setMetodoPago("")
     setErrorCobro("")
+    setDetailsError("")
   }
 
   const handlePrepararCobro = () => {
@@ -126,7 +124,8 @@ export function AgendaPageClient({
     if (!selectedTurno) return
     setShowConfirmCobro(false)
     setIsCobering(true)
-    await actualizarTurno(selectedTurno.id, {
+    setDetailsError("")
+    const result = await actualizarTurno(selectedTurno.id, {
       fecha: selectedTurno.fecha,
       hora: selectedTurno.hora,
       mascota_id: selectedTurno.mascota_id,
@@ -138,6 +137,11 @@ export function AgendaPageClient({
       estado: "realizado",
     })
     setIsCobering(false)
+    if (result?.error) {
+      setDetailsError(result.error)
+      setMostraCobro(true)
+      return
+    }
     handleDetailsModalClose()
   }
 
@@ -145,8 +149,37 @@ export function AgendaPageClient({
     if (!selectedTurno) return
     setShowConfirmRevertir(false)
     setIsReverting(true)
-    await revertirCobro(selectedTurno.id)
+    setDetailsError("")
+    const result = await revertirCobro(selectedTurno.id)
     setIsReverting(false)
+    if (result?.error) {
+      setDetailsError(result.error)
+      return
+    }
+    handleDetailsModalClose()
+  }
+
+  const handleCancelarConfirmado = async () => {
+    if (!selectedTurno) return
+    setShowConfirmCancelar(false)
+    setIsCancelando(true)
+    setDetailsError("")
+    const result = await actualizarTurno(selectedTurno.id, {
+      fecha: selectedTurno.fecha,
+      hora: selectedTurno.hora,
+      mascota_id: selectedTurno.mascota_id,
+      tipo_servicio: selectedTurno.tipo_servicio as "Corte" | "Baño" | "Corte y Baño",
+      descuento_tipo: null,
+      descuento_valor: 0,
+      precio_final: selectedTurno.precio_final || 0,
+      metodo_pago: (selectedTurno.metodo_pago || null) as "efectivo" | "transferencia" | null,
+      estado: "cancelado",
+    })
+    setIsCancelando(false)
+    if (result?.error) {
+      setDetailsError(result.error)
+      return
+    }
     handleDetailsModalClose()
   }
 
@@ -163,7 +196,13 @@ export function AgendaPageClient({
   return (
     <div className="flex flex-col">
       <main className="flex-1 px-4 py-4 space-y-4 pb-24">
-        {isMobile ? (
+        {/* Antes esto se decidía con JS (window.innerWidth en un useEffect):
+            como arranca sin saber el ancho real, siempre se veía primero la
+            grilla de desktop (densa, pensada para ≥768px) y recién después
+            saltaba a la vista mobile — la usuaria entra siempre desde el
+            celular, así que ese salto se veía en todas las cargas. Con
+            hidden/md:block la decisión la toma el CSS al pintar, sin salto. */}
+        <div className="md:hidden">
           <CalendarMobile
             turnos={initialTurnos}
             config={initialConfig}
@@ -173,7 +212,8 @@ export function AgendaPageClient({
             onTurnoClick={handleTurnoClick}
             initialSelectedDate={todayArgentina}
           />
-        ) : (
+        </div>
+        <div className="hidden md:block">
           <CalendarAgenda
             turnos={initialTurnos}
             config={initialConfig}
@@ -183,7 +223,7 @@ export function AgendaPageClient({
             onTurnoClick={handleTurnoClick}
             initialSelectedDate={todayArgentina}
           />
-        )}
+        </div>
       </main>
 
       <TurnoModal
@@ -216,10 +256,16 @@ export function AgendaPageClient({
                   )}
                 </div>
                 <div className="min-w-0">
-                  <h2 className="text-lg font-semibold truncate">
+                  <h2
+                    className="text-lg font-semibold truncate"
+                    title={`${selectedTurno.mascota?.nombre} — ${selectedTurno.hora?.slice(0, 5)}`}
+                  >
                     {selectedTurno.mascota?.nombre} — {selectedTurno.hora?.slice(0, 5)}
                   </h2>
-                  <p className="text-sm text-muted-foreground truncate">
+                  <p
+                    className="text-sm text-muted-foreground truncate"
+                    title={`${selectedTurno.mascota?.cliente?.nombre} · ${selectedTurno.tipo_servicio}`}
+                  >
                     {selectedTurno.mascota?.cliente?.nombre} · {selectedTurno.tipo_servicio}
                   </p>
                 </div>
@@ -227,12 +273,19 @@ export function AgendaPageClient({
               <button
                 onClick={handleDetailsModalClose}
                 className="h-8 w-8 shrink-0 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
+                aria-label="Cerrar"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             <div className="space-y-3">
+              {detailsError && (
+                <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
+                  {detailsError}
+                </div>
+              )}
+
               {!yaCobrado && !mostraCobro && selectedTurno.estado !== "cancelado" && (
                 <Button
                   onClick={() => setMostraCobro(true)}
@@ -345,23 +398,11 @@ export function AgendaPageClient({
 
                 {selectedTurno.estado !== "cancelado" && (
                   <Button
-                    onClick={async () => {
-                      await actualizarTurno(selectedTurno.id, {
-                        fecha: selectedTurno.fecha,
-                        hora: selectedTurno.hora,
-                        mascota_id: selectedTurno.mascota_id,
-                        tipo_servicio: selectedTurno.tipo_servicio as "Corte" | "Baño" | "Corte y Baño",
-                        descuento_tipo: null,
-                        descuento_valor: 0,
-                        precio_final: selectedTurno.precio_final || 0,
-                        metodo_pago: (selectedTurno.metodo_pago || null) as "efectivo" | "transferencia" | null,
-                        estado: "cancelado",
-                      })
-                      handleDetailsModalClose()
-                    }}
+                    onClick={() => setShowConfirmCancelar(true)}
+                    disabled={isCancelando}
                     className="w-full gap-2 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-800 shadow-none"
                   >
-                    Cancelar turno
+                    {isCancelando ? "Cancelando..." : "Cancelar turno"}
                   </Button>
                 )}
 
@@ -427,7 +468,29 @@ export function AgendaPageClient({
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      <AlertDialog open={showConfirmCancelar} onOpenChange={setShowConfirmCancelar}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancelar turno</AlertDialogTitle>
+            <AlertDialogDescription>
+              El turno de{" "}
+              <span className="font-semibold text-foreground">{selectedTurno?.mascota?.nombre}</span>{" "}
+              a las {selectedTurno?.hora?.slice(0, 5)} va a quedar marcado como cancelado. ¿Confirmás?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Volver</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCancelarConfirmado}
+              className="bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 text-white"
+            >
+              Cancelar turno
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={(open) => { setShowDeleteDialog(open); if (!open) setDeleteError("") }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Eliminar turno</AlertDialogTitle>
@@ -436,15 +499,16 @@ export function AgendaPageClient({
               {selectedTurno?.hora.slice(0, 5)}.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
+            <Button
               onClick={handleDeleteTurno}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isDeleting ? "Eliminando..." : "Eliminar"}
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
