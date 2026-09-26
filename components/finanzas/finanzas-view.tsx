@@ -175,13 +175,23 @@ export function FinanzasView({ resumenInicial, egresosIniciales, fechaInicial, h
 
       {/* Date Navigation */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" size="icon" onClick={() => view === "mes" ? navigateMonth(-1) : navigateDay(-1)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={view === "mes" ? "Mes anterior" : "Día anterior"}
+          onClick={() => view === "mes" ? navigateMonth(-1) : navigateDay(-1)}
+        >
           <ChevronLeft className="h-5 w-5" />
         </Button>
         <span className="font-medium text-foreground capitalize">
           {view === "mes" ? monthName : dayName}
         </span>
-        <Button variant="ghost" size="icon" onClick={() => view === "mes" ? navigateMonth(1) : navigateDay(1)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={view === "mes" ? "Mes siguiente" : "Día siguiente"}
+          onClick={() => view === "mes" ? navigateMonth(1) : navigateDay(1)}
+        >
           <ChevronRight className="h-5 w-5" />
         </Button>
       </div>

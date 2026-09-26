@@ -26,15 +26,19 @@ interface AccesoriosListProps {
 
 export function AccesoriosList({ accesorios, onEdit, onToggle }: AccesoriosListProps) {
   const [togglingId, setTogglingId] = useState<string | null>(null)
+  const [toggleError, setToggleError] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Accesorio | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const handleToggle = async (accesorio: Accesorio) => {
     setTogglingId(accesorio.id)
+    setToggleError(null)
     try {
       await toggleActivoAccesorio(accesorio.id, !accesorio.activo)
       onToggle()
+    } catch (err) {
+      setToggleError(err instanceof Error ? err.message : "No se pudo actualizar el accesorio")
     } finally {
       setTogglingId(null)
     }
@@ -66,6 +70,7 @@ export function AccesoriosList({ accesorios, onEdit, onToggle }: AccesoriosListP
 
   return (
     <>
+      {toggleError && <p className="text-sm text-destructive">{toggleError}</p>}
       <div className="space-y-2">
         {accesorios.map((accesorio) => {
           const sinStock = accesorio.stock <= 0
@@ -90,25 +95,31 @@ export function AccesoriosList({ accesorios, onEdit, onToggle }: AccesoriosListP
                     <p className="text-xs text-muted-foreground">{sinStock ? "Sin stock" : "en stock"}</p>
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(accesorio)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Editar ${accesorio.nombre}`}
+                      onClick={() => onEdit(accesorio)}
+                    >
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8"
                       disabled={togglingId === accesorio.id}
                       onClick={() => handleToggle(accesorio)}
                       title={accesorio.activo ? "Desactivar" : "Activar"}
+                      aria-label={`${accesorio.activo ? "Desactivar" : "Activar"} ${accesorio.nombre}`}
                     >
                       {accesorio.activo ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-destructive"
+                      className="text-destructive"
                       onClick={() => { setDeleteTarget(accesorio); setDeleteError(null) }}
                       title="Eliminar"
+                      aria-label={`Eliminar ${accesorio.nombre}`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

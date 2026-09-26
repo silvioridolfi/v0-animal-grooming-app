@@ -84,7 +84,7 @@ export function VentaForm({ accesorios, clientes, onSuccess, onCancel }: VentaFo
     <Card className="max-w-lg mx-auto">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={onCancel}>
+          <Button variant="ghost" size="icon" aria-label="Volver" onClick={onCancel}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <CardTitle>Nueva Venta</CardTitle>

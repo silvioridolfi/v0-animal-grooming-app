@@ -132,9 +132,9 @@ export function VentasList({ ventas, onDelete }: VentasListProps) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8"
                         onClick={() => abrirReembolso(venta)}
                         title="Reembolsar"
+                        aria-label={`Reembolsar venta de ${venta.accesorio?.nombre || "accesorio"}`}
                       >
                         <Undo2 className="h-4 w-4" />
                       </Button>
@@ -142,9 +142,10 @@ export function VentasList({ ventas, onDelete }: VentasListProps) {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-destructive"
+                      className="text-destructive"
                       onClick={() => { setDeleteId(venta.id); setDeleteError(null) }}
                       title="Eliminar"
+                      aria-label={`Eliminar venta de ${venta.accesorio?.nombre || "accesorio"}`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

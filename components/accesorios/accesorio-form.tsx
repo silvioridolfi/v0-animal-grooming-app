@@ -48,7 +48,7 @@ export function AccesorioForm({ accesorio, onSuccess, onCancel }: AccesorioFormP
     <Card className="max-w-lg mx-auto">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={onCancel}>
+          <Button variant="ghost" size="icon" aria-label="Volver" onClick={onCancel}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <CardTitle>{isEditing ? "Editar Accesorio" : "Nuevo Accesorio"}</CardTitle>

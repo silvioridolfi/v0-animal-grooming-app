@@ -105,6 +105,7 @@ export function CartDrawer({ open, onOpenChange, lines, clientes, onInc, onDec, 
                       type="button"
                       onClick={() => onDec(accesorio.id)}
                       className="flex h-6 w-6 items-center justify-center rounded active:bg-background"
+                      aria-label={`Restar una unidad de ${accesorio.nombre}`}
                     >
                       <Minus className="h-3.5 w-3.5" />
                     </button>
@@ -114,6 +115,7 @@ export function CartDrawer({ open, onOpenChange, lines, clientes, onInc, onDec, 
                       disabled={cantidad >= accesorio.stock}
                       onClick={() => onInc(accesorio.id)}
                       className="flex h-6 w-6 items-center justify-center rounded active:bg-background disabled:opacity-30"
+                      aria-label={`Sumar una unidad de ${accesorio.nombre}`}
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
@@ -122,6 +124,7 @@ export function CartDrawer({ open, onOpenChange, lines, clientes, onInc, onDec, 
                     type="button"
                     onClick={() => onRemove(accesorio.id)}
                     className="text-muted-foreground active:text-destructive"
+                    aria-label={`Quitar ${accesorio.nombre} del carrito`}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
