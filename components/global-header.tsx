@@ -19,30 +19,30 @@ export function GlobalHeader({ kpis }: { kpis: ShellKpis }) {
             Andrea | Peluquería Canina
           </h1>
         </Link>
-        <Link href="/configuracion">
-          <Button variant="ghost" size="icon" className="h-10 w-10">
+        <Button variant="ghost" size="icon" className="h-10 w-10" asChild>
+          <Link href="/configuracion" aria-label="Configuración">
             <Settings className="h-5 w-5" />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
 
       {hasKpis && (
         <div className="flex items-center gap-2 px-4 pb-2 overflow-x-auto">
           {kpis.turnosHoyPendientes > 0 && (
-            <Link href="/">
-              <Badge variant="secondary" className="gap-1 whitespace-nowrap font-normal">
+            <Badge variant="secondary" className="gap-1 whitespace-nowrap font-normal" asChild>
+              <Link href="/">
                 <CalendarClock className="h-3.5 w-3.5" />
                 {kpis.turnosHoyPendientes} turno{kpis.turnosHoyPendientes === 1 ? "" : "s"} hoy
-              </Badge>
-            </Link>
+              </Link>
+            </Badge>
           )}
           {kpis.stockBajoCount > 0 && (
-            <Link href="/accesorios">
-              <Badge variant="destructive" className="gap-1 whitespace-nowrap font-normal">
+            <Badge variant="destructive" className="gap-1 whitespace-nowrap font-normal" asChild>
+              <Link href="/accesorios">
                 <PackageX className="h-3.5 w-3.5" />
                 {kpis.stockBajoCount} con stock bajo
-              </Badge>
-            </Link>
+              </Link>
+            </Badge>
           )}
         </div>
       )}
