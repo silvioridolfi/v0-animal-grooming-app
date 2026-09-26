@@ -94,6 +94,7 @@ export function PosGrid({ accesorios, cantidadesEnCarrito, onAdd, onRemove }: Po
                       type="button"
                       onClick={() => onRemove(accesorio.id)}
                       className="flex h-7 w-7 items-center justify-center rounded-md text-primary active:bg-primary/20"
+                      aria-label={`Restar una unidad de ${accesorio.nombre}`}
                     >
                       <Minus className="h-4 w-4" />
                     </button>
@@ -103,6 +104,7 @@ export function PosGrid({ accesorios, cantidadesEnCarrito, onAdd, onRemove }: Po
                       disabled={alTope}
                       onClick={() => onAdd(accesorio)}
                       className="flex h-7 w-7 items-center justify-center rounded-md text-primary active:bg-primary/20 disabled:opacity-30"
+                      aria-label={`Sumar una unidad de ${accesorio.nombre}`}
                     >
                       <Plus className="h-4 w-4" />
                     </button>
