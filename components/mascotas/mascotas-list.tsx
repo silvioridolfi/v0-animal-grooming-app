@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import type { Mascota } from "@/lib/types"
 import { EmptyState } from "@/components/empty-state"
-import { Dog, Cat, Search, ChevronDown, ChevronRight, Plus, Pencil } from "lucide-react"
+import { Dog, Cat, Search, ChevronDown, ChevronRight, Plus, Pencil, Phone } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -100,29 +100,48 @@ export function MascotasList({ mascotas }: MascotasListProps) {
                 style={{ animationDelay: `${i * 50}ms`, animationFillMode: "backwards" }}
                 className="animate-in fade-in slide-in-from-bottom-2 duration-300 rounded-lg border bg-card overflow-hidden"
               >
-                <button
-                  onClick={() => toggleClient(group.cliente.id)}
-                  className="tap-scale flex w-full items-center justify-between p-4 text-left hover:bg-muted/50 active:bg-muted transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <div className="flex w-full items-center justify-between gap-2 p-2">
+                  <button
+                    onClick={() => toggleClient(group.cliente.id)}
+                    className="tap-scale flex flex-1 min-w-0 items-center gap-3 rounded-lg p-2 text-left hover:bg-muted/50 active:bg-muted transition-colors"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
                       <span className="text-sm font-semibold text-primary">
                         {group.cliente.nombre.charAt(0).toUpperCase()}
                       </span>
                     </div>
-                    <div>
-                      <p className="font-medium text-foreground">{group.cliente.nombre}</p>
+                    <div className="min-w-0">
+                      <p className="font-medium text-foreground truncate">{group.cliente.nombre}</p>
                       <p className="text-sm text-muted-foreground">
                         {group.mascotas.length} {group.mascotas.length === 1 ? "mascota" : "mascotas"}
                       </p>
                     </div>
+                  </button>
+                  <div className="flex shrink-0 items-center gap-1">
+                    {group.cliente.telefono && (
+                      <a
+                        href={`tel:${group.cliente.telefono}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex h-11 w-11 items-center justify-center rounded-lg text-primary hover:bg-primary/10 transition-colors"
+                        aria-label={`Llamar a ${group.cliente.nombre}`}
+                        title={`Llamar a ${group.cliente.nombre}`}
+                      >
+                        <Phone className="h-5 w-5" />
+                      </a>
+                    )}
+                    <button
+                      onClick={() => toggleClient(group.cliente.id)}
+                      className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/50 transition-colors"
+                      aria-label={isExpanded ? "Contraer" : "Expandir"}
+                    >
+                      {isExpanded ? (
+                        <ChevronDown className="h-5 w-5" />
+                      ) : (
+                        <ChevronRight className="h-5 w-5" />
+                      )}
+                    </button>
                   </div>
-                  {isExpanded ? (
-                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                  ) : (
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                  )}
-                </button>
+                </div>
 
                 {isExpanded && (
                   <div className="border-t bg-muted/20 p-3 space-y-2">
@@ -149,11 +168,11 @@ export function MascotasList({ mascotas }: MascotasListProps) {
                             </p>
                           </div>
                         </Link>
-                        <Link href={`/mascotas/${mascota.id}/editar`}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="ghost" size="icon" className="h-11 w-11 shrink-0" asChild>
+                          <Link href={`/mascotas/${mascota.id}/editar`} aria-label={`Editar ${mascota.nombre}`} title={`Editar ${mascota.nombre}`}>
                             <Pencil className="h-4 w-4" />
-                          </Button>
-                        </Link>
+                          </Link>
+                        </Button>
                       </div>
                     ))}
                     <Link href={`/mascotas/nueva?clienteId=${group.cliente.id}`}>

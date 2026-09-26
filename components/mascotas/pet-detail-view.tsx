@@ -6,10 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
-import { Dog, Cat, Trash2, Edit, DollarSign, Calendar, Tag, Clock, Pencil, Check, X, User } from "lucide-react"
+import { Dog, Cat, Trash2, Edit, DollarSign, Calendar, Tag, Clock, Pencil, Check, X, User, Phone, Plus } from "lucide-react"
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -35,21 +34,28 @@ interface PetDetailViewProps {
   mascota: Mascota
   history: PetHistoryEntry[]
   clienteNombre: string
+  clienteTelefono?: string | null
   proximoTurno?: ProximoTurno | null
 }
 
-export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }: PetDetailViewProps) {
+export function PetDetailView({ mascota, history, clienteNombre, clienteTelefono, proximoTurno }: PetDetailViewProps) {
   const router = useRouter()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState("")
   const [editingNotasId, setEditingNotasId] = useState<string | null>(null)
   const [notasTemp, setNotasTemp] = useState("")
   const [savingNotasId, setSavingNotasId] = useState<string | null>(null)
 
   const handleDelete = async () => {
     setIsDeleting(true)
+    setDeleteError("")
     const result = await eliminarMascota(mascota.id)
-    if (result.success) router.push(`/mascotas`)
+    if (result.success) {
+      router.push(`/mascotas`)
+      return
+    }
+    setDeleteError(result.error || "No se pudo eliminar la mascota.")
     setIsDeleting(false)
   }
 
@@ -79,32 +85,49 @@ export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }:
       {/* Header Card */}
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              {mascota.tipo_animal === "Perro" ? <Dog className="h-8 w-8 text-primary" /> : <Cat className="h-8 w-8 text-primary" />}
-              <div>
-                <CardTitle className="text-2xl">{mascota.nombre}</CardTitle>
-                <p className="text-sm text-muted-foreground">{clienteNombre}</p>
+          <div className="flex items-start justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              {mascota.tipo_animal === "Perro" ? <Dog className="h-8 w-8 text-primary shrink-0" /> : <Cat className="h-8 w-8 text-primary shrink-0" />}
+              <div className="min-w-0">
+                <CardTitle className="text-2xl truncate">{mascota.nombre}</CardTitle>
+                {clienteTelefono ? (
+                  <a
+                    href={`tel:${clienteTelefono}`}
+                    className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                  >
+                    <Phone className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{clienteNombre}</span>
+                  </a>
+                ) : (
+                  <p className="text-sm text-muted-foreground truncate">{clienteNombre}</p>
+                )}
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Link href={`/mascotas/${mascota.id}/historial`}>
-                <Button variant="outline" size="sm" title="Ver historial completo">
+                <Button variant="outline" size="sm" className="h-10" title="Ver historial completo">
                   <Clock className="h-4 w-4" />
                   <span className="hidden sm:inline ml-1">Historial</span>
                 </Button>
               </Link>
-              <Link href={`/clientes/${mascota.cliente_id}/editar`} title="Editar dueño">
-                <Button variant="outline" size="sm">
+              <Button variant="outline" size="icon" className="h-10 w-10" asChild>
+                <Link href={`/clientes/${mascota.cliente_id}/editar`} aria-label="Editar dueño" title="Editar dueño">
                   <User className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href={`/mascotas/${mascota.id}/editar`} title="Editar mascota">
-                <Button variant="outline" size="sm">
+                </Link>
+              </Button>
+              <Button variant="outline" size="icon" className="h-10 w-10" asChild>
+                <Link href={`/mascotas/${mascota.id}/editar`} aria-label="Editar mascota" title="Editar mascota">
                   <Edit className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Button variant="destructive" size="sm" onClick={() => setShowDeleteDialog(true)}>
+                </Link>
+              </Button>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="h-10 w-10"
+                onClick={() => setShowDeleteDialog(true)}
+                aria-label="Eliminar mascota"
+                title="Eliminar mascota"
+              >
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
@@ -150,7 +173,7 @@ export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }:
         </Card>
         <Card>
           <CardContent className="pt-4 text-center">
-            <p className="text-2xl font-bold text-green-600">${totalGastado.toLocaleString("es-AR")}</p>
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">${totalGastado.toLocaleString("es-AR")}</p>
             <p className="text-xs text-muted-foreground mt-1">Gastado</p>
           </CardContent>
         </Card>
@@ -158,7 +181,7 @@ export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }:
           <CardContent className="pt-4 text-center">
             {diasDesdeUltimo !== null ? (
               <>
-                <p className={`text-2xl font-bold ${diasDesdeUltimo > 30 ? "text-amber-500" : "text-emerald-600"}`}>
+                <p className={`text-2xl font-bold ${diasDesdeUltimo > 30 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}`}>
                   {diasDesdeUltimo}d
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -198,8 +221,14 @@ export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }:
         </CardHeader>
         <CardContent>
           {history.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <p>No hay servicios registrados aún</p>
+            <div className="text-center py-8 space-y-3">
+              <p className="text-muted-foreground">No hay servicios registrados aún</p>
+              <Link href="/turnos/nuevo">
+                <Button size="sm" variant="outline" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Agendar turno
+                </Button>
+              </Link>
             </div>
           ) : (
             <div className="space-y-3">
@@ -243,9 +272,10 @@ export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }:
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 shrink-0"
+                        className="h-9 w-9 shrink-0"
                         onClick={() => handleEditNotas(entry)}
                         title="Agregar nota"
+                        aria-label={`Agregar nota al servicio de ${entry.tipo_servicio} del ${new Date(entry.fecha_servicio + "T12:00:00").toLocaleDateString("es-AR")}`}
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
@@ -286,7 +316,7 @@ export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }:
         </CardContent>
       </Card>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      <AlertDialog open={showDeleteDialog} onOpenChange={(open) => { setShowDeleteDialog(open); if (!open) setDeleteError("") }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Eliminar mascota</AlertDialogTitle>
@@ -294,11 +324,12 @@ export function PetDetailView({ mascota, history, clienteNombre, proximoTurno }:
               ¿Estás seguro de que deseas eliminar a {mascota.nombre}? Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <Button onClick={handleDelete} disabled={isDeleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               {isDeleting ? "Eliminando..." : "Eliminar"}
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
