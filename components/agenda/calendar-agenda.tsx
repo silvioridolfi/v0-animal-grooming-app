@@ -130,8 +130,13 @@ export function CalendarAgenda({
           !isSelected && "border-border hover:bg-muted/50 hover:border-primary/30",
         )}
       >
-        <div className="text-center text-xs font-semibold mb-1 uppercase tracking-wide text-muted-foreground">
-          {dayName}
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {dayName}
+          </span>
+          <span className="text-lg font-bold leading-none text-foreground/80">
+            {day}
+          </span>
         </div>
 
         {getNombreFeriado(dateStr) && (
@@ -141,7 +146,7 @@ export function CalendarAgenda({
           </div>
         )}
 
-        <div className="flex-1 flex flex-col gap-1 mb-2 pb-1 overflow-hidden">
+        <div className="flex-1 flex flex-col gap-1 mb-2 pb-1 pr-9 overflow-hidden">
           {turnosDelDia.slice(0, 2).map((turno, idx) => (
             <div
               key={idx}
@@ -164,10 +169,6 @@ export function CalendarAgenda({
               +{turnosDelDia.length - 2} más
             </button>
           )}
-        </div>
-
-        <div className="text-2xl font-bold leading-none text-foreground/80">
-          {day}
         </div>
 
         <button
