@@ -46,6 +46,7 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
     e.preventDefault()
     if (!mascotaId || !tipoServicio) return
     setIsLoading(true)
+    setErrorMsg("")
     const result = await actualizarTurno(turno.id, {
       fecha,
       hora,
@@ -57,7 +58,11 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
       metodo_pago: turno.metodo_pago || null,
       estado,
     })
-    if (result.success) router.push("/")
+    if (result.success) {
+      router.push("/")
+      return
+    }
+    setErrorMsg(result.error || "No se pudieron guardar los cambios.")
     setIsLoading(false)
   }
 
@@ -79,7 +84,11 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
       metodo_pago: metodoPago as "efectivo" | "transferencia",
       estado: "realizado",
     })
-    if (result.success) router.push("/")
+    if (result.success) {
+      router.push("/")
+      return
+    }
+    setErrorMsg(result.error || "No se pudo registrar el cobro.")
     setIsLoading(false)
   }
 
@@ -250,6 +259,7 @@ export function EditarTurnoForm({ turno, mascotas }: EditarTurnoFormProps) {
         </Card>
       )}
 
+      {errorMsg && !mostraCobro && <p className="text-sm text-destructive text-center">{errorMsg}</p>}
       <Button type="submit" className="w-full" size="lg" disabled={!mascotaId || !tipoServicio || isLoading}>
         {isLoading ? "Guardando..." : "Guardar cambios"}
       </Button>

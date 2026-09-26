@@ -173,9 +173,9 @@ export function TurnoModal({
     <>
       {isOpen &&
         createPortal(
-          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={handleClose}>
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center sm:p-4" onClick={handleClose}>
           <Card
-            className="w-full sm:max-w-md rounded-lg shadow-lg flex flex-col max-h-[85vh]"
+            className="w-full sm:max-w-md rounded-t-2xl sm:rounded-lg shadow-lg flex flex-col max-h-[85dvh] animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-in-95"
             onClick={(e) => e.stopPropagation()}
           >
             <CardHeader className="flex flex-row items-center justify-between pb-3 sticky top-0 bg-background border-b z-10">
@@ -188,7 +188,7 @@ export function TurnoModal({
                   {paso === "servicio" && `Servicio para ${mascotaSeleccionada?.nombre}`}
                 </p>
               </div>
-              <Button variant="ghost" size="icon" onClick={handleClose}>
+              <Button variant="ghost" size="icon" onClick={handleClose} aria-label="Cerrar">
                 <X className="h-5 w-5" />
               </Button>
             </CardHeader>
@@ -207,7 +207,7 @@ export function TurnoModal({
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <Button type="button" variant="ghost" size="icon" onClick={() => navigateDate(-1)}>
+                        <Button type="button" variant="ghost" size="icon" onClick={() => navigateDate(-1)} aria-label="Día anterior">
                           <ChevronLeft />
                         </Button>
                         <div className="text-center">
@@ -219,7 +219,7 @@ export function TurnoModal({
                             <p className="text-xs text-destructive">Día no laborable</p>
                           )}
                         </div>
-                        <Button type="button" variant="ghost" size="icon" onClick={() => navigateDate(1)}>
+                        <Button type="button" variant="ghost" size="icon" onClick={() => navigateDate(1)} aria-label="Día siguiente">
                           <ChevronRight />
                         </Button>
                       </div>
@@ -312,24 +312,38 @@ export function TurnoModal({
                               <X className="h-4 w-4" />
                             </Button>
                           </div>
-                          <Input
-                            placeholder="Nombre del cliente"
-                            value={nuevoCliente.nombre}
-                            onChange={(e) => setNuevoCliente({ ...nuevoCliente, nombre: e.target.value })}
-                            className="h-12"
-                          />
-                          <Input
-                            placeholder="Teléfono"
-                            value={nuevoCliente.telefono}
-                            onChange={(e) => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })}
-                            className="h-12"
-                          />
-                          <Input
-                            placeholder="Nombre de la mascota"
-                            value={nuevaMascota.nombre}
-                            onChange={(e) => setNuevaMascota({ ...nuevaMascota, nombre: e.target.value })}
-                            className="h-12"
-                          />
+                          <div className="space-y-1">
+                            <Label htmlFor="nuevo-cliente-nombre">Nombre del cliente</Label>
+                            <Input
+                              id="nuevo-cliente-nombre"
+                              placeholder="Nombre del cliente"
+                              value={nuevoCliente.nombre}
+                              onChange={(e) => setNuevoCliente({ ...nuevoCliente, nombre: e.target.value })}
+                              className="h-12"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label htmlFor="nuevo-cliente-telefono">Teléfono</Label>
+                            <Input
+                              id="nuevo-cliente-telefono"
+                              type="tel"
+                              inputMode="tel"
+                              placeholder="Teléfono"
+                              value={nuevoCliente.telefono}
+                              onChange={(e) => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })}
+                              className="h-12"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label htmlFor="nueva-mascota-nombre">Nombre de la mascota</Label>
+                            <Input
+                              id="nueva-mascota-nombre"
+                              placeholder="Nombre de la mascota"
+                              value={nuevaMascota.nombre}
+                              onChange={(e) => setNuevaMascota({ ...nuevaMascota, nombre: e.target.value })}
+                              className="h-12"
+                            />
+                          </div>
                           <div className="grid grid-cols-2 gap-2">
                             {(["Perro", "Gato"] as const).map((tipo) => (
                               <Button

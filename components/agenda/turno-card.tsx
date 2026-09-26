@@ -157,17 +157,23 @@ export function TurnoCard({ turno }: TurnoCardProps) {
                   </div>
 
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium text-foreground truncate">{mascota?.nombre}</span>
+                    <span className="font-medium text-foreground truncate" title={mascota?.nombre}>
+                      {mascota?.nombre}
+                    </span>
                     {sexoInfo && <span className={sexoInfo.color}>{sexoInfo.symbol}</span>}
-                    <span className="text-sm text-muted-foreground truncate">({cliente?.nombre})</span>
+                    <span className="text-sm text-muted-foreground truncate" title={cliente?.nombre}>
+                      ({cliente?.nombre})
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-1.5 flex-wrap text-sm font-medium text-foreground min-w-0">
                     {getServiceIcon()}
-                    <span className="truncate">{turno.tipo_servicio}</span>
+                    <span className="truncate" title={turno.tipo_servicio}>{turno.tipo_servicio}</span>
                     <span className="text-muted-foreground">·</span>
                     <DollarSign className="h-3 w-3 text-muted-foreground shrink-0" />
-                    <span className="text-muted-foreground text-xs truncate">{getPaymentMethod()}</span>
+                    <span className="text-muted-foreground text-xs truncate" title={getPaymentMethod()}>
+                      {getPaymentMethod()}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -178,7 +184,7 @@ export function TurnoCard({ turno }: TurnoCardProps) {
             </div>
 
             {/* Acciones — nunca son más de 3 a la vez, entran en una sola fila */}
-            <div className="flex items-center gap-2 pt-2 border-t">
+            <div className="flex items-center gap-3 pt-2 border-t">
               {turno.estado === "pendiente" && (
                 <Button
                   onClick={handleMarcarRealizado}
@@ -192,24 +198,31 @@ export function TurnoCard({ turno }: TurnoCardProps) {
                 </Button>
               )}
 
-              <Button variant="outline" size="icon-sm" asChild title="Editar turno">
-                <Link href={`/turnos/${turno.id}/editar`}>
+              <Button variant="outline" size="icon" asChild title="Editar turno">
+                <Link href={`/turnos/${turno.id}/editar`} aria-label="Editar turno">
                   <Pencil className="h-4 w-4" />
                 </Link>
               </Button>
 
               {turno.estado === "realizado" && !estaReembolsado && (
-                <Button variant="outline" size="icon-sm" onClick={abrirReembolso} title="Reembolsar">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={abrirReembolso}
+                  title="Reembolsar"
+                  aria-label="Reembolsar turno"
+                >
                   <Undo2 className="h-4 w-4" />
                 </Button>
               )}
 
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="icon"
                 className="text-destructive hover:text-destructive ml-auto"
                 onClick={() => { setShowDeleteDialog(true); setDeleteError(null) }}
                 title="Eliminar turno"
+                aria-label="Eliminar turno"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -246,8 +259,8 @@ export function TurnoCard({ turno }: TurnoCardProps) {
           <DialogHeader>
             <DialogTitle>Reembolsar turno</DialogTitle>
             <DialogDescription>
-              {mascota?.nombre} — {turno.tipo_servicio}. Esto registra un egreso por el monto devuelto; el
-              turno queda marcado como realizado y reembolsado, sin borrar el registro.
+              {mascota?.nombre} — {turno.tipo_servicio}. Esta acción no se puede deshacer: registra un egreso
+              por el monto devuelto y el turno queda marcado como reembolsado (el registro no se borra).
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">

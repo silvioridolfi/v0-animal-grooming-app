@@ -41,6 +41,8 @@ export function NuevoTurnoForm({
   const [mascotaId, setMascotaId] = useState("")
   const [tipoServicio, setTipoServicio] = useState<"Corte" | "Baño" | "Corte y Baño" | "">("")
   const [isLoading, setIsLoading] = useState(false)
+  const [formError, setFormError] = useState("")
+  const [nuevoClienteError, setNuevoClienteError] = useState("")
 
   const [searchQuery, setSearchQuery] = useState("")
   const [showNuevoCliente, setShowNuevoCliente] = useState(false)
@@ -118,6 +120,7 @@ export function NuevoTurnoForm({
   const handleCrearClienteYMascota = async () => {
     if (!nuevoCliente.nombre || !nuevaMascota.nombre) return
     setIsLoading(true)
+    setNuevoClienteError("")
     const result = await crearMascotaConCliente({ cliente: nuevoCliente, mascota: nuevaMascota })
     if (result.success && result.mascota) {
       const newMascota: Mascota = { ...result.mascota, cliente: result.cliente }
@@ -127,6 +130,8 @@ export function NuevoTurnoForm({
       setSearchQuery("")
       setNuevoCliente({ nombre: "", telefono: "" })
       setNuevaMascota({ nombre: "", tipo_animal: "Perro", tamano: "M" })
+    } else {
+      setNuevoClienteError(result.error || "No se pudo crear el cliente y la mascota.")
     }
     setIsLoading(false)
   }
@@ -141,6 +146,7 @@ export function NuevoTurnoForm({
     e.preventDefault()
     if (!mascotaId || !tipoServicio || !hora) return
     setIsLoading(true)
+    setFormError("")
     const result = await crearTurno({
       fecha,
       hora,
@@ -150,7 +156,11 @@ export function NuevoTurnoForm({
       descuento_valor: 0,
       precio_final: 0,
     })
-    if (result.success) router.push("/")
+    if (result.success) {
+      router.push("/")
+      return
+    }
+    setFormError(result.error || "No se pudo agendar el turno.")
     setIsLoading(false)
   }
 
@@ -174,7 +184,7 @@ export function NuevoTurnoForm({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between rounded-lg bg-muted/50 p-2">
-            <Button type="button" variant="ghost" size="icon" onClick={() => navigateDate(-1)} className="h-10 w-10">
+            <Button type="button" variant="ghost" size="icon" onClick={() => navigateDate(-1)} className="h-10 w-10" aria-label="Día anterior">
               <ChevronLeft className="h-5 w-5" />
             </Button>
             <div className="text-center">
@@ -182,7 +192,7 @@ export function NuevoTurnoForm({
               {feriadoNombre && <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">{feriadoNombre}</p>}
               {!isValidDay && !feriadoNombre && <p className="text-xs text-destructive">Día no laborable</p>}
             </div>
-            <Button type="button" variant="ghost" size="icon" onClick={() => navigateDate(1)} className="h-10 w-10">
+            <Button type="button" variant="ghost" size="icon" onClick={() => navigateDate(1)} className="h-10 w-10" aria-label="Día siguiente">
               <ChevronRight className="h-5 w-5" />
             </Button>
           </div>
@@ -291,6 +301,8 @@ export function NuevoTurnoForm({
                   className="bg-background h-12"
                 />
                 <Input
+                  type="tel"
+                  inputMode="tel"
                   placeholder="Teléfono"
                   value={nuevoCliente.telefono}
                   onChange={(e) => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })}
@@ -336,6 +348,7 @@ export function NuevoTurnoForm({
                   ))}
                 </div>
               </div>
+              {nuevoClienteError && <p className="text-sm text-destructive">{nuevoClienteError}</p>}
               <Button
                 type="button"
                 onClick={handleCrearClienteYMascota}
@@ -421,6 +434,7 @@ export function NuevoTurnoForm({
         </Card>
       )}
 
+      {formError && <p className="text-sm text-destructive text-center">{formError}</p>}
       <Button
         type="submit"
         className="w-full h-14 text-lg font-semibold shadow-lg"
