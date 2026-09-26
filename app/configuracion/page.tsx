@@ -14,7 +14,7 @@ export default async function ConfiguracionPage() {
   } = await supabase.auth.getUser()
 
   return (
-    <div className="flex min-h-screen flex-col pb-20">
+    <div className="flex flex-col">
       <PageHeader
         title="Configuracion"
         action={

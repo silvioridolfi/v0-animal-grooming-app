@@ -36,7 +36,7 @@ export default async function MascotaDetailPage({
 
   if (!mascota) {
     return (
-      <div className="flex min-h-screen flex-col pb-20">
+      <div className="flex flex-col">
         <PageHeader
           title="Mascota"
           action={<BackButton />}
@@ -58,7 +58,7 @@ export default async function MascotaDetailPage({
 
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col pb-20">
+      <div className="flex flex-col">
         <PageHeader
           title="Mascota"
           action={<BackButton />}
@@ -87,7 +87,7 @@ export default async function MascotaDetailPage({
   ])
 
   return (
-    <div className="flex min-h-screen flex-col pb-20">
+    <div className="flex flex-col">
       <PageHeader
         title={mascota.nombre}
         action={<BackButton />}

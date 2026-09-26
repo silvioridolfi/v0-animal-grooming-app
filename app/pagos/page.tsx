@@ -21,7 +21,7 @@ export default async function PagosPage() {
   const transferenciaHoy = turnosHoy.filter((t) => t.metodo_pago === "transferencia").reduce((sum, t) => sum + (t.precio_final || 0), 0)
 
   return (
-    <div className="flex min-h-screen flex-col pb-20">
+    <div className="flex flex-col">
       <PageHeader title="Pagos" subtitle={`${turnos?.length || 0} pagos registrados`} />
       <main className="flex-1 px-4 py-4">
         <PagosList

@@ -14,7 +14,7 @@ export default async function MascotasPage() {
     .order("nombre", { ascending: true })
 
   return (
-    <div className="flex min-h-screen flex-col pb-20">
+    <div className="flex flex-col">
       <PageHeader
         title="Mascotas"
         subtitle={`${mascotas?.length || 0} mascotas registradas`}

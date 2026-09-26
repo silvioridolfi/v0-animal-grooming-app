@@ -16,7 +16,7 @@ export default async function AccesoriosPage() {
   ])
 
   return (
-    <main className="flex min-h-screen flex-col pb-20">
+    <main className="flex flex-col">
       <PageHeader title="Accesorios" subtitle="Ventas y stock" />
       <AccesoriosView
         accesoriosIniciales={accesorios}

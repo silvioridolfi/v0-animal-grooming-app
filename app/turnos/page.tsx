@@ -32,7 +32,7 @@ export default async function TurnosPage() {
     .limit(20)
 
   return (
-    <div className="flex min-h-screen flex-col pb-20">
+    <div className="flex flex-col">
       <PageHeader
         title="Turnos"
         action={

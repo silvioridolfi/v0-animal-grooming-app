@@ -19,7 +19,7 @@ export default async function EditarTurnoPage({ params }: { params: Promise<{ id
   const { data: mascotas } = await supabase.from("mascotas").select("*, cliente:clientes(*)").order("nombre")
 
   return (
-    <div className="flex min-h-screen flex-col pb-20">
+    <div className="flex flex-col">
       <PageHeader
         title="Editar turno"
         action={

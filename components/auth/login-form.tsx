@@ -76,7 +76,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden">
+    <div className="relative min-h-dvh flex items-center justify-center bg-background px-4 overflow-hidden">
       {/* Textura de marca: la patita del logo (4 dedos ovalados + almohadilla
           corazón) repetida en rombo — cada fila va corrida medio ancho de
           tile respecto a la anterior, en vez de quedar todas alineadas en

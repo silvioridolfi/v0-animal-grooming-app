@@ -15,7 +15,7 @@ export default async function FinanzasPage() {
   ])
 
   return (
-    <main className="flex min-h-screen flex-col pb-20">
+    <main className="flex flex-col">
       <PageHeader title="Ingresos & Egresos" />
       <FinanzasView
         resumenInicial={resumen}
