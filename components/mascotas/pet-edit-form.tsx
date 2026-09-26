@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dog, Cat, AlertCircle, ChevronDown } from "lucide-react"
+import { Dog, Cat, AlertCircle } from "lucide-react"
 import { actualizarMascota } from "@/lib/actions/mascotas"
 import { obtenerRazas } from "@/lib/razas-mascotas"
 import { cn } from "@/lib/utils"
+import { BreedCombobox } from "./breed-combobox"
 import type { Mascota } from "@/lib/types"
 
 interface PetEditFormProps {
@@ -30,23 +31,12 @@ export function PetEditForm({ mascota, mascotaId, clienteId }: PetEditFormProps)
   const [notasMascota, setNotasMascota] = useState(mascota.notas || "")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const [showRazasDropdown, setShowRazasDropdown] = useState(false)
-  const [razasSearchQuery, setRazasSearchQuery] = useState("")
 
   const razasDisponibles = obtenerRazas(tipoAnimal)
-  const razasFiltradas = razasSearchQuery.trim()
-    ? razasDisponibles.filter((r) => r.toLowerCase().includes(razasSearchQuery.toLowerCase()))
-    : razasDisponibles
 
   const nombreMascotaValido = nombreMascota.trim().length > 0
   const razaValida = raza.trim().length > 0
   const puedeSubmit = nombreMascotaValido && razaValida && tamano && !isLoading
-
-  const handleSelectRaza = (razaSeleccionada: string) => {
-    setRaza(razaSeleccionada)
-    setShowRazasDropdown(false)
-    setRazasSearchQuery("")
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -154,7 +144,7 @@ export function PetEditForm({ mascota, mascotaId, clienteId }: PetEditFormProps)
                 value={tamano}
                 onChange={(e) => setTamano(e.target.value as "S" | "M" | "L" | "")}
                 disabled={isLoading}
-                className="w-full px-3 py-2 border rounded-lg bg-background"
+                className="w-full h-11 px-3 border rounded-lg bg-background focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
               >
                 <option value="">Seleccionar</option>
                 <option value="S">Pequeño</option>
@@ -166,48 +156,13 @@ export function PetEditForm({ mascota, mascotaId, clienteId }: PetEditFormProps)
 
           <div className="space-y-2">
             <Label htmlFor="raza">Raza *</Label>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setShowRazasDropdown(!showRazasDropdown)}
-                disabled={isLoading}
-                className="w-full px-3 py-2 border rounded-lg bg-background text-left flex items-center justify-between hover:border-primary transition-colors"
-              >
-                <span>{raza || "Seleccionar raza"}</span>
-                <ChevronDown className="h-4 w-4 opacity-50" />
-              </button>
-
-              {showRazasDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-1 border rounded-lg bg-background shadow-lg z-50">
-                  <Input
-                    type="text"
-                    placeholder="Buscar raza..."
-                    value={razasSearchQuery}
-                    onChange={(e) => setRazasSearchQuery(e.target.value)}
-                    className="border-0 border-b rounded-none"
-                    autoFocus
-                  />
-                  <div className="max-h-40 overflow-y-auto">
-                    {razasFiltradas.length > 0 ? (
-                      razasFiltradas.map((r) => (
-                        <button
-                          key={r}
-                          type="button"
-                          onClick={() => handleSelectRaza(r)}
-                          className="w-full text-left px-3 py-2 hover:bg-accent transition-colors"
-                        >
-                          {r}
-                        </button>
-                      ))
-                    ) : (
-                      <div className="px-3 py-2 text-sm text-muted-foreground">
-                        No se encontraron razas
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
+            <BreedCombobox
+              breeds={razasDisponibles}
+              value={raza}
+              onValueChange={setRaza}
+              placeholder="Seleccionar raza"
+              disabled={isLoading}
+            />
           </div>
 
           <div className="space-y-2">
@@ -217,7 +172,7 @@ export function PetEditForm({ mascota, mascotaId, clienteId }: PetEditFormProps)
               value={sexo}
               onChange={(e) => setSexo(e.target.value as "Macho" | "Hembra" | "")}
               disabled={isLoading}
-              className="w-full px-3 py-2 border rounded-lg bg-background"
+              className="w-full h-11 px-3 border rounded-lg bg-background focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
             >
               <option value="">Sin especificar</option>
               <option value="Macho">Macho</option>

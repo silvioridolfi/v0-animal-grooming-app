@@ -80,7 +80,7 @@ export function NuevaMascotaForm() {
       ? !!clienteSeleccionado
       : nombreCliente.trim().length > 0 && contactoCliente.trim().length > 0
 
-  const isValid = clienteListo && tipoAnimal && nombreMascota.trim() && raza.trim() && tamano && sexo
+  const isValid = clienteListo && tipoAnimal && nombreMascota.trim() && raza.trim() && tamano
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -113,7 +113,7 @@ export function NuevaMascotaForm() {
         tipo_animal: tipoAnimal as TipoAnimal,
         raza: raza.trim(),
         tamano: tamano as "S" | "M" | "L",
-        sexo: sexo as "Macho" | "Hembra",
+        sexo: (sexo || undefined) as "Macho" | "Hembra" | undefined,
         notas: observaciones.trim() || undefined,
         cliente_id: clienteId,
       })
@@ -340,7 +340,7 @@ export function NuevaMascotaForm() {
           </div>
 
           <div className="space-y-2">
-            <Label className="font-semibold">Sexo <span className="text-red-500">*</span></Label>
+            <Label className="font-semibold">Sexo</Label>
             <div className="flex gap-3">
               {(["Macho", "Hembra"] as const).map((s) => (
                 <button
