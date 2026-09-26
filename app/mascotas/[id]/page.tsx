@@ -97,6 +97,7 @@ export default async function MascotaDetailPage({
           mascota={mascota}
           history={history}
           clienteNombre={mascota.cliente?.nombre || "Cliente desconocido"}
+          clienteTelefono={mascota.cliente?.telefono}
           proximoTurno={proximoTurno}
         />
       </main>
