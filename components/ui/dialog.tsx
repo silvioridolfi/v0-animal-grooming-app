@@ -66,7 +66,16 @@ function DialogContent({
           // entre pantallas (algunas hacían su propio bottom-sheet a mano,
           // otras quedaban con este diálogo centrado incluso en mobile).
           'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom fixed inset-x-0 bottom-0 top-auto z-50 grid w-full max-h-[85dvh] gap-4 rounded-t-2xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-lg duration-200 overflow-y-auto',
-          'sm:top-[50%] sm:left-[50%] sm:bottom-auto sm:inset-x-auto sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg sm:max-h-[85vh] sm:rounded-lg sm:border sm:pb-6 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=closed]:slide-out-to-bottom-0',
+          // sm:left-[50%] va DESPUÉS de sm:inset-x-auto a propósito: cn()
+          // usa tailwind-merge, que trata "left" e "inset-x" como la misma
+          // propiedad en conflicto y descarta la que aparece primero en el
+          // string. Con el orden viejo (left antes que inset-x-auto),
+          // tailwind-merge borraba el left-[50%] del className final sin
+          // avisar — el diálogo quedaba con left:auto en desktop (posición
+          // estática, pegado al borde izquierdo) y -translate-x-1/2 lo
+          // corría otro 50% de su propio ancho hacia la izquierda, dejando
+          // visible solo una franja angosta contra el borde.
+          'sm:top-[50%] sm:bottom-auto sm:inset-x-auto sm:left-[50%] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-lg sm:max-h-[85vh] sm:rounded-lg sm:border sm:pb-6 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=closed]:slide-out-to-bottom-0',
           className,
         )}
         {...props}
