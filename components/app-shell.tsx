@@ -12,10 +12,12 @@ import type { ShellKpis } from "@/lib/actions/shell-kpis"
 export function AppShell({ kpis, children }: { kpis: ShellKpis; children: React.ReactNode }) {
   const pathname = usePathname()
 
-  // /login vive sola, sin sidebar/header/bottom-nav — es la única pantalla
-  // a la que se puede entrar sin sesión, así que no tiene sentido mostrarle
-  // el chrome de una app a la que todavía no entraste.
-  if (pathname === "/login") {
+  // /login y /cambiar-password viven solas, sin sidebar/header/bottom-nav:
+  // /login es la única pantalla a la que se puede entrar sin sesión, y
+  // /cambiar-password es un paso obligatorio (contraseña temporal) antes
+  // de poder ver cualquier otra cosa — no tiene sentido mostrar el chrome
+  // de una app a la que todavía no se terminó de entrar.
+  if (pathname === "/login" || pathname === "/cambiar-password") {
     return <>{children}</>
   }
 

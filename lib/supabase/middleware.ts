@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
 const PUBLIC_PATHS = ["/login"]
+const CAMBIAR_PASSWORD_PATH = "/cambiar-password"
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -41,6 +42,22 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && pathname === "/login") {
+    const url = request.nextUrl.clone()
+    url.pathname = "/"
+    return NextResponse.redirect(url)
+  }
+
+  // Contraseña temporal (generada por un admin desde Configuración): hasta
+  // que la cambie, el usuario no puede ver ninguna otra pantalla de la app.
+  const debeCambiarPassword = user?.app_metadata?.must_change_password === true
+
+  if (user && debeCambiarPassword && pathname !== CAMBIAR_PASSWORD_PATH) {
+    const url = request.nextUrl.clone()
+    url.pathname = CAMBIAR_PASSWORD_PATH
+    return NextResponse.redirect(url)
+  }
+
+  if (user && !debeCambiarPassword && pathname === CAMBIAR_PASSWORD_PATH) {
     const url = request.nextUrl.clone()
     url.pathname = "/"
     return NextResponse.redirect(url)
